@@ -8,10 +8,29 @@
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Press+Start+2P&display=swap" rel="stylesheet"/>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: #0a0a1a; color: white; font-family: 'Fredoka', sans-serif; overflow: hidden; height: 100vh; }
+  body {
+    background: #030308;
+    color: white;
+    font-family: 'Fredoka', sans-serif;
+    overflow: hidden;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  #app {
+    width: 100%;
+    max-width: 500px;
+    height: 100%;
+    max-height: 780px;
+    position: relative;
+    overflow: hidden;
+    background: #0a0a1a;
+    box-shadow: 0 0 80px rgba(100,80,255,0.15);
+  }
 
 /* — SCREENS — */
-.screen { display: none; position: fixed; inset: 0; flex-direction: column; }
+.screen { display: none; position: absolute; inset: 0; flex-direction: column; }
 .screen.show { display: flex; }
 
 /* — TITLE SCREEN — */
@@ -79,7 +98,7 @@ font-size: 7px; color: #ffd232; cursor: pointer; display: none;
 #choices-q { font-family: ‘Press Start 2P’, monospace; font-size: 8px; color: #666; text-align: center; margin-bottom: 10px; }
 #choices-row { display: flex; gap: 10px; max-height: 220px; }
 .choice {
-flex: 1; border-radius: 14px; padding: 10px 8px 12px; cursor: pointer;
+flex: 1; border-radius: 14px; padding: 8px 6px 10px; cursor: pointer;
 display: flex; flex-direction: column; align-items: stretch; gap: 8px;
 border: 2px solid; background: transparent; transition: transform 0.15s;
 }
@@ -88,7 +107,7 @@ border: 2px solid; background: transparent; transition: transform 0.15s;
 .choice.no   { border-color: #f87171; box-shadow: 0 0 16px rgba(248,113,113,0.3); }
 .choice.forest { border-color: #4ade80; box-shadow: 0 0 16px rgba(74,222,128,0.3); }
 .choice.city   { border-color: #60a5fa; box-shadow: 0 0 16px rgba(96,165,250,0.3); }
-.choice-video { border-radius: 10px; overflow: hidden; height: 150px; background: #111; position: relative; }
+.choice-video { border-radius: 10px; overflow: hidden; height: 130px; background: #111; position: relative; }
 .choice-video video { width: 100%; height: 100%; object-fit: cover; display: block; }
 .choice-credit { position: absolute; bottom: 3px; right: 5px; background: rgba(0,0,0,0.7); font-size: 8px; color: #777; border-radius: 4px; padding: 1px 5px; text-decoration: none; }
 .choice-fallback { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-decoration: none; gap: 4px; padding: 8px; }
@@ -129,7 +148,7 @@ align-items: center; justify-content: center; gap: 12px; text-align: center; pad
 #ending button { padding: 14px 40px; font-family: ‘Press Start 2P’, monospace; font-size: 10px; color: white; border: none; border-radius: 12px; cursor: pointer; }
 
 /* — HELP MODAL — */
-#modal { position: fixed; inset: 0; background: rgba(0,0,0,0.88); display: none; align-items: center; justify-content: center; z-index: 50; }
+#modal { position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,0.88); display: none; align-items: center; justify-content: center; z-index: 50; }
 #modal.show { display: flex; }
 #modal-box { background: #0f1729; border: 2px solid #1e3060; border-radius: 20px; padding: 28px; max-width: 480px; width: 94%; }
 #modal h3 { font-family: ‘Press Start 2P’, monospace; font-size: 12px; color: #ffd232; text-align: center; margin-bottom: 6px; }
@@ -143,6 +162,10 @@ align-items: center; justify-content: center; gap: 12px; text-align: center; pad
 
 </head>
 <body>
+
+<!-- TITLE -->
+
+<div id="app">
 
 <!-- TITLE -->
 
@@ -203,6 +226,8 @@ align-items: center; justify-content: center; gap: 12px; text-align: center; pad
   </div>
   <button id="end-btn" onclick="restartGame()">▶ PLAY AGAIN</button>
 </div>
+
+</div><!-- #app -->
 
 <!-- HELP MODAL -->
 
