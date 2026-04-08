@@ -27,7 +27,7 @@ position: relative;
 overflow: hidden;
 display: flex;
 flex-direction: column;
-background: linear-gradient(180deg, #080820 0%, #12106a 60%, #1e1880 100%);
+background: linear-gradient(180deg, #0a1e0a 0%, #0a3018 60%, #061408 100%);
 }
 
 /* ── SCREENS: only .active one is shown ── */
@@ -38,13 +38,15 @@ background: linear-gradient(180deg, #080820 0%, #12106a 60%, #1e1880 100%);
 TITLE SCREEN
 ════════════════════════════════ */
 #scr-title {
-background: linear-gradient(180deg, #080820, #18106a 55%, #261880);
+background: linear-gradient(180deg, #0a1e0a, #0a3018 55%, #061408);
 align-items: center;
 justify-content: center;
 gap: 14px;
 text-align: center;
 padding: 24px;
+position: relative;
 }
+#scr-title .bg-art { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
 #scr-title h1 {
 font-family: ‘Press Start 2P’, monospace;
 font-size: clamp(22px, 5vw, 34px);
@@ -68,7 +70,7 @@ margin-top: 4px;
 /* ════════════════════════════════
 GAME SCREEN — 3 rows: HUD | BG | BOTTOM
 ════════════════════════════════ */
-#scr-game { background: linear-gradient(180deg, #080820, #12106a 60%, #1e1880); }
+#scr-game { background: linear-gradient(180deg, #0a1e0a, #0a3018 60%, #061408); }
 
 /* Row 1: HUD */
 #hud {
@@ -189,7 +191,8 @@ ENDING SCREEN
 ════════════════════════════════ */
 #scr-ending {
 align-items: center; justify-content: center;
-gap: 12px; text-align: center; padding: 24px;
+text-align: center; position: relative; overflow: hidden;
+background: transparent !important;
 }
 .end-cat { font-size: 56px; }
 #scr-ending h2 { font-family: ‘Press Start 2P’, monospace; font-size: 16px; color: #ffd232; text-shadow: 0 0 20px #ffd232; }
@@ -222,6 +225,7 @@ padding: 26px 24px; max-width: 460px; width: 92%;
 #modal button { display: block; margin: 18px auto 0; padding: 10px 28px; background: linear-gradient(135deg,#a78bfa,#ffd232); color: white; border: none; border-radius: 22px; font-family: ‘Press Start 2P’, monospace; font-size: 9px; cursor: pointer; }
 
 /* Particle animations */
+@keyframes twinkle{0%,100%{opacity:.2;transform:scale(1)}50%{opacity:1;transform:scale(1.3)}}
 @keyframes rise { 0%{transform:translateY(0) rotate(0);opacity:1} 100%{transform:translateY(-220px) rotate(540deg);opacity:0} }
 @keyframes fall { 0%{transform:translateY(0);opacity:0} 20%{opacity:1} 100%{transform:translateY(160px);opacity:0} }
 </style>
@@ -233,11 +237,12 @@ padding: 26px 24px; max-width: 460px; width: 92%;
   <!-- ══ TITLE ══ -->
 
   <div id="scr-title" class="screen active">
-    <h1>BSL<br>QUEST</h1>
-    <p>Learn British Sign Language<br>through story &amp; adventure</p>
-    <svg id="title-luna" viewBox="0 0 100 130"></svg>
-    <button onclick="startGame()">▶&nbsp; START</button>
-    <div class="chap">CHAPTER 1: THE LOST CAT</div>
+    <div class="bg-art" id="title-bg-art"></div>
+    <h1 style="position:relative;z-index:2">BSL<br>QUEST</h1>
+    <p style="position:relative;z-index:2">Learn British Sign Language<br>through story &amp; adventure</p>
+    <svg id="title-luna" viewBox="0 0 100 130" style="position:relative;z-index:2"></svg>
+    <button onclick="startGame()" style="position:relative;z-index:2">▶&nbsp; START</button>
+    <div class="chap" style="position:relative;z-index:2">CHAPTER 1: THE LOST CAT</div>
   </div>
 
   <!-- ══ GAME ══ -->
@@ -260,6 +265,7 @@ padding: 26px 24px; max-width: 460px; width: 92%;
 
 <!-- Background area (stars/moon sit here visually) -->
 <div id="bg-space">
+  <div id="game-bg-art" style="position:absolute;inset:0;pointer-events:none;overflow:hidden;"></div>
   <div id="particles"></div>
   <div id="cam-view">
     <video id="cam-video" autoplay muted playsinline></video>
@@ -300,6 +306,8 @@ padding: 26px 24px; max-width: 460px; width: 92%;
   <!-- ══ ENDING ══ -->
 
   <div id="scr-ending" class="screen">
+    <div id="ending-bg-art" style="position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:0;"></div>
+    <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:12px;padding:24px;width:100%;height:100%;justify-content:center;">
     <div class="end-cat">🐱</div>
     <h2>YOU FOUND<br>THE CAT!</h2>
     <p id="end-desc"></p>
@@ -309,6 +317,7 @@ padding: 26px 24px; max-width: 460px; width: 92%;
       <div class="xp-words" id="end-words"></div>
     </div>
     <button id="end-btn" onclick="restartGame()">▶ PLAY AGAIN</button>
+    </div>
   </div>
 
 </div><!-- /game-shell -->
@@ -526,7 +535,7 @@ function teachSign(sign, onDone) {
   if (!vbox) {
     vbox = document.createElement('div');
     vbox.id = 'teach-inline-vid';
-    vbox.style.cssText = 'border-radius:10px;overflow:hidden;height:140px;margin-top:10px;background:#000;flex-shrink:0;';
+    vbox.style.cssText = 'border-radius:10px;overflow:hidden;height:140px;margin-top:10px;background:#f0f0f0;flex-shrink:0;';
     document.getElementById('dlg-box').appendChild(vbox);
   }
   vbox.innerHTML = '';
@@ -611,9 +620,12 @@ function spawnParticles(type) {
 /* ══════════════ ENDING ══════════════ */
 function showEnding(type) {
   const forest = type === 'end_forest';
-  document.getElementById('scr-ending').style.background = forest
-    ? 'linear-gradient(180deg,#0c1e0e,#0a3018 60%,#0c2510)'
-    : 'linear-gradient(180deg,#020810,#050f20 60%,#0a1628)';
+  const forestBg = 'linear-gradient(180deg,#0a1e0a,#0a3018 60%,#061408)';
+  const cityBg   = 'linear-gradient(180deg,#020810,#050f20 60%,#0a1628)';
+  // Override the shell background so no blue shows anywhere
+  document.getElementById('game-shell').style.background = forest ? forestBg : cityBg;
+  document.getElementById('scr-ending').style.background = 'transparent';
+  drawEndingBg(document.getElementById('ending-bg-art'), forest);
   document.getElementById('end-desc').textContent = forest
     ? 'She was hiding behind a great oak tree! 🌳'
     : 'She was sitting on a city rooftop! 🏙️';
@@ -626,6 +638,7 @@ function showEnding(type) {
 }
 
 function restartGame() {
+  document.getElementById('game-shell').style.background = 'linear-gradient(180deg,#0a1e0a,#0a3018 60%,#061408)';
   G = { scene:'s1', line:0, xp:0, level:1, unlocked:['YES','NO'], busy:false, taught:[] };
   document.getElementById('xp-fill').style.width = '0%';
   document.getElementById('xp-num').textContent = '0 XP';
@@ -668,6 +681,233 @@ function closeHelp() { document.getElementById('modal').classList.remove('open')
 
 /* ══════════════ INIT ══════════════ */
 document.getElementById('title-luna').innerHTML = lunaHTML('wave');
+drawNightBg(document.getElementById('title-bg-art'));
+drawNightBg(document.getElementById('game-bg-art'));
+
+function drawEndingBg(el, isForest) {
+  if (!el) return;
+  el.innerHTML = '';
+
+  if (isForest) {
+    // Forest background — trees, light rays, fireflies
+    // Base gradient
+    const sky = document.createElement('div');
+    sky.style.cssText = 'position:absolute;inset:0;background:linear-gradient(180deg,#0a1e0a 0%,#0a3018 50%,#061408 100%);';
+    el.appendChild(sky);
+
+    // Light rays
+    for (let i = 0; i < 5; i++) {
+      const ray = document.createElement('div');
+      const left = 10 + i * 20;
+      ray.style.cssText = `position:absolute;top:0;left:${left}%;width:${8+i*3}px;height:70%;
+        background:linear-gradient(180deg,rgba(255,230,100,0.08),transparent);
+        transform:rotate(${-8+i*4}deg);transform-origin:top center;`;
+      el.appendChild(ray);
+    }
+
+    // Tall background trees
+    const treeCols = ['#0d280d','#0a2010','#0f2e0f','#091a09','#112611'];
+    [0,9,18,27,36,45,54,63,72,81,90,97].forEach((x,i) => {
+      const h = 140 + (i%3)*40;
+      const w = Math.round(h*0.5);
+      const tree = document.createElement('div');
+      tree.style.cssText = `position:absolute;bottom:12%;left:${x}%;`;
+      tree.innerHTML = `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" style="display:block">
+        <polygon points="${w/2},0 0,${h*.45} ${w},${h*.45}" fill="${treeCols[i%5]}"/>
+        <polygon points="${w/2},${h*.22} 0,${h*.65} ${w},${h*.65}" fill="${i%2?'#0a200a':'#0e2a0e'}"/>
+        <polygon points="${w/2},${h*.44} 0,${h*.86} ${w},${h*.86}" fill="${treeCols[i%5]}"/>
+        <rect x="${w/2-5}" y="${h*.86}" width="10" height="${h*.14}" fill="#3c1900"/>
+      </svg>`;
+      el.appendChild(tree);
+    });
+
+    // Ground
+    const ground = document.createElement('div');
+    ground.style.cssText = 'position:absolute;bottom:0;left:0;right:0;height:14%;background:linear-gradient(180deg,#0a2010,#050e05);';
+    el.appendChild(ground);
+
+    // Stars/twinkle
+    for (let i=0;i<30;i++){
+      const star = document.createElement('div');
+      const sz = 0.5+Math.random()*1.5;
+      star.style.cssText = `position:absolute;border-radius:50%;background:white;
+        left:${Math.random()*100}%;top:${Math.random()*40}%;
+        width:${sz}px;height:${sz}px;opacity:${0.2+Math.random()*0.6};
+        animation:twinkle ${2+Math.random()*3}s ${Math.random()*4}s ease-in-out infinite;`;
+      el.appendChild(star);
+    }
+
+    // Fireflies
+    for (let i=0;i<8;i++){
+      const ff = document.createElement('div');
+      ff.style.cssText = `position:absolute;left:${10+Math.random()*80}%;bottom:${20+Math.random()*40}%;
+        width:5px;height:5px;border-radius:50%;background:#fffb80;
+        box-shadow:0 0 8px 3px #fffb80;
+        animation:twinkle ${1+Math.random()*2}s ${Math.random()*3}s ease-in-out infinite;`;
+      el.appendChild(ff);
+    }
+
+  } else {
+    // City background — dark buildings, lit windows
+    const sky = document.createElement('div');
+    sky.style.cssText = 'position:absolute;inset:0;background:linear-gradient(180deg,#020810 0%,#050f20 50%,#0a1628 100%);';
+    el.appendChild(sky);
+
+    // Stars
+    for (let i=0;i<40;i++){
+      const star = document.createElement('div');
+      const sz = 0.5+Math.random()*2;
+      star.style.cssText = `position:absolute;border-radius:50%;background:white;
+        left:${Math.random()*100}%;top:${Math.random()*50}%;
+        width:${sz}px;height:${sz}px;opacity:${0.2+Math.random()*0.7};
+        animation:twinkle ${2+Math.random()*3}s ${Math.random()*4}s ease-in-out infinite;`;
+      el.appendChild(star);
+    }
+
+    // Buildings
+    const blds = [{x:0,w:60,h:160},{x:55,w:50,h:210},{x:100,w:80,h:140},
+      {x:175,w:55,h:230},{x:225,w:70,h:160},{x:290,w:50,h:200},
+      {x:335,w:85,h:150},{x:415,w:65,h:240},{x:475,w:55,h:130}];
+    const bCols = ['#0d1b2e','#0a1525','#0f2035','#0a1830','#0d2040'];
+    blds.forEach((b,i) => {
+      const bld = document.createElement('div');
+      bld.style.cssText = `position:absolute;bottom:0;left:${b.x}px;width:${b.w}px;height:${b.h}px;background:${bCols[i%5]};`;
+      // Windows
+      let wins = '';
+      for (let r=0;r<Math.floor(b.h/24);r++) {
+        for (let col=0;col<Math.floor(b.w/16);col++) {
+          const lit = Math.random() > 0.35;
+          wins += `<div style="position:absolute;left:${4+col*16}px;top:${8+r*24}px;width:9px;height:12px;background:${lit?'#fbbf24':'#1a3060'};opacity:${0.5+Math.random()*0.5};animation:twinkle ${2+Math.random()*4}s ${Math.random()*4}s ease-in-out infinite;"></div>`;
+        }
+      }
+      bld.innerHTML = wins;
+      el.appendChild(bld);
+    });
+  }
+}
+
+function drawNightBg(el) {
+  if (!el) return;
+  // Stars
+  let stars = '';
+  for (let i = 0; i < 60; i++) {
+    const x = Math.random() * 100;
+    const y = Math.random() * 65;
+    const s = 0.5 + Math.random() * 2;
+    const op = 0.3 + Math.random() * 0.7;
+    const dur = 2 + Math.random() * 3;
+    const delay = Math.random() * 4;
+    stars += `<circle cx="${x}%" cy="${y}%" r="${s}" fill="white" opacity="${op}" style="animation:twinkle ${dur}s ${delay}s ease-in-out infinite"/>`;
+  }
+
+  // Trees row
+  const treeXs = [2, 8, 16, 24, 32, 42, 52, 60, 68, 76, 84, 92];
+  const treeHeights = [80, 100, 120, 90, 110, 95, 115, 85, 105, 90, 120, 88];
+  let trees = '';
+  treeXs.forEach((x, i) => {
+    const h = treeHeights[i];
+    const w = h * 0.5;
+    const shade = i % 2 === 0 ? '#1a3a1a' : '#152d15';
+    trees += `<g transform="translate(${x}%, calc(100% - ${h}px))">
+      <polygon points="${w/2},0 0,${h*0.55} ${w},${h*0.55}" fill="${shade}"/>
+      <polygon points="${w/2},${h*0.2} 0,${h*0.75} ${w},${h*0.75}" fill="${i%2===0?'#12281a':'#1a3520'}"/>
+      <polygon points="${w/2},${h*0.4} 0,${h} ${w},${h}" fill="${shade}"/>
+    </g>`;
+  });
+
+  el.innerHTML = `<svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none" style="position:absolute;inset:0;width:100%;height:100%">
+    <defs>
+      <style>@keyframes twinkle{0%,100%{opacity:.2}50%{opacity:1}}</style>
+
+```
+</defs>
+<!-- Sky gradient -->
+<rect width="100" height="100" fill="url(#skyg)"/>
+<defs>
+  <linearGradient id="skyg" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stop-color="#0a1e0a"/>
+    <stop offset="55%" stop-color="#0a3018"/>
+    <stop offset="100%" stop-color="#061408"/>
+  </linearGradient>
+</defs>
+<!-- Moon -->
+<circle cx="82" cy="12" r="8" fill="#fde68a"/>
+<circle cx="86" cy="9" r="7" fill="#0a3018"/>
+<!-- Stars -->
+${stars}
+<!-- Ground -->
+<rect x="0" y="82" width="100" height="18" fill="#0d1f0d"/>
+<rect x="0" y="82" width="100" height="4" fill="#142814"/>
+<!-- Cloud -->
+<ellipse cx="18" cy="22" rx="10" ry="5" fill="#1e1e4a" opacity=".6"/>
+<ellipse cx="13" cy="20" rx="6" ry="5" fill="#1e1e4a" opacity=".6"/>
+<ellipse cx="24" cy="21" rx="5" ry="4" fill="#1e1e4a" opacity=".6"/>
+```
+
+  </svg>
+  <svg width="100%" height="100%" style="position:absolute;inset:0;" preserveAspectRatio="xMidYMax meet">
+    <!-- Trees using absolute positioning -->
+    ${treeXs.map((x, i) => {
+      const h = treeHeights[i];
+      const w = Math.round(h * 0.55);
+      const shade = i%2===0?'#1a3a1a':'#152d15';
+      const shade2 = i%2===0?'#12281a':'#1a3520';
+      const px = Math.round(x / 100 * 520);
+      const bottom = 0;
+      return `<g>
+        <polygon points="${px},${100-h/5.2} ${px-w/2},${100} ${px+w/2},${100}" fill="${shade}" transform="scale(1,1)"/>
+      </g>`;
+    }).join('')}
+  </svg>`;
+
+// Simpler approach - use absolute divs for trees
+el.innerHTML = ‘’;
+el.style.cssText = ‘position:absolute;inset:0;pointer-events:none;overflow:hidden;’;
+
+// Sky canvas
+const sky = document.createElement(‘div’);
+sky.style.cssText = ‘position:absolute;inset:0;background:linear-gradient(180deg,#0a1e0a 0%,#0a3018 60%,#061408 100%);’;
+el.appendChild(sky);
+
+// Moon
+const moon = document.createElement(‘div’);
+moon.style.cssText = `position:absolute;top:5%;right:15%;width:60px;height:60px; background:#fde68a;border-radius:50%; box-shadow:-16px -6px 0 0 #0a3018, 0 0 20px rgba(253,230,138,0.4);`;
+el.appendChild(moon);
+
+// Stars
+for (let i=0;i<55;i++){
+const star = document.createElement(‘div’);
+const sz = 0.5+Math.random()*2.5;
+star.style.cssText = `position:absolute;border-radius:50%;background:white; left:${Math.random()*100}%;top:${Math.random()*65}%; width:${sz}px;height:${sz}px; opacity:${0.2+Math.random()*0.8}; animation:twinkle ${2+Math.random()*3}s ${Math.random()*4}s ease-in-out infinite;`;
+el.appendChild(star);
+}
+
+// Cloud
+const cloud = document.createElement(‘div’);
+cloud.style.cssText = `position:absolute;top:18%;left:5%;opacity:0.35;`;
+cloud.innerHTML = `<svg width="90" height="40" viewBox="0 0 90 40"> <ellipse cx="45" cy="28" rx="42" ry="14" fill="#2a2a6a"/> <ellipse cx="28" cy="20" rx="22" ry="16" fill="#2a2a6a"/> <ellipse cx="62" cy="18" rx="18" ry="14" fill="#2a2a6a"/> </svg>`;
+el.appendChild(cloud);
+
+// Ground
+const ground = document.createElement(‘div’);
+ground.style.cssText = ‘position:absolute;bottom:0;left:0;right:0;height:18%;background:linear-gradient(180deg,#0d1f0d,#071007);’;
+el.appendChild(ground);
+
+// Trees
+const treeData = [
+{x:2,h:110},{x:9,h:90},{x:17,h:125},{x:25,h:85},{x:34,h:115},
+{x:43,h:95},{x:52,h:130},{x:61,h:88},{x:70,h:108},{x:79,h:92},{x:88,h:118},{x:95,h:80}
+];
+treeData.forEach((t,i) => {
+const tree = document.createElement(‘div’);
+const w = Math.round(t.h * 0.5);
+tree.style.cssText = `position:absolute;bottom:16%;left:${t.x}%;`;
+const col1 = i%2===0?’#1a3a1a’:’#152d15’;
+const col2 = i%2===0?’#122810’:’#1a3010’;
+tree.innerHTML = `<svg width="${w}" height="${t.h}" viewBox="0 0 ${w} ${t.h}" style="display:block;"> <polygon points="${w/2},0 0,${t.h*0.5} ${w},${t.h*0.5}" fill="${col1}"/> <polygon points="${w/2},${t.h*0.25} 0,${t.h*0.72} ${w},${t.h*0.72}" fill="${col2}"/> <polygon points="${w/2},${t.h*0.48} 0,${t.h} ${w},${t.h}" fill="${col1}"/> </svg>`;
+el.appendChild(tree);
+});
+}
 renderBadges();
 </script>
 
