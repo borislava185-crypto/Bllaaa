@@ -9,24 +9,17 @@
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
-    background: #030308;
+    background: #0a0a1a;
     color: white;
     font-family: 'Fredoka', sans-serif;
     overflow: hidden;
     height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
   }
   #app {
     width: 100%;
-    max-width: 500px;
-    height: 100%;
-    max-height: 780px;
+    height: 100vh;
     position: relative;
     overflow: hidden;
-    background: #0a0a1a;
-    box-shadow: 0 0 80px rgba(100,80,255,0.15);
   }
 
 /* — SCREENS — */
@@ -73,11 +66,13 @@ border: 1px solid #ffd232; border-radius: 20px; color: #ffd232; background: rgba
 #xp-label { font-family: ‘Press Start 2P’, monospace; font-size: 6px; color: #666; white-space: nowrap; }
 
 /* Scene */
-#scene { flex: 1; position: relative; display: flex; flex-direction: column; justify-content: flex-end; padding: 12px; min-height: 0; overflow: hidden; }
-#luna { position: absolute; left: 12px; width: 100px; height: 125px; transition: bottom 0.4s; bottom: 170px; }
+#scene { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; min-height: 0; overflow: hidden; position: relative; }
+#bottom-panel { display: flex; align-items: flex-end; padding: 0 12px 0 12px; gap: 0; }
+#luna { width: 90px; height: 110px; flex-shrink: 0; }
+#bottom-content { flex: 1; padding-bottom: 0; min-width: 0; }
 
 /* Dialogue */
-#dlg-wrap { margin-left: 110px; margin-bottom: 10px; display: none; }
+#dlg-wrap { display: none; margin-bottom: 0; }
 #dlg-box {
 background: rgba(15,20,50,0.97); border: 2px solid #1e3060; border-radius: 14px;
 padding: 16px 18px 14px; position: relative;
@@ -87,7 +82,7 @@ position: absolute; top: -13px; left: 14px; padding: 2px 12px;
 background: linear-gradient(90deg, #a78bfa, #ffd232);
 font-family: ‘Press Start 2P’, monospace; font-size: 7px; border-radius: 5px;
 }
-#dlg-text { font-size: 18px; font-weight: 600; color: #e8e8ff; line-height: 1.5; min-height: 54px; }
+#dlg-text { font-size: 16px; font-weight: 600; color: #e8e8ff; line-height: 1.45; min-height: 46px; }
 #dlg-tap {
 margin-top: 10px; text-align: center; font-family: ‘Press Start 2P’, monospace;
 font-size: 7px; color: #ffd232; cursor: pointer; display: none;
@@ -95,8 +90,8 @@ font-size: 7px; color: #ffd232; cursor: pointer; display: none;
 
 /* Choices */
 #choices-wrap { display: none; }
-#choices-q { font-family: ‘Press Start 2P’, monospace; font-size: 8px; color: #666; text-align: center; margin-bottom: 10px; }
-#choices-row { display: flex; gap: 10px; max-height: 220px; }
+#choices-q { font-family: ‘Press Start 2P’, monospace; font-size: 8px; color: #888; text-align: center; margin-bottom: 8px; }
+#choices-row { display: flex; gap: 10px; }
 .choice {
 flex: 1; border-radius: 14px; padding: 8px 6px 10px; cursor: pointer;
 display: flex; flex-direction: column; align-items: stretch; gap: 8px;
@@ -107,7 +102,7 @@ border: 2px solid; background: transparent; transition: transform 0.15s;
 .choice.no   { border-color: #f87171; box-shadow: 0 0 16px rgba(248,113,113,0.3); }
 .choice.forest { border-color: #4ade80; box-shadow: 0 0 16px rgba(74,222,128,0.3); }
 .choice.city   { border-color: #60a5fa; box-shadow: 0 0 16px rgba(96,165,250,0.3); }
-.choice-video { border-radius: 10px; overflow: hidden; height: 130px; background: #111; position: relative; }
+.choice-video { border-radius: 10px; overflow: hidden; height: 120px; background: #111; position: relative; }
 .choice-video video { width: 100%; height: 100%; object-fit: cover; display: block; }
 .choice-credit { position: absolute; bottom: 3px; right: 5px; background: rgba(0,0,0,0.7); font-size: 8px; color: #777; border-radius: 4px; padding: 1px 5px; text-decoration: none; }
 .choice-fallback { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-decoration: none; gap: 4px; padding: 8px; }
@@ -192,19 +187,23 @@ align-items: center; justify-content: center; gap: 12px; text-align: center; pad
   </div>
   <div id="scene">
     <div id="particles"></div>
-    <svg id="luna" viewBox="0 0 100 130"></svg>
     <div id="cam-view"><video id="cam-video" autoplay muted playsinline></video></div>
-    <div id="dlg-wrap">
-      <div id="dlg-box">
-        <div id="dlg-name">LUNA ✨</div>
-        <div id="dlg-text"></div>
-        <div id="dlg-tap" onclick="tapDialogue()">▼ TAP TO CONTINUE</div>
+    <div id="bottom-panel">
+      <svg id="luna" viewBox="0 0 100 130"></svg>
+      <div id="bottom-content">
+        <div id="dlg-wrap">
+          <div id="dlg-box">
+            <div id="dlg-name">LUNA ✨</div>
+            <div id="dlg-text"></div>
+            <div id="dlg-tap" onclick="tapDialogue()">▼ TAP TO CONTINUE</div>
+          </div>
+        </div>
+        <div id="choices-wrap">
+          <div id="choices-q"></div>
+          <div id="choices-row"></div>
+          <div style="text-align:center;font-family:'Press Start 2P',monospace;font-size:7px;color:#444;margin-top:6px;">TAP A SIGN · ❓ FOR HELP</div>
+        </div>
       </div>
-    </div>
-    <div id="choices-wrap">
-      <div id="choices-q"></div>
-      <div id="choices-row"></div>
-      <div style="text-align:center;font-family:'Press Start 2P',monospace;font-size:7px;color:#444;margin-top:8px;">TAP A SIGN · ❓ FOR HELP</div>
     </div>
   </div>
   <div id="toolbar">
@@ -396,7 +395,7 @@ function loadScene(id) {
   // Draw Luna
   const luna = document.getElementById('luna');
   luna.innerHTML = lunaHTML(sc.mood);
-  luna.style.bottom = '170px';
+  luna.style.bottom = '0px';
 
   // Show dialogue, hide choices
   document.getElementById('dlg-wrap').style.display = 'block';
@@ -474,7 +473,7 @@ function tapDialogue() {
     });
 
     // Move Luna up
-    document.getElementById('luna').style.bottom = '230px';
+    document.getElementById('luna').style.bottom = '0px';
   }
 }
 
