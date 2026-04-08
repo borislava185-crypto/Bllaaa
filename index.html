@@ -5,618 +5,618 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>BSL Quest</title>
-<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Press+Start+2P&display=swap" rel="stylesheet"/>
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html,body{width:100%;height:100%;overflow:hidden;background:#0a0a1a;font-family:'Fredoka',sans-serif}
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #0a0a1a; color: white; font-family: 'Fredoka', sans-serif; overflow: hidden; height: 100vh; }
 
-@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
-@keyframes twinkle{0%,100%{opacity:.2;transform:scale(1)}50%{opacity:1;transform:scale(1.4)}}
-@keyframes titlePop{0%{transform:scale(0) rotate(-8deg);opacity:0}70%{transform:scale(1.06)}100%{transform:scale(1);opacity:1}}
-@keyframes glow{0%,100%{box-shadow:0 0 18px rgba(255,210,50,.25)}50%{box-shadow:0 0 42px rgba(255,210,50,.65)}}
-@keyframes blink{0%,88%,100%{transform:scaleY(1)}94%{transform:scaleY(0.1)}}
-@keyframes moonGlow{0%,100%{filter:drop-shadow(0 0 8px #fde68a)}50%{filter:drop-shadow(0 0 22px #fde68a)}}
-@keyframes treeWay{0%,100%{transform:rotate(-1deg)}50%{transform:rotate(1.2deg)}}
-@keyframes tailWag{0%,100%{transform:rotate(-12deg)}50%{transform:rotate(16deg)}}
-@keyframes walkIn{from{transform:translateX(-120px);opacity:0}to{transform:translateX(0);opacity:1}}
-@keyframes confetti{0%{transform:translateY(0) rotate(0deg);opacity:1}100%{transform:translateY(-260px) rotate(720deg);opacity:0}}
-@keyframes rainDrop{0%{transform:translateY(-10px);opacity:0}20%{opacity:1}100%{transform:translateY(200px);opacity:0}}
-@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}50%{transform:translateX(8px)}80%{transform:translateX(-4px)}}
-@keyframes choiceIn{0%{transform:translateY(24px);opacity:0}100%{transform:translateY(0);opacity:1}}
-@keyframes pulseBtn{0%,100%{box-shadow:0 0 0 0 rgba(255,210,50,.45)}60%{box-shadow:0 0 0 9px rgba(255,210,50,0)}}
+/* — SCREENS — */
+.screen { display: none; position: fixed; inset: 0; flex-direction: column; }
+.screen.show { display: flex; }
 
-/* ONE screen visible at a time — display:none / display:flex */
-.screen{position:fixed;inset:0;display:none;flex-direction:column}
-.screen.active{display:flex}
-.bg{position:absolute;inset:0;overflow:hidden;z-index:0}
-.stars-l{position:absolute;inset:0;pointer-events:none;z-index:1}
-.over{position:relative;z-index:2;display:flex;flex-direction:column;flex:1;min-height:0}
+/* — TITLE SCREEN — */
+#title {
+background: linear-gradient(180deg, #080820 0%, #1a1060 50%, #2a1870 100%);
+align-items: center; justify-content: center; gap: 16px; text-align: center; padding: 20px;
+}
+#title h1 { font-family: ‘Press Start 2P’, monospace; font-size: 36px; color: #ffd232; text-shadow: 0 0 30px #ffd232; line-height: 1.5; }
+#title p { font-size: 18px; color: #8888bb; line-height: 1.6; }
+#title button {
+margin-top: 8px; padding: 16px 52px; font-family: ‘Press Start 2P’, monospace; font-size: 14px;
+background: linear-gradient(135deg, #a78bfa, #ffd232); border: none; border-radius: 14px;
+color: white; cursor: pointer; box-shadow: 0 0 30px rgba(255,210,50,0.4);
+}
+.moon {
+width: 60px; height: 60px; position: absolute; top: 30px; right: 15%;
+background: #fde68a; border-radius: 50%;
+box-shadow: -18px -8px 0 0 #1a1060;
+}
+.tree { position: absolute; bottom: 0; width: 0; height: 0; border-left: 22px solid transparent; border-right: 22px solid transparent; }
 
-/* ─ TITLE ─ */
-#ts .over{align-items:center;justify-content:center;padding:20px;gap:2px}
-.t-word{font-family:‘Press Start 2P’,monospace;font-size:clamp(24px,6vw,40px);color:#ffd232;
-text-shadow:0 0 40px #ffd232,0 0 80px rgba(255,210,50,.2);
-animation:titlePop .8s ease both;text-align:center;line-height:1.45}
-.t-sub{font-size:16px;color:#7a80a0;margin:10px 0 22px;animation:titlePop .8s .2s ease both;text-align:center;line-height:1.6}
-#t-char{width:108px;height:132px;animation:titlePop .8s .1s ease both,float 3s 1.2s ease-in-out infinite}
-.t-start{background:linear-gradient(135deg,#a78bfa,#ffd232);border:none;border-radius:14px;
-padding:15px 50px;font-family:‘Press Start 2P’,monospace;font-size:13px;color:#fff;
-cursor:pointer;margin-top:14px;letter-spacing:1px;
-animation:glow 2s ease-in-out infinite,titlePop .8s .4s ease both}
-.t-chap{font-family:‘Press Start 2P’,monospace;font-size:7px;color:#7a80a0;margin-top:14px;animation:titlePop .8s .5s ease both}
+/* — GAME SCREEN — */
+#game { background: linear-gradient(180deg, #080820 0%, #1a1060 50%, #2a1870 100%); }
 
-/* ─ GAME ─ */
-#hud{padding:10px 14px 8px;background:linear-gradient(180deg,rgba(10,10,26,.96),transparent)}
-.hud1{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px}
-.htitle{font-family:‘Press Start 2P’,monospace;font-size:9px;color:#ffd232;text-shadow:0 0 12px #ffd232}
-.badges{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end}
-.badge{background:rgba(255,255,255,.04);border:1px solid #1e3060;border-radius:18px;
-padding:3px 9px;font-family:‘Press Start 2P’,monospace;font-size:6px;color:#7a80a0;transition:all .4s}
-.badge.lit{background:rgba(255,210,50,.15);border-color:#ffd232;color:#ffd232}
-.xpr{display:flex;align-items:center;gap:8px}
-.lvltag{background:#141d35;border:2px solid #1e3060;border-radius:14px;
-padding:3px 10px;font-family:‘Press Start 2P’,monospace;font-size:7px;color:#ffd232}
-.xptrack{flex:1;height:12px;background:#070710;border-radius:8px;border:2px solid #1e3060;overflow:hidden}
-.xpfill{height:100%;border-radius:8px;background:linear-gradient(90deg,#a78bfa,#ffd232);
-transition:width .8s cubic-bezier(.4,0,.2,1);box-shadow:0 0 10px #a78bfa55;width:0%}
-.xpnum{font-family:‘Press Start 2P’,monospace;font-size:6px;color:#7a80a0;white-space:nowrap}
+/* HUD */
+#hud {
+padding: 10px 16px 8px; background: rgba(5,5,20,0.9);
+display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px;
+}
+#hud-left { font-family: ‘Press Start 2P’, monospace; font-size: 9px; color: #ffd232; }
+#badges { display: flex; gap: 6px; flex-wrap: wrap; }
+.badge {
+font-family: ‘Press Start 2P’, monospace; font-size: 6px; padding: 3px 10px;
+border: 1px solid #ffd232; border-radius: 20px; color: #ffd232; background: rgba(255,210,50,0.1);
+}
+#xp-bar-wrap { display: flex; align-items: center; gap: 8px; width: 100%; }
+#lvl { font-family: ‘Press Start 2P’, monospace; font-size: 7px; color: #ffd232; white-space: nowrap; }
+#xp-track { flex: 1; height: 10px; background: #111; border-radius: 6px; overflow: hidden; border: 1px solid #333; }
+#xp-bar { height: 100%; background: linear-gradient(90deg, #a78bfa, #ffd232); border-radius: 6px; width: 0%; transition: width 0.8s; }
+#xp-label { font-family: ‘Press Start 2P’, monospace; font-size: 6px; color: #666; white-space: nowrap; }
 
-#scene{flex:1;position:relative;display:flex;flex-direction:column;justify-content:flex-end;padding:0 14px 10px;min-height:0}
-#char{position:absolute;left:14px;width:115px;height:145px;bottom:190px;transition:bottom .5s ease}
-#camov{position:absolute;right:12px;width:150px;border-radius:12px;overflow:hidden;border:2px solid #1e3060;background:#000;display:none;z-index:8}
-#camov.on{display:block}
-#camvid{width:100%;display:block;transform:scaleX(-1)}
-.rec{position:absolute;bottom:5px;left:50%;transform:translateX(-50%);
-background:rgba(0,0,0,.7);border-radius:13px;padding:2px 9px;
-font-family:‘Press Start 2P’,monospace;font-size:6px;color:#4ade80;white-space:nowrap}
+/* Scene */
+#scene { flex: 1; position: relative; display: flex; flex-direction: column; justify-content: flex-end; padding: 12px; min-height: 0; }
+#luna { position: absolute; left: 12px; width: 110px; height: 135px; transition: bottom 0.4s; bottom: 180px; }
 
-#dw{margin-left:126px;margin-bottom:10px;display:none}
-.bubble{background:linear-gradient(135deg,rgba(20,29,53,.97),rgba(15,23,41,.97));
-border:2px solid #1e3060;border-radius:14px;padding:16px 18px 14px;position:relative;
-box-shadow:0 6px 26px rgba(0,0,0,.7)}
-.bname{position:absolute;top:-13px;left:14px;
-background:linear-gradient(90deg,#a78bfa,#ffd232);border-radius:5px;
-padding:2px 10px;font-family:‘Press Start 2P’,monospace;font-size:7px;color:#fff}
-.btr{position:absolute;top:5px;right:5px;width:6px;height:6px;border-right:2px solid #ffd232;border-top:2px solid #ffd232}
-.bbl{position:absolute;bottom:5px;left:5px;width:6px;height:6px;border-left:2px solid #ffd232;border-bottom:2px solid #ffd232}
-#dtxt{font-size:17px;font-weight:600;color:#e8e8ff;line-height:1.55;min-height:50px}
-#taph{margin-top:10px;text-align:center;font-family:‘Press Start 2P’,monospace;
-font-size:7px;color:#ffd232;cursor:pointer;animation:float .9s ease-in-out infinite;display:none}
+/* Dialogue */
+#dlg-wrap { margin-left: 120px; margin-bottom: 10px; display: none; }
+#dlg-box {
+background: rgba(15,20,50,0.97); border: 2px solid #1e3060; border-radius: 14px;
+padding: 16px 18px 14px; position: relative;
+}
+#dlg-name {
+position: absolute; top: -13px; left: 14px; padding: 2px 12px;
+background: linear-gradient(90deg, #a78bfa, #ffd232);
+font-family: ‘Press Start 2P’, monospace; font-size: 7px; border-radius: 5px;
+}
+#dlg-text { font-size: 18px; font-weight: 600; color: #e8e8ff; line-height: 1.5; min-height: 54px; }
+#dlg-tap {
+margin-top: 10px; text-align: center; font-family: ‘Press Start 2P’, monospace;
+font-size: 7px; color: #ffd232; cursor: pointer; display: none;
+}
 
-#cw{display:none}
-.qlbl{text-align:center;font-family:‘Press Start 2P’,monospace;font-size:8px;color:#7a80a0;margin-bottom:10px;letter-spacing:1px}
-.crow{display:flex;gap:10px;flex-wrap:wrap}
-.cbtn{flex:1;min-width:140px;border-radius:14px;padding:10px 8px 12px;cursor:pointer;
-display:flex;flex-direction:column;align-items:stretch;gap:7px;
-border:2px solid transparent;background:transparent;transition:transform .15s,box-shadow .15s}
-.cbtn:hover:not(:disabled){transform:translateY(-4px) scale(1.02)}
-.vwrap{border-radius:10px;overflow:hidden;aspect-ratio:4/3;background:#000;position:relative;flex-shrink:0}
-.vwrap video{width:100%;height:100%;object-fit:cover;display:block}
-.vcredit{position:absolute;bottom:4px;right:6px;background:rgba(0,0,0,.75);
-color:#888;font-size:8px;border-radius:6px;padding:1px 5px;text-decoration:none;pointer-events:all}
-.vfb{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:4px;text-decoration:none}
-.vlbl{font-family:‘Press Start 2P’,monospace;font-size:8px;text-align:center;letter-spacing:1px}
-.cbtn.yes{background:rgba(251,191,36,.1);border-color:#fbbf24;box-shadow:0 0 16px rgba(251,191,36,.28)}
-.cbtn.yes .vlbl{color:#fbbf24}
-.cbtn.no{background:rgba(248,113,113,.1);border-color:#f87171;box-shadow:0 0 16px rgba(248,113,113,.28)}
-.cbtn.no .vlbl{color:#f87171}
-.cbtn.forest{background:rgba(74,222,128,.1);border-color:#4ade80;box-shadow:0 0 16px rgba(74,222,128,.28)}
-.cbtn.forest .vlbl{color:#4ade80}
-.cbtn.city{background:rgba(96,165,250,.1);border-color:#60a5fa;box-shadow:0 0 16px rgba(96,165,250,.28)}
-.cbtn.city .vlbl{color:#60a5fa}
-.tapnote{text-align:center;font-family:‘Press Start 2P’,monospace;font-size:7px;color:#3a4060;margin-top:8px}
+/* Choices */
+#choices-wrap { display: none; }
+#choices-q { font-family: ‘Press Start 2P’, monospace; font-size: 8px; color: #666; text-align: center; margin-bottom: 10px; }
+#choices-row { display: flex; gap: 10px; }
+.choice {
+flex: 1; border-radius: 14px; padding: 10px 8px 12px; cursor: pointer;
+display: flex; flex-direction: column; align-items: stretch; gap: 8px;
+border: 2px solid; background: transparent; transition: transform 0.15s;
+}
+.choice:hover { transform: translateY(-4px); }
+.choice.yes  { border-color: #fbbf24; box-shadow: 0 0 16px rgba(251,191,36,0.3); }
+.choice.no   { border-color: #f87171; box-shadow: 0 0 16px rgba(248,113,113,0.3); }
+.choice.forest { border-color: #4ade80; box-shadow: 0 0 16px rgba(74,222,128,0.3); }
+.choice.city   { border-color: #60a5fa; box-shadow: 0 0 16px rgba(96,165,250,0.3); }
+.choice-video { border-radius: 10px; overflow: hidden; aspect-ratio: 4/3; background: #111; position: relative; }
+.choice-video video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.choice-credit { position: absolute; bottom: 3px; right: 5px; background: rgba(0,0,0,0.7); font-size: 8px; color: #777; border-radius: 4px; padding: 1px 5px; text-decoration: none; }
+.choice-fallback { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-decoration: none; gap: 4px; padding: 8px; }
+.choice-label { font-family: ‘Press Start 2P’, monospace; font-size: 8px; text-align: center; }
+.choice.yes .choice-label { color: #fbbf24; }
+.choice.no .choice-label { color: #f87171; }
+.choice.forest .choice-label { color: #4ade80; }
+.choice.city .choice-label { color: #60a5fa; }
 
-#ptcl{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:20}
+/* Toolbar */
+#toolbar { padding: 6px 16px 14px; background: rgba(5,5,20,0.9); display: flex; justify-content: space-between; }
+#toolbar button {
+font-family: ‘Press Start 2P’, monospace; font-size: 7px; padding: 7px 14px;
+border-radius: 8px; cursor: pointer; border: 1px solid;
+}
+#cam-btn { background: rgba(255,255,255,0.04); border-color: #333; color: #666; }
+#help-btn { background: rgba(255,210,50,0.08); border-color: #ffd232; color: #ffd232; }
 
-#toolbar{padding:6px 14px 12px;background:linear-gradient(transparent,rgba(10,10,26,.95));
-display:flex;justify-content:space-between;align-items:center}
-.tbtn{border-radius:8px;padding:7px 14px;font-family:‘Press Start 2P’,monospace;
-font-size:7px;cursor:pointer;border:1px solid;transition:all .2s}
-#cbambtn{background:rgba(255,255,255,.04);border-color:#1e3060;color:#7a80a0}
-#cbambtn.on{background:rgba(99,102,241,.2);border-color:#6366f1;color:#6366f1}
-#helpbtn{background:rgba(255,210,50,.07);border-color:#ffd232;color:#ffd232}
-#helpbtn.pulse{animation:pulseBtn 1.4s ease-in-out infinite}
+/* Camera */
+#cam-view { position: absolute; right: 12px; width: 145px; border-radius: 10px; overflow: hidden; border: 2px solid #333; display: none; z-index: 5; }
+#cam-view video { width: 100%; display: block; transform: scaleX(-1); }
 
-/* ─ ENDING ─ */
-#es .over{align-items:center;justify-content:center;padding:24px;gap:0}
-.ecat{font-size:58px;animation:float 2s ease-in-out infinite;margin-bottom:6px}
-.etitle{font-family:‘Press Start 2P’,monospace;font-size:clamp(13px,3.5vw,20px);
-color:#ffd232;text-align:center;text-shadow:0 0 26px #ffd232;margin-bottom:10px}
-.edesc{font-size:17px;color:#e8e8ff;margin-bottom:16px;text-align:center}
-.xpcard{background:linear-gradient(135deg,rgba(20,29,53,.95),rgba(15,23,41,.95));
-border:2px solid #ffd232;border-radius:14px;padding:14px 28px;text-align:center;
-box-shadow:0 0 26px rgba(255,210,50,.25);margin-bottom:20px}
-.xpclbl{font-family:‘Press Start 2P’,monospace;font-size:8px;color:#7a80a0;margin-bottom:4px}
-.xpcnum{font-family:‘Press Start 2P’,monospace;font-size:26px;color:#ffd232}
-.xpcw{font-size:14px;margin-top:5px;color:#4ade80}
-.ebtn{border:none;border-radius:12px;padding:14px 38px;font-family:‘Press Start 2P’,monospace;font-size:10px;color:#fff;cursor:pointer}
+/* Particles */
+#particles { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 10; }
+.p { position: absolute; }
 
-/* ─ MODAL ─ */
-#modal{position:fixed;inset:0;background:rgba(0,0,0,.87);backdrop-filter:blur(8px);
-z-index:100;display:none;align-items:center;justify-content:center}
-#modal.open{display:flex}
-.mbox{background:linear-gradient(135deg,#141d35,#0f1729);border:2px solid #1e3060;
-border-radius:22px;padding:26px 28px;max-width:480px;width:94%;box-shadow:0 24px 70px rgba(0,0,0,.85)}
-.mtitle{font-family:‘Press Start 2P’,monospace;font-size:12px;color:#ffd232;text-align:center;margin-bottom:6px}
-.msub{font-size:14px;color:#7a80a0;text-align:center;margin-bottom:20px}
-.msigns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
-.msign{background:rgba(255,255,255,.04);border:1px solid #1e3060;border-radius:14px;
-padding:10px;flex:1 1 150px;max-width:200px;display:flex;flex-direction:column;gap:7px}
-.msign .vwrap{border-radius:8px;overflow:hidden;aspect-ratio:4/3;background:#000;position:relative}
-.msign .vwrap video{width:100%;height:100%;object-fit:cover;display:block}
-.mslbl{font-family:‘Press Start 2P’,monospace;font-size:8px;color:#e8e8ff;text-align:center}
-.mclose{display:block;margin:20px auto 0;background:linear-gradient(135deg,#a78bfa,#ffd232);
-color:#fff;border:none;border-radius:26px;padding:11px 30px;
-font-family:‘Press Start 2P’,monospace;font-size:9px;cursor:pointer}
+/* — ENDING SCREEN — */
+#ending {
+align-items: center; justify-content: center; gap: 12px; text-align: center; padding: 24px;
+}
+#ending .icon { font-size: 60px; }
+#ending h2 { font-family: ‘Press Start 2P’, monospace; font-size: 18px; color: #ffd232; text-shadow: 0 0 20px #ffd232; }
+#ending p { font-size: 17px; color: #ccc; }
+#ending .xp-box { border: 2px solid #ffd232; border-radius: 12px; padding: 14px 28px; background: rgba(255,210,50,0.08); }
+#ending .xp-box .lbl { font-family: ‘Press Start 2P’, monospace; font-size: 8px; color: #888; }
+#ending .xp-box .num { font-family: ‘Press Start 2P’, monospace; font-size: 28px; color: #ffd232; margin: 4px 0; }
+#ending .xp-box .words { font-size: 14px; color: #4ade80; }
+#ending button { padding: 14px 40px; font-family: ‘Press Start 2P’, monospace; font-size: 10px; color: white; border: none; border-radius: 12px; cursor: pointer; }
+
+/* — HELP MODAL — */
+#modal { position: fixed; inset: 0; background: rgba(0,0,0,0.88); display: none; align-items: center; justify-content: center; z-index: 50; }
+#modal.show { display: flex; }
+#modal-box { background: #0f1729; border: 2px solid #1e3060; border-radius: 20px; padding: 28px; max-width: 480px; width: 94%; }
+#modal h3 { font-family: ‘Press Start 2P’, monospace; font-size: 12px; color: #ffd232; text-align: center; margin-bottom: 6px; }
+#modal p { font-size: 14px; color: #888; text-align: center; margin-bottom: 20px; }
+#modal-signs { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+.modal-sign { flex: 1 1 140px; max-width: 190px; background: rgba(255,255,255,0.04); border: 1px solid #1e3060; border-radius: 12px; padding: 10px; display: flex; flex-direction: column; gap: 6px; }
+.modal-sign .choice-video { border-radius: 8px; }
+.modal-sign-lbl { font-family: ‘Press Start 2P’, monospace; font-size: 8px; color: #e8e8ff; text-align: center; }
+#modal button { display: block; margin: 20px auto 0; padding: 11px 30px; background: linear-gradient(135deg,#a78bfa,#ffd232); color: white; border: none; border-radius: 24px; font-family: ‘Press Start 2P’, monospace; font-size: 9px; cursor: pointer; }
 </style>
 
 </head>
 <body>
-<div id="app">
 
 <!-- TITLE -->
 
-<div id="ts" class="screen active">
-  <div class="bg" id="tbg"></div>
-  <div class="stars-l" id="tst"></div>
-  <div class="over">
-    <div class="t-word">BSL<br>QUEST</div>
-    <div class="t-sub">Learn British Sign Language<br>through story &amp; adventure</div>
-    <svg id="t-char" viewBox="0 0 100 140"></svg>
-    <button class="t-start" onclick="startGame()">▶&nbsp;&nbsp;START</button>
-    <div class="t-chap">CHAPTER 1: THE LOST CAT</div>
-  </div>
+<div id="title" class="screen show">
+  <div class="moon"></div>
+  <h1>BSL<br>QUEST</h1>
+  <p>Learn British Sign Language<br>through story &amp; adventure</p>
+  <svg width="100" height="130" viewBox="0 0 100 130" id="title-luna"></svg>
+  <button onclick="startGame()">▶&nbsp; START</button>
+  <div style="font-family:'Press Start 2P',monospace;font-size:7px;color:#555;margin-top:4px;">CHAPTER 1: THE LOST CAT</div>
 </div>
 
 <!-- GAME -->
 
-<div id="gs" class="screen">
-  <div class="bg" id="gbg"></div>
-  <div class="stars-l" id="gst"></div>
-  <div id="ptcl"></div>
-  <div class="over">
-    <div id="hud">
-      <div class="hud1">
-        <div class="htitle">BSL QUEST</div>
-        <div class="badges" id="badges"></div>
-      </div>
-      <div class="xpr">
-        <div class="lvltag" id="lvltag">LVL 1</div>
-        <div class="xptrack"><div class="xpfill" id="xpfill"></div></div>
-        <div class="xpnum" id="xpnum">0/100</div>
+<div id="game" class="screen">
+  <div id="hud">
+    <div id="hud-left">BSL QUEST</div>
+    <div id="badges"></div>
+    <div id="xp-bar-wrap">
+      <div id="lvl">LVL 1</div>
+      <div id="xp-track"><div id="xp-bar"></div></div>
+      <div id="xp-label">0 XP</div>
+    </div>
+  </div>
+  <div id="scene">
+    <div id="particles"></div>
+    <svg id="luna" viewBox="0 0 100 130"></svg>
+    <div id="cam-view"><video id="cam-video" autoplay muted playsinline></video></div>
+    <div id="dlg-wrap">
+      <div id="dlg-box">
+        <div id="dlg-name">LUNA ✨</div>
+        <div id="dlg-text"></div>
+        <div id="dlg-tap" onclick="tapDialogue()">▼ TAP TO CONTINUE</div>
       </div>
     </div>
-    <div id="scene">
-      <svg id="char" viewBox="0 0 100 140"></svg>
-      <div id="camov"><video id="camvid" autoplay muted playsinline></video><div class="rec">● REC</div></div>
-      <div id="dw">
-        <div class="bubble">
-          <div class="bname">LUNA ✨</div>
-          <div class="btr"></div><div class="bbl"></div>
-          <div id="dtxt"></div>
-          <div id="taph" onclick="advLine()">▼ TAP TO CONTINUE</div>
-        </div>
-      </div>
-      <div id="cw">
-        <div class="qlbl" id="qlbl"></div>
-        <div class="crow" id="crow"></div>
-        <div class="tapnote">TAP A SIGN TO RESPOND · ❓ HELP TO SEE HOW</div>
-      </div>
+    <div id="choices-wrap">
+      <div id="choices-q"></div>
+      <div id="choices-row"></div>
+      <div style="text-align:center;font-family:'Press Start 2P',monospace;font-size:7px;color:#444;margin-top:8px;">TAP A SIGN · ❓ FOR HELP</div>
     </div>
-    <div id="toolbar">
-      <button class="tbtn" id="cbambtn" onclick="toggleCam()">📷 CAM</button>
-      <button class="tbtn" id="helpbtn" onclick="showHelp()">❓ HELP</button>
-    </div>
+  </div>
+  <div id="toolbar">
+    <button id="cam-btn" onclick="toggleCam()">📷 CAMERA</button>
+    <button id="help-btn" onclick="openHelp()">❓ HELP</button>
   </div>
 </div>
 
 <!-- ENDING -->
 
-<div id="es" class="screen">
-  <div class="bg" id="ebg"></div>
-  <div class="stars-l" id="est"></div>
-  <div class="over">
-    <div class="ecat">🐱</div>
-    <div class="etitle">YOU FOUND THE CAT!</div>
-    <div class="edesc" id="edesc"></div>
-    <div class="xpcard">
-      <div class="xpclbl">XP EARNED</div>
-      <div class="xpcnum" id="expcnum">+60</div>
-      <div class="xpcw" id="expcw"></div>
-    </div>
-    <button class="ebtn" id="ebtn" onclick="restartGame()">▶ PLAY AGAIN</button>
+<div id="ending" class="screen">
+  <div class="icon">🐱</div>
+  <h2>YOU FOUND THE CAT!</h2>
+  <p id="end-desc"></p>
+  <div class="xp-box">
+    <div class="lbl">XP EARNED</div>
+    <div class="num" id="end-xp">+60</div>
+    <div class="words" id="end-words"></div>
+  </div>
+  <button id="end-btn" onclick="restartGame()">▶ PLAY AGAIN</button>
+</div>
+
+<!-- HELP MODAL -->
+
+<div id="modal" onclick="closeHelp()">
+  <div id="modal-box" onclick="event.stopPropagation()">
+    <h3>HOW TO SIGN</h3>
+    <p>Watch the video then tap your choice!</p>
+    <div id="modal-signs"></div>
+    <button onclick="closeHelp()">GOT IT!</button>
   </div>
 </div>
 
-<!-- MODAL -->
-
-<div id="modal" onclick="hideHelp()">
-  <div class="mbox" onclick="event.stopPropagation()">
-    <div class="mtitle">HOW TO SIGN</div>
-    <div class="msub">Watch the video, then tap your answer!</div>
-    <div class="msigns" id="msigns"></div>
-    <button class="mclose" onclick="hideHelp()">GOT IT!</button>
-  </div>
-</div>
-
-</div>
 <script>
-/* ── BSL videos ── */
-const BSL={
-  yes:   {color:'#fbbf24',hint:'Fist nods forward twice',
-    urls:['https://media.signbsl.com/videos/bsl/signstation/yes.mp4',
-          'https://media.signbsl.com/videos/bsl/ucl/yes.mp4'],
-    page:'https://www.signbsl.com/sign/yes'},
-  no:    {color:'#f87171',hint:'Both fists, pinky up, tap together',
-    urls:['https://media.signbsl.com/videos/bsl/signstation/no.mp4',
-          'https://media.signbsl.com/videos/bsl/ucl/no.mp4'],
-    page:'https://www.signbsl.com/sign/no'},
-  forest:{color:'#4ade80',hint:'Open hand sways from elbow',
-    urls:['https://media.signbsl.com/videos/bsl/signstation/forest.mp4',
-          'https://media.signbsl.com/videos/bsl/ucl/forest.mp4'],
-    page:'https://www.signbsl.com/sign/forest'},
-  city:  {color:'#60a5fa',hint:'Index finger taps index finger',
-    urls:['https://media.signbsl.com/videos/bsl/signstation/city.mp4',
-          'https://media.signbsl.com/videos/bsl/ucl/city.mp4'],
-    page:'https://www.signbsl.com/sign/city'},
+// ===================== LUNA SVG =====================
+function lunaHTML(mood) {
+  const colors = { wave:'#6366f1', excited:'#f59e0b', sad:'#64748b', pleading:'#8b5cf6', normal:'#6366f1' };
+  const c = colors[mood] || '#6366f1';
+  const smiling = mood === 'excited' || mood === 'wave';
+  const sad = mood === 'sad';
+  const mouth = smiling ? 'M 38 58 Q 50 68 62 58' : sad ? 'M 38 64 Q 50 56 62 64' : 'M 38 60 Q 50 65 62 60';
+  return `
+    <ellipse cx="50" cy="126" rx="20" ry="5" fill="rgba(0,0,0,0.4)"/>
+    <rect x="33" y="78" width="34" height="42" rx="10" fill="${c}"/>
+    <rect x="31" y="78" width="38" height="13" rx="7" fill="${sad?'#94a3b8':'#f472b6'}"/>
+    <rect x="20" y="80" width="13" height="26" rx="6" fill="${c}"/>
+    <rect x="67" y="80" width="13" height="26" rx="6" fill="${c}"/>
+    <rect x="37" y="112" width="11" height="22" rx="5" fill="${c}"/>
+    <rect x="52" y="112" width="11" height="22" rx="5" fill="${c}"/>
+    <ellipse cx="43" cy="131" rx="9" ry="5" fill="#1e293b"/>
+    <ellipse cx="57" cy="131" rx="9" ry="5" fill="#1e293b"/>
+    <rect x="43" y="66" width="14" height="14" rx="5" fill="#fde68a"/>
+    <ellipse cx="50" cy="48" rx="27" ry="28" fill="#fef3c7"/>
+    <polygon points="23,25 15,5 33,21" fill="${c}"/>
+    <polygon points="77,25 85,5 67,21" fill="${c}"/>
+    <polygon points="26,23 20,11 31,21" fill="#fca5a5"/>
+    <polygon points="74,23 80,11 69,21" fill="#fca5a5"/>
+    <ellipse cx="50" cy="23" rx="25" ry="13" fill="#7c3aed"/>
+    <rect x="25" y="22" width="10" height="21" rx="5" fill="#7c3aed"/>
+    <rect x="65" y="22" width="10" height="21" rx="5" fill="#7c3aed"/>
+    ${sad
+      ? '<path d="M36,46 Q40,50 44,46" stroke="#1e293b" stroke-width="2.5" fill="none" stroke-linecap="round"/><path d="M56,46 Q60,50 64,46" stroke="#1e293b" stroke-width="2.5" fill="none" stroke-linecap="round"/>'
+      : '<ellipse cx="40" cy="46" rx="6" ry="7" fill="#1e293b"/><ellipse cx="60" cy="46" rx="6" ry="7" fill="#1e293b"/><circle cx="43" cy="43" r="2.5" fill="white"/><circle cx="63" cy="43" r="2.5" fill="white"/>'}
+    ${(mood==='wave'||mood==='excited') ? '<ellipse cx="30" cy="54" rx="7" ry="4" fill="#fca5a5" opacity="0.5"/><ellipse cx="70" cy="54" rx="7" ry="4" fill="#fca5a5" opacity="0.5"/>' : ''}
+    <path d="${mouth}" stroke="#1e293b" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    <ellipse cx="50" cy="56" rx="5" ry="3.5" fill="#fca5a5"/>`;
+}
+
+// ===================== STORY =====================
+const SCENES = {
+  s1: {
+    mood: 'wave',
+    lines: ["Hi! I'm Luna! 🐾", "Will you help me find my cat?"],
+    q: 'Sign your answer!',
+    choices: [
+      { sign:'yes', label:'YES', next:'s_yes' },
+      { sign:'no',  label:'NO',  next:'s_no'  }
+    ], xp: 10
+  },
+  s_no: {
+    mood: 'sad',
+    lines: ["That's not YES...", "Please try again! 🌧️"],
+    q: 'Will you help me?',
+    choices: [
+      { sign:'yes', label:'YES', next:'s_yes'  },
+      { sign:'no',  label:'NO',  next:'s_no2'  }
+    ], xp: 0
+  },
+  s_no2: {
+    mood: 'pleading',
+    lines: ["We don't have all day...", "PLEASE help me! 🥺"],
+    q: 'Last chance!',
+    choices: [
+      { sign:'yes', label:'YES', next:'s_yes' },
+      { sign:'no',  label:'NO',  next:'s_yes' }  // forces yes path
+    ], xp: 0
+  },
+  s_yes: {
+    mood: 'excited',
+    lines: ["YAY! Thank you! ✨", "I lost my cat Mochi! 🐱", "Where should we look?"],
+    q: 'Choose where to search!',
+    choices: [
+      { sign:'forest', label:'FOREST', next:'end_forest' },
+      { sign:'city',   label:'CITY',   next:'end_city'   }
+    ], xp: 20
+  }
 };
 
-function mkVid(sign){
-const d=BSL[sign];
-const wrap=document.createElement(‘div’);
-wrap.className=‘vwrap’;
-let idx=0;
-const v=document.createElement(‘video’);
-v.autoplay=v.loop=v.muted=v.playsInline=true;
-v.onerror=()=>{idx++;idx<d.urls.length?(v.src=d.urls[idx]):fb();};
-v.src=d.urls[0];
-wrap.appendChild(v);
-const cr=document.createElement(‘a’);
-cr.href=d.page;cr.target=’_blank’;cr.rel=‘noopener noreferrer’;
-cr.className=‘vcredit’;cr.textContent=‘signbsl.com ↗’;
-wrap.appendChild(cr);
-function fb(){
-wrap.innerHTML=’’;wrap.style.background=d.color+‘18’;
-const a=document.createElement(‘a’);
-a.href=d.page;a.target=’_blank’;a.rel=‘noopener noreferrer’;a.className=‘vfb’;
-a.innerHTML=`<div style="font-size:26px">🤟</div> <div style="font-family:'Press Start 2P',monospace;font-size:6px;color:${d.color};text-align:center;line-height:1.8">WATCH ${sign.toUpperCase()}<br>ON SIGNBSL.COM</div> <div style="font-size:10px;color:#888;text-align:center;padding:0 8px">${d.hint}</div>`;
-wrap.appendChild(a);
-}
-return wrap;
-}
-
-/* ── Story ── */
-const STORY={
-scene1:   {mood:‘wave’,   bg:‘night’,
-lines:[“Hi! I’m Luna! 🐾”,“Will you help me find my cat?”],
-q:‘Sign your answer!’,
-choices:[{sign:‘yes’,label:‘YES’,next:‘scene_yes’},{sign:‘no’,label:‘NO’,next:‘scene_no’}],xp:10},
-scene_no: {mood:‘sad’,    bg:‘night’,
-lines:[“That’s not the sign for YES…”,“Try again! 🌧️”],
-q:‘Will you help me?’,
-choices:[{sign:‘yes’,label:‘YES’,next:‘scene_yes’},{sign:‘no’,label:‘NO’,next:‘scene_no2’}],xp:0},
-scene_no2:{mood:‘pleading’,bg:‘night’,
-lines:[“We don’t have all day…”,“PLEASE help me! 🥺”],
-q:‘Last chance!’,
-choices:[{sign:‘yes’,label:‘YES’,next:‘scene_yes’},{sign:‘no’,label:‘NO’,next:‘scene_yes’}],xp:0},
-scene_yes:{mood:‘excited’,bg:‘night’,
-lines:[“YAY! Thank you so much! ✨”,“I lost my cat Mochi! 🐱”,“Where should we look first?”],
-q:‘Choose your path!’,
-choices:[{sign:‘forest’,label:‘FOREST’,next:‘end_forest’},{sign:‘city’,label:‘CITY’,next:‘end_city’}],xp:20},
-end_forest:{isEnding:true,type:‘forest’,xp:30},
-end_city:  {isEnding:true,type:‘city’,  xp:30},
+// ===================== BSL VIDEOS =====================
+const SIGNS = {
+  yes:    { color:'#fbbf24', hint:'Fist nods forward twice',          urls:['https://media.signbsl.com/videos/bsl/signstation/yes.mp4'],    page:'https://www.signbsl.com/sign/yes'    },
+  no:     { color:'#f87171', hint:'Both fists, pinky up, tap together', urls:['https://media.signbsl.com/videos/bsl/signstation/no.mp4'],     page:'https://www.signbsl.com/sign/no'     },
+  forest: { color:'#4ade80', hint:'Open hand sways from elbow',        urls:['https://media.signbsl.com/videos/bsl/signstation/forest.mp4'], page:'https://www.signbsl.com/sign/forest' },
+  city:   { color:'#60a5fa', hint:'Index finger taps index finger',    urls:['https://media.signbsl.com/videos/bsl/signstation/city.mp4'],   page:'https://www.signbsl.com/sign/city'   }
 };
 
-/* ── State ── */
-let S={id:‘scene1’,line:0,xp:0,level:1,unlocked:[‘YES’,‘NO’],busy:false};
-let camStream=null,autoT=null,typIv=null;
+function makeVideoWrap(sign) {
+  const d = SIGNS[sign];
+  const wrap = document.createElement('div');
+  wrap.className = 'choice-video';
 
-/* ── Screen switching ── */
-function show(id){
-document.querySelectorAll(’.screen’).forEach(s=>s.classList.remove(‘active’));
-document.getElementById(id).classList.add(‘active’);
+  const vid = document.createElement('video');
+  vid.autoplay = vid.loop = vid.muted = vid.playsInline = true;
+  vid.src = d.urls[0];
+  vid.onerror = function() {
+    // Show fallback link
+    wrap.innerHTML = '';
+    wrap.style.background = d.color + '20';
+    const a = document.createElement('a');
+    a.href = d.page; a.target = '_blank'; a.rel = 'noopener noreferrer';
+    a.className = 'choice-fallback';
+    a.innerHTML = `<div style="font-size:26px">🤟</div>
+      <div style="font-family:'Press Start 2P',monospace;font-size:6px;color:${d.color};text-align:center;line-height:1.8">
+        WATCH<br>${sign.toUpperCase()}<br>ON SIGNBSL
+      </div>
+      <div style="font-size:10px;color:#888;text-align:center">${d.hint}</div>`;
+    wrap.appendChild(a);
+  };
+  wrap.appendChild(vid);
+
+  const credit = document.createElement('a');
+  credit.href = d.page; credit.target = '_blank'; credit.rel = 'noopener noreferrer';
+  credit.className = 'choice-credit'; credit.textContent = 'signbsl.com ↗';
+  wrap.appendChild(credit);
+
+  return wrap;
 }
 
-/* ── Stars ── */
-function mkStars(el){
-el.innerHTML=’’;
-for(let i=0;i<65;i++){
-const d=document.createElement(‘div’);
-d.style.cssText=`position:absolute;border-radius:50%;background:#fff; left:${Math.random()*100}%;top:${Math.random()*100}%; width:${.5+Math.random()*2.5}px;height:${.5+Math.random()*2.5}px; opacity:${.15+Math.random()*.85}; animation:twinkle ${2+Math.random()*3}s ${Math.random()*4}s ease-in-out infinite`;
-el.appendChild(d);
-}
-}
+// ===================== GAME STATE =====================
+let state = {
+  scene: 's1',
+  lineIndex: 0,
+  xp: 0,
+  level: 1,
+  unlocked: ['YES', 'NO'],
+  busy: false
+};
+let camStream = null;
+let typeTimer = null;
+let typeInterval = null;
 
-/* ── Backgrounds ── */
-function nightBg(el){
-el.innerHTML=`
-
-  <div style="position:absolute;inset:0;background:linear-gradient(180deg,#080820,#18104a 45%,#2a1860 75%,#180a1e)"></div>
-  <div style="position:absolute;top:26px;right:16%;animation:moonGlow 4s ease-in-out infinite">
-    <svg width="58" height="58" viewBox="0 0 58 58"><circle cx="29" cy="29" r="25" fill="#fde68a"/><circle cx="40" cy="18" r="18" fill="#18104a"/></svg>
-  </div>
-  ${[0,75,155,235,315,400,480,560,640,720].map((x,i)=>`
-  <svg style="position:absolute;bottom:${45+Math.sin(i)*16}px;left:${x}px;animation:treeWay ${3+i*.5}s ${i*.3}s ease-in-out infinite" width="65" height="150" viewBox="0 0 65 150">
-    <polygon points="32,2 1,90 64,90" fill="${i%2?'#0a1a0a':'#0e1e0e'}"/>
-    <polygon points="32,26 3,115 62,115" fill="${i%2?'#091409':'#0c180c'}"/>
-    <rect x="25" y="115" width="14" height="28" fill="#060d06"/>
-  </svg>`).join('')}
-  <div style="position:absolute;bottom:0;left:0;right:0;height:55px;background:linear-gradient(#0a180a,#040c04)"></div>`;}
-
-function forestBg(el){
-el.innerHTML=`
-
-  <div style="position:absolute;inset:0;background:linear-gradient(180deg,#0c1e0e,#0a2e18 45%,#0c2210)"></div>
-  ${[18,34,54,70].map((x,i)=>`<div style="position:absolute;top:0;left:${x}%;width:${3+i}px;height:68%;background:linear-gradient(rgba(255,230,100,.09),transparent);transform:rotate(${-6+i*3}deg);transform-origin:top"></div>`).join('')}
-  ${[0,80,160,240,320,405,485,565,645,720].map((x,i)=>`
-  <svg style="position:absolute;bottom:42px;left:${x}px;animation:treeWay ${3+i*.5}s ${i*.3}s ease-in-out infinite" width="78" height="175" viewBox="0 0 78 175">
-    <polygon points="39,2 2,108 76,108" fill="${i%2?'#1a481a':'#154015'}"/>
-    <polygon points="39,28 4,128 74,128" fill="${i%2?'#154e15':'#1a581a'}"/>
-    <polygon points="39,58 7,146 71,146" fill="${i%2?'#0f3e0f':'#124212'}"/>
-    <rect x="31" y="146" width="16" height="30" fill="#3c1900"/>
-  </svg>`).join('')}
-  ${[14,29,48,64,79].map((x,i)=>`<div style="position:absolute;left:${x}%;bottom:${28+i*8}%;width:4px;height:4px;border-radius:50%;background:#fffb80;box-shadow:0 0 7px #fffb80;animation:twinkle ${1.4+i*.4}s ${i*.6}s ease-in-out infinite"></div>`).join('')}
-  <div style="position:absolute;bottom:0;left:0;right:0;height:52px;background:linear-gradient(#0a200e,#050e05)"></div>`;}
-
-function cityBg(el){
-const b=[{x:0,w:78,h:215},{x:68,w:58,h:275},{x:118,w:98,h:175},{x:208,w:68,h:305},
-{x:266,w:88,h:195},{x:346,w:58,h:255},{x:396,w:108,h:185},{x:496,w:78,h:295},
-{x:566,w:68,h:165},{x:626,w:98,h:235},{x:716,w:78,h:205}];
-const cl=[’#0d1b2e’,’#0a1525’,’#0f2035’,’#0a1830’,’#0d2040’];
-el.innerHTML=`
-
-  <div style="position:absolute;inset:0;background:linear-gradient(180deg,#020810,#050e1e 40%,#0a1628)"></div>
-  <svg style="position:absolute;bottom:0;left:0;width:100%" viewBox="0 0 800 320" preserveAspectRatio="none">
-    ${b.map((v,i)=>`<rect x="${v.x}" y="${320-v.h}" width="${v.w}" height="${v.h}" fill="${cl[i%5]}"/>
-      ${Array.from({length:Math.floor(v.h/27)}).flatMap((_,r)=>Array.from({length:Math.floor(v.w/17)}).map((_,c)=>`<rect x="${v.x+3+c*17}" y="${320-v.h+7+r*27}" width="10" height="13" fill="${Math.random()>.38?'#fbbf24':'#1a3060'}" opacity="${.55+Math.random()*.45}"/>`)).join('')}`).join('')}
-    <rect x="0" y="300" width="800" height="20" fill="#04101c"/>
-  </svg>`;}
-
-/* ── Character ── */
-function mkChar(mood){
-const col={wave:’#6366f1’,excited:’#f59e0b’,sad:’#64748b’,pleading:’#8b5cf6’,adventure:’#10b981’}[mood]||’#6366f1’;
-const smile=[‘excited’,‘adventure’,‘wave’].includes(mood);
-const sad=mood===‘sad’;
-const blush=[‘excited’,‘wave’,‘pleading’].includes(mood);
-const mouth=smile?‘M42,60 Q50,70 58,60’:sad?‘M42,66 Q50,58 58,66’:‘M42,62 Q50,66 58,62’;
-return`<ellipse cx="50" cy="136" rx="20" ry="5" fill="rgba(0,0,0,.4)"/> <rect x="32" y="80" width="36" height="44" rx="10" fill="${col}"/> <rect x="30" y="80" width="40" height="14" rx="7" fill="${sad?'#94a3b8':'#f472b6'}"/> <rect x="18" y="82" width="14" height="28" rx="7" fill="${col}"${mood==='wave'?' style="transform-origin:18px 82px;animation:tailWag .6s ease-in-out infinite"':''}/> <rect x="68" y="82" width="14" height="28" rx="7" fill="${col}"${mood==='excited'?' style="transform-origin:68px 82px;animation:tailWag .5s .1s ease-in-out infinite"':''}/> <rect x="36" y="116" width="12" height="24" rx="6" fill="${col}"/> <rect x="52" y="116" width="12" height="24" rx="6" fill="${col}"/> <ellipse cx="42" cy="139" rx="9" ry="5" fill="#1e293b"/> <ellipse cx="58" cy="139" rx="9" ry="5" fill="#1e293b"/> <rect x="42" y="68" width="16" height="14" rx="5" fill="#fde68a"/> <ellipse cx="50" cy="50" rx="28" ry="30" fill="#fef3c7"/> <polygon points="22,26 14,6 34,22" fill="${col}"/> <polygon points="78,26 86,6 66,22" fill="${col}"/> <polygon points="25,24 19,12 32,22" fill="#fca5a5"/> <polygon points="75,24 81,12 68,22" fill="#fca5a5"/> <ellipse cx="50" cy="24" rx="26" ry="14" fill="#7c3aed"/> <rect x="24" y="24" width="10" height="22" rx="5" fill="#7c3aed"/> <rect x="66" y="24" width="10" height="22" rx="5" fill="#7c3aed"/> ${sad ?`<path d="M36,48 Q40,52 44,48" stroke="#1e293b" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-<path d="M56,48 Q60,52 64,48" stroke="#1e293b" stroke-width="2.5" fill="none" stroke-linecap="round"/>` :`<ellipse cx="40" cy="48" rx="6" ry="7" fill="#1e293b" style="animation:blink 4s ease-in-out infinite"/>
-<ellipse cx="60" cy="48" rx="6" ry="7" fill="#1e293b" style="animation:blink 4s .15s ease-in-out infinite"/>
-<circle cx="43" cy="45" r="2.5" fill="white"/>
-<circle cx="63" cy="45" r="2.5" fill="white"/>`} ${blush?`<ellipse cx="30" cy="56" rx="8" ry="5" fill="#fca5a5" opacity=".5"/><ellipse cx="70" cy="56" rx="8" ry="5" fill="#fca5a5" opacity=".5"/>`:'' } <path d="${mouth}" stroke="#1e293b" stroke-width="2.5" fill="none" stroke-linecap="round"/> <ellipse cx="50" cy="58" rx="5" ry="3.5" fill="#fca5a5"/> <path d="M68,115 Q90,100 82,82" stroke="${col}" stroke-width="8" fill="none" stroke-linecap="round" style="animation:tailWag 1.2s ease-in-out infinite;transform-origin:68px 115px"/>`;}
-
-/* ── Particles ── */
-function burst(type){
-const el=document.getElementById(‘ptcl’);
-el.innerHTML=’’;
-const cols=[’#ffd232’,’#ff6b6b’,’#4ade80’,’#60a5fa’,’#f472b6’,’#a78bfa’];
-for(let i=0;i<(type===‘celebrate’?22:14);i++){
-const p=document.createElement(‘div’);
-p.style.cssText=‘position:absolute;pointer-events:none;’;
-if(type===‘celebrate’){
-p.style.cssText+=`left:${4+i*4.4}%;bottom:12%;width:${8+i%4*4}px;height:${8+i%3*4}px; border-radius:${i%3===0?'50%':i%3===1?'3px':'0'};background:${cols[i%6]}; animation:confetti ${.7+i*.055}s ${i*.04}s ease-out forwards`;
-} else {
-p.style.cssText+=`left:${i*7.1}%;top:-5%;font-size:${16+i%3*6}px; animation:rainDrop ${.75+i*.07}s ${i*.05}s linear forwards`;
-p.textContent=‘💧’;
-}
-el.appendChild(p);
-}
-setTimeout(()=>el.innerHTML=’’,1800);
+// ===================== SCREEN SWITCHING =====================
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('show'));
+  document.getElementById(id).classList.add('show');
 }
 
-/* ── XP & badges ── */
-function addXP(n){
-if(!n)return;
-S.xp+=n;
-if(S.xp>=100*S.level)S.level++;
-const pct=Math.min(100,S.xp%100);
-document.getElementById(‘xpfill’).style.width=pct+’%’;
-document.getElementById(‘xpnum’).textContent=S.xp+’/100’;
-document.getElementById(‘lvltag’).textContent=‘LVL ‘+S.level;
-}
-function renderBadges(newW){
-const el=document.getElementById(‘badges’);
-el.innerHTML=’’;
-S.unlocked.forEach(w=>{
-const b=document.createElement(‘div’);
-b.className=‘badge’+(w===newW?’ lit’:’’);
-b.textContent=’🔓 ’+w;
-el.appendChild(b);
-if(w===newW)setTimeout(()=>b.classList.remove(‘lit’),3200);
-});
-}
-function unlock(w){
-if(S.unlocked.includes(w))return;
-S.unlocked.push(w);renderBadges(w);
+// ===================== START GAME =====================
+function startGame() {
+  showScreen('game');
+  loadScene('s1');
 }
 
-/* ── Game flow ── */
-function startGame(){
-show(‘gs’);
-mkStars(document.getElementById(‘gst’));
-renderBadges();addXP(0);
-loadScene(‘scene1’);
+// ===================== LOAD SCENE =====================
+function loadScene(id) {
+  // Clear any running timers
+  clearTimeout(typeTimer);
+  clearInterval(typeInterval);
+  typeInterval = null;
+
+  state.scene = id;
+  state.lineIndex = 0;
+  state.busy = false;
+
+  const sc = SCENES[id];
+
+  // Draw Luna
+  const luna = document.getElementById('luna');
+  luna.innerHTML = lunaHTML(sc.mood);
+  luna.style.bottom = '185px';
+
+  // Show dialogue, hide choices
+  document.getElementById('dlg-wrap').style.display = 'block';
+  document.getElementById('choices-wrap').style.display = 'none';
+  document.getElementById('dlg-tap').style.display = 'none';
+
+  typeLine();
 }
 
-function loadScene(id){
-clearTimeout(autoT);
-if(typIv){clearInterval(typIv);typIv=null;}
-S.id=id;S.line=0;S.busy=false;
+// ===================== TYPEWRITER =====================
+function typeLine() {
+  clearInterval(typeInterval);
+  typeInterval = null;
 
-const sc=STORY[id];
-if(sc.isEnding){doEnding(sc,id);return;}
+  const sc = SCENES[state.scene];
+  const text = sc.lines[state.lineIndex];
+  const el = document.getElementById('dlg-text');
+  const tap = document.getElementById('dlg-tap');
 
-// Background
-({night:nightBg,forest:forestBg,city:cityBg}[sc.bg||‘night’])(document.getElementById(‘gbg’));
+  el.textContent = '';
+  tap.style.display = 'none';
 
-// Character
-const ch=document.getElementById(‘char’);
-ch.innerHTML=mkChar(sc.mood);
-ch.style.cssText=‘position:absolute;left:14px;width:115px;height:145px;bottom:190px;transition:bottom .5s ease;animation:walkIn .6s ease-out’;
-setTimeout(()=>ch.style.animation=‘float 3s ease-in-out infinite’,750);
-
-document.getElementById(‘dw’).style.display=‘block’;
-document.getElementById(‘cw’).style.display=‘none’;
-document.getElementById(‘taph’).style.display=‘none’;
-document.getElementById(‘helpbtn’).classList.remove(‘pulse’);
-
-typeLine();
+  let i = 0;
+  typeInterval = setInterval(function() {
+    if (i < text.length) {
+      el.textContent = text.slice(0, ++i);
+    } else {
+      clearInterval(typeInterval);
+      typeInterval = null;
+      tap.style.display = 'block'; // Always show tap hint when done
+    }
+  }, 35);
 }
 
-function typeLine(){
-clearTimeout(autoT);
-if(typIv){clearInterval(typIv);typIv=null;}
-const sc=STORY[S.id];
-const text=sc.lines[S.line];
-const el=document.getElementById(‘dtxt’);
-const hint=document.getElementById(‘taph’);
-el.textContent=’’;
-hint.style.display=‘none’;
-let i=0;
-typIv=setInterval(()=>{
-if(i<text.length){ el.textContent=text.slice(0,++i); }
-else {
-clearInterval(typIv);typIv=null;
-// Show tap hint on EVERY line so player always knows to tap
-hint.style.display=‘block’;
-}
-},30);
+// ===================== TAP DIALOGUE =====================
+function tapDialogue() {
+  // If still typing, skip to end
+  if (typeInterval) {
+    clearInterval(typeInterval);
+    typeInterval = null;
+    const sc = SCENES[state.scene];
+    document.getElementById('dlg-text').textContent = sc.lines[state.lineIndex];
+    document.getElementById('dlg-tap').style.display = 'block';
+    return;
+  }
+
+  const sc = SCENES[state.scene];
+  if (state.lineIndex < sc.lines.length - 1) {
+    // More lines to show
+    state.lineIndex++;
+    typeLine();
+  } else {
+    // All lines done — show choices
+    document.getElementById('dlg-wrap').style.display = 'none';
+    document.getElementById('choices-wrap').style.display = 'block';
+    document.getElementById('choices-q').textContent = sc.q;
+
+    const row = document.getElementById('choices-row');
+    row.innerHTML = '';
+    sc.choices.forEach(function(c) {
+      const btn = document.createElement('button');
+      btn.className = 'choice ' + c.sign;
+
+      // Video
+      btn.appendChild(makeVideoWrap(c.sign));
+
+      // Label
+      const lbl = document.createElement('div');
+      lbl.className = 'choice-label';
+      lbl.textContent = c.label;
+      btn.appendChild(lbl);
+
+      btn.onclick = function() { pickChoice(c); };
+      row.appendChild(btn);
+    });
+
+    // Move Luna up
+    document.getElementById('luna').style.bottom = '250px';
+  }
 }
 
-function advLine(){
-// If still typing — skip to full text
-if(typIv){
-clearInterval(typIv);typIv=null;
-const sc=STORY[S.id];
-document.getElementById(‘dtxt’).textContent=sc.lines[S.line];
-document.getElementById(‘taph’).style.display=‘block’;
-return;
-}
-clearTimeout(autoT);
-const sc=STORY[S.id];
-if(S.line<sc.lines.length-1){
-S.line++;
-typeLine();
-} else {
-showChoices();
-}
+// ===================== PICK CHOICE =====================
+function pickChoice(choice) {
+  if (state.busy) return;
+  state.busy = true;
+
+  const good = choice.next !== 's_no' && choice.next !== 's_no2';
+
+  // Particles
+  spawnParticles(good ? 'celebrate' : 'rain');
+
+  // Unlock badge
+  if (!state.unlocked.includes(choice.label)) {
+    state.unlocked.push(choice.label);
+    renderBadges(choice.label);
+  }
+
+  // XP
+  gainXP(SCENES[state.scene].xp || 0);
+
+  setTimeout(function() {
+    if (choice.next === 'end_forest' || choice.next === 'end_city') {
+      gainXP(30);
+      showEnding(choice.next);
+    } else {
+      loadScene(choice.next);
+    }
+  }, 1400);
 }
 
-function showChoices(){
-document.getElementById(‘dw’).style.display=‘none’;
-document.getElementById(‘cw’).style.display=‘block’;
-const sc=STORY[S.id];
-document.getElementById(‘qlbl’).textContent=sc.q;
-const row=document.getElementById(‘crow’);
-row.innerHTML=’’;
-sc.choices.forEach((c,i)=>{
-const btn=document.createElement(‘button’);
-btn.className=’cbtn ’+c.sign;
-btn.style.animation=`choiceIn .4s ${i*.12}s ease both`;
-btn.appendChild(mkVid(c.sign));
-const lbl=document.createElement(‘div’);
-lbl.className=‘vlbl’;lbl.textContent=c.label;
-btn.appendChild(lbl);
-btn.onclick=()=>pick(c);
-row.appendChild(btn);
-});
-document.getElementById(‘char’).style.bottom=‘255px’;
-document.getElementById(‘helpbtn’).classList.add(‘pulse’);
+// ===================== XP =====================
+function gainXP(n) {
+  if (!n) return;
+  state.xp += n;
+  if (state.xp >= 100 * state.level) state.level++;
+  const pct = Math.min(100, state.xp % 100);
+  document.getElementById('xp-bar').style.width = pct + '%';
+  document.getElementById('xp-label').textContent = state.xp + ' XP';
+  document.getElementById('lvl').textContent = 'LVL ' + state.level;
 }
 
-function pick(choice){
-if(S.busy)return;
-S.busy=true;
-document.getElementById(‘helpbtn’).classList.remove(‘pulse’);
-const good=![‘scene_no’,‘scene_no2’].includes(choice.next);
-burst(good?‘celebrate’:‘rain’);
-if(!good){
-const ch=document.getElementById(‘char’);
-ch.style.animation=‘shake .4s ease’;
-setTimeout(()=>ch.style.animation=‘float 3s ease-in-out infinite’,450);
-}
-unlock(choice.label);
-addXP(STORY[S.id].xp||0);
-setTimeout(()=>{
-if(choice.next.startsWith(‘end_’)){
-addXP(STORY[choice.next].xp||0);
-doEnding(STORY[choice.next],choice.next);
-} else {
-loadScene(choice.next);
-}
-},1500);
+function renderBadges(highlight) {
+  const el = document.getElementById('badges');
+  el.innerHTML = '';
+  state.unlocked.forEach(function(w) {
+    const b = document.createElement('div');
+    b.className = 'badge';
+    b.textContent = '🔓 ' + w;
+    if (w === highlight) b.style.animation = 'none';
+    el.appendChild(b);
+  });
 }
 
-/* ── Ending ── */
-function doEnding(sc,id){
-show(‘es’);
-const forest=id===‘end_forest’;
-(forest?forestBg:cityBg)(document.getElementById(‘ebg’));
-mkStars(document.getElementById(‘est’));
-document.getElementById(‘edesc’).textContent=forest
-?‘She was hiding behind a great oak tree 🌳’
-:‘She was sitting on a city rooftop 🏙️’;
-document.getElementById(‘expcnum’).textContent=’+’+(sc.xp||30);
-document.getElementById(‘expcw’).textContent=’✓ YES  ✓ NO  ✓ ’+(forest?‘FOREST’:‘CITY’);
-document.getElementById(‘ebtn’).style.background=forest
-?‘linear-gradient(135deg,#166534,#4ade80)’
-:‘linear-gradient(135deg,#1e3a8a,#60a5fa)’;
+// ===================== PARTICLES =====================
+function spawnParticles(type) {
+  const el = document.getElementById('particles');
+  el.innerHTML = '';
+  const colors = ['#ffd232','#ff6b6b','#4ade80','#60a5fa','#f472b6','#a78bfa'];
+  const count = type === 'celebrate' ? 20 : 12;
+  for (let i = 0; i < count; i++) {
+    const p = document.createElement('div');
+    p.className = 'p';
+    if (type === 'celebrate') {
+      const size = 8 + (i % 4) * 4;
+      p.style.cssText = `
+        left: ${5 + i * 4.5}%; bottom: 15%;
+        width: ${size}px; height: ${size}px;
+        border-radius: ${i % 2 === 0 ? '50%' : '3px'};
+        background: ${colors[i % 6]};
+        animation: rise 0.9s ${i * 0.04}s ease-out forwards;`;
+    } else {
+      p.style.cssText = `
+        left: ${i * 8.3}%; top: -10%; font-size: ${16 + (i % 3) * 6}px;
+        animation: fall 0.85s ${i * 0.05}s linear forwards;`;
+      p.textContent = '💧';
+    }
+    el.appendChild(p);
+  }
+  setTimeout(function() { el.innerHTML = ''; }, 1600);
 }
 
-function restartGame(){
-S={id:‘scene1’,line:0,xp:0,level:1,unlocked:[‘YES’,‘NO’],busy:false};
-document.getElementById(‘xpfill’).style.width=‘0%’;
-document.getElementById(‘xpnum’).textContent=‘0/100’;
-document.getElementById(‘lvltag’).textContent=‘LVL 1’;
+// ===================== ENDING =====================
+function showEnding(type) {
+  const forest = type === 'end_forest';
+
+  document.getElementById('end-desc').textContent = forest
+    ? 'She was hiding behind a great oak tree! 🌳'
+    : 'She was sitting on a city rooftop! 🏙️';
+  document.getElementById('end-xp').textContent = '+' + state.xp;
+  document.getElementById('end-words').textContent = '✓ YES  ✓ NO  ✓ ' + (forest ? 'FOREST' : 'CITY');
+  document.getElementById('end-btn').style.background = forest
+    ? 'linear-gradient(135deg, #166534, #4ade80)'
+    : 'linear-gradient(135deg, #1e3a8a, #60a5fa)';
+  document.getElementById('ending').style.background = forest
+    ? 'linear-gradient(180deg, #0d2010, #0a3018 50%, #0d2510)'
+    : 'linear-gradient(180deg, #020812, #050f20 50%, #0a1830)';
+
+  showScreen('ending');
+}
+
+function restartGame() {
+  state = { scene:'s1', lineIndex:0, xp:0, level:1, unlocked:['YES','NO'], busy:false };
+  document.getElementById('xp-bar').style.width = '0%';
+  document.getElementById('xp-label').textContent = '0 XP';
+  document.getElementById('lvl').textContent = 'LVL 1';
+  renderBadges();
+  startGame();
+}
+
+// ===================== CAMERA =====================
+function toggleCam() {
+  const view = document.getElementById('cam-view');
+  const btn = document.getElementById('cam-btn');
+  if (camStream) {
+    camStream.getTracks().forEach(t => t.stop());
+    camStream = null;
+    view.style.display = 'none';
+    btn.textContent = '📷 CAMERA';
+  } else {
+    navigator.mediaDevices.getUserMedia({ video: true })
+      .then(function(stream) {
+        camStream = stream;
+        document.getElementById('cam-video').srcObject = stream;
+        view.style.display = 'block';
+        view.style.top = (document.getElementById('hud').offsetHeight + 8) + 'px';
+        btn.textContent = '📷 HIDE';
+      })
+      .catch(function() { alert('Camera not available'); });
+  }
+}
+
+// ===================== HELP MODAL =====================
+function openHelp() {
+  const sc = SCENES[state.scene];
+  if (!sc || !sc.choices) return;
+  const el = document.getElementById('modal-signs');
+  el.innerHTML = '';
+  sc.choices.forEach(function(c) {
+    const div = document.createElement('div');
+    div.className = 'modal-sign';
+    div.appendChild(makeVideoWrap(c.sign));
+    const lbl = document.createElement('div');
+    lbl.className = 'modal-sign-lbl';
+    lbl.textContent = c.label;
+    div.appendChild(lbl);
+    el.appendChild(div);
+  });
+  document.getElementById('modal').classList.add('show');
+}
+
+function closeHelp() {
+  document.getElementById('modal').classList.remove('show');
+}
+
+// ===================== PARTICLE ANIMATIONS (injected) =====================
+const style = document.createElement('style');
+style.textContent = `
+  @keyframes rise { 0%{transform:translateY(0) rotate(0);opacity:1} 100%{transform:translateY(-250px) rotate(540deg);opacity:0} }
+  @keyframes fall { 0%{transform:translateY(0);opacity:0} 20%{opacity:1} 100%{transform:translateY(180px);opacity:0} }
+`;
+document.head.appendChild(style);
+
+// ===================== DRAW TITLE LUNA =====================
+document.getElementById('title-luna').innerHTML = lunaHTML('wave');
 renderBadges();
-show(‘gs’);
-loadScene(‘scene1’);
-}
-
-/* ── Camera ── */
-function toggleCam(){
-const ov=document.getElementById(‘camov’);
-const btn=document.getElementById(‘cbambtn’);
-if(camStream){
-camStream.getTracks().forEach(t=>t.stop());camStream=null;
-ov.classList.remove(‘on’);btn.classList.remove(‘on’);btn.textContent=‘📷 CAM’;
-} else {
-navigator.mediaDevices?.getUserMedia({video:true}).then(s=>{
-camStream=s;document.getElementById(‘camvid’).srcObject=s;
-ov.classList.add(‘on’);btn.classList.add(‘on’);btn.textContent=‘📷 HIDE’;
-ov.style.top=(document.getElementById(‘hud’).offsetHeight+8)+‘px’;
-}).catch(()=>alert(‘Camera not available’));
-}
-}
-
-/* ── Help ── */
-function showHelp(){
-const sc=STORY[S.id];
-if(!sc||!sc.choices)return;
-const el=document.getElementById(‘msigns’);
-el.innerHTML=’’;
-sc.choices.forEach(c=>{
-const div=document.createElement(‘div’);div.className=‘msign’;
-div.appendChild(mkVid(c.sign));
-const lbl=document.createElement(‘div’);lbl.className=‘mslbl’;lbl.textContent=c.label;
-div.appendChild(lbl);el.appendChild(div);
-});
-document.getElementById(‘modal’).classList.add(‘open’);
-}
-function hideHelp(){document.getElementById(‘modal’).classList.remove(‘open’);}
-
-/* ── Init ── */
-function init(){
-nightBg(document.getElementById(‘tbg’));
-mkStars(document.getElementById(‘tst’));
-document.getElementById(‘t-char’).innerHTML=mkChar(‘wave’);
-}
-init();
-window.addEventListener(‘load’, function() {
-nightBg(document.getElementById(‘tbg’));
-mkStars(document.getElementById(‘tst’));
-document.getElementById(‘t-char’).innerHTML=mkChar(‘wave’);
-});
 </script>
 
 </body>
