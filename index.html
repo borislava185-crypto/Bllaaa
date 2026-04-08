@@ -2,1669 +2,740 @@
 
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>BSL Quest</title>
-  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>BSL Quest</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden;background:#0a0a1a;font-family:'Fredoka',sans-serif}
+
+/* ── Animations ── */
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+@keyframes twinkle{0%,100%{opacity:.3;transform:scale(1)}50%{opacity:1;transform:scale(1.5)}}
+@keyframes bubbleIn{0%{transform:scale(0);opacity:0}70%{transform:scale(1.05)}100%{transform:scale(1);opacity:1}}
+@keyframes choiceIn{0%{transform:translateY(28px);opacity:0}100%{transform:translateY(0);opacity:1}}
+@keyframes walkIn{from{transform:translateX(-100px);opacity:0}to{transform:translateX(0);opacity:1}}
+@keyframes confetti{0%{transform:translateY(0) rotate(0);opacity:1}100%{transform:translateY(-280px) rotate(720deg);opacity:0}}
+@keyframes rain{0%{transform:translateY(-20px);opacity:0}20%{opacity:.9}100%{transform:translateY(200px);opacity:0}}
+@keyframes titlePop{0%{transform:scale(0) rotate(-8deg);opacity:0}65%{transform:scale(1.08) rotate(1deg)}100%{transform:scale(1) rotate(0);opacity:1}}
+@keyframes glow{0%,100%{box-shadow:0 0 20px rgba(255,210,50,.3)}50%{box-shadow:0 0 40px rgba(255,210,50,.7)}}
+@keyframes blink{0%,88%,100%{transform:scaleY(1)}94%{transform:scaleY(0.08)}}
+@keyframes moonGlow{0%,100%{filter:drop-shadow(0 0 8px #fde68a)}50%{filter:drop-shadow(0 0 22px #fde68a)}}
+@keyframes treeWay{0%,100%{transform:rotate(-1deg)}50%{transform:rotate(1deg)}}
+@keyframes tailWag{0%,100%{transform:rotate(-12deg)}50%{transform:rotate(16deg)}}
+@keyframes cloudDrift{from{transform:translateX(-200px)}to{transform:translateX(110vw)}}
+@keyframes slideIn{from{opacity:0;transform:translateX(60px)}to{opacity:1;transform:translateX(0)}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}40%{transform:translateX(7px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+
+/* ── Layout ── */
+#app{width:100vw;height:100vh;position:relative;overflow:hidden;display:flex;flex-direction:column}
+.screen{position:absolute;inset:0;display:flex;flex-direction:column}
+.screen.hidden{display:none}
+.bg{position:absolute;inset:0;overflow:hidden}
+.stars{position:absolute;inset:0;pointer-events:none}
+
+/* ── HUD ── */
+#hud{position:relative;z-index:10;padding:10px 14px 6px;background:linear-gradient(180deg,rgba(10,10,26,.95),transparent)}
+.hud-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.game-title{font-family:‘Press Start 2P’,monospace;font-size:9px;color:#ffd232;text-shadow:0 0 12px #ffd232}
+.badges{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.badge{background:rgba(255,255,255,.04);border:1px solid #1e3060;border-radius:20px;padding:3px 10px;font-family:‘Press Start 2P’,monospace;font-size:7px;color:#7a80a0;transition:all .4s}
+.badge.new{background:rgba(255,210,50,.15);border-color:#ffd232;color:#ffd232;box-shadow:0 0 10px rgba(255,210,50,.4)}
+.xp-row{display:flex;align-items:center;gap:8px}
+.level-tag{background:#141d35;border:2px solid #1e3060;border-radius:16px;padding:3px 10px;font-family:‘Press Start 2P’,monospace;font-size:7px;color:#ffd232}
+.xp-bar{flex:1;height:12px;background:#0a0a1a;border-radius:8px;border:2px solid #1e3060;overflow:hidden}
+.xp-fill{height:100%;background:linear-gradient(90deg,#a78bfa,#ffd232);border-radius:8px;transition:width .8s cubic-bezier(.4,0,.2,1);box-shadow:0 0 10px #a78bfa88}
+.xp-label{font-family:‘Press Start 2P’,monospace;font-size:6px;color:#7a80a0;white-space:nowrap}
+
+/* ── Scene ── */
+#scene{flex:1;position:relative;z-index:5;display:flex;flex-direction:column;justify-content:flex-end;padding:0 14px 12px}
+#character{position:absolute;left:14px;width:120px;height:150px;transition:bottom .5s cubic-bezier(.4,0,.2,1)}
+#dialogue-wrap{margin-left:130px;margin-bottom:10px;position:relative;z-index:6}
+.bubble{background:linear-gradient(135deg,#141d35ee,#0f1729ee);border:2px solid #1e3060;border-radius:14px;padding:14px 18px 12px;position:relative;animation:bubbleIn .35s ease;box-shadow:0 6px 32px rgba(0,0,0,.6)}
+.bubble::before{content:‘LUNA ✨’;position:absolute;top:-13px;left:14px;background:linear-gradient(90deg,#a78bfa,#ffd232);border-radius:5px;padding:2px 10px;font-family:‘Press Start 2P’,monospace;font-size:7px;color:#fff;box-shadow:0 2px 8px rgba(167,139,250,.5)}
+.bubble-corner-tr{position:absolute;top:5px;right:5px;width:6px;height:6px;border-right:2px solid #ffd232;border-top:2px solid #ffd232}
+.bubble-corner-bl{position:absolute;bottom:5px;left:5px;width:6px;height:6px;border-left:2px solid #ffd232;border-bottom:2px solid #ffd232}
+.bubble p{font-size:17px;font-weight:600;color:#e8e8ff;line-height:1.5;min-height:50px}
+.bubble .next{position:absolute;bottom:8px;right:12px;font-family:‘Press Start 2P’,monospace;font-size:8px;color:#ffd232;cursor:pointer;animation:float .8s ease-in-out infinite}
+
+/* ── Choices ── */
+#choices-wrap{position:relative;z-index:6}
+.q-label{text-align:center;font-family:‘Press Start 2P’,monospace;font-size:8px;color:#7a80a0;margin-bottom:10px;letter-spacing:1px}
+.choices{display:flex;gap:10px;flex-wrap:wrap}
+.choice-btn{flex:1;min-width:140px;border-radius:14px;padding:10px 8px 12px;cursor:pointer;display:flex;flex-direction:column;align-items:stretch;gap:7px;transition:transform .15s,box-shadow .15s;border:2px solid transparent;background:transparent}
+.choice-btn:hover{transform:translateY(-4px) scale(1.02)}
+.choice-btn .sign-label{font-family:‘Press Start 2P’,monospace;font-size:8px;text-align:center;letter-spacing:1px;margin-top:2px}
+.choice-btn .video-wrap{border-radius:10px;overflow:hidden;width:100%;aspect-ratio:4/3;background:#000;position:relative}
+.choice-btn .video-wrap video{width:100%;height:100%;object-fit:cover;display:block}
+.choice-btn .video-credit{position:absolute;bottom:4px;right:6px;background:rgba(0,0,0,.75);color:#888;font-size:8px;border-radius:6px;padding:1px 6px;text-decoration:none;font-family:‘Fredoka’,sans-serif}
+.choice-btn .video-fallback{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:5px;text-decoration:none}
+.choice-btn .video-fallback .ficon{font-size:28px}
+.choice-btn .video-fallback .ftext{font-family:‘Press Start 2P’,monospace;font-size:6px;text-align:center;line-height:1.8}
+.choice-btn .video-fallback .fhint{font-size:10px;color:#888;text-align:center;padding:0 8px}
+.choice-btn .video-fallback .fbtn{border-radius:20px;padding:2px 10px;font-family:‘Press Start 2P’,monospace;font-size:5px;color:#000;margin-top:2px}
+.choice-btn.yes{background:rgba(251,191,36,.1);border-color:#fbbf24;box-shadow:0 0 18px rgba(251,191,36,.35)}
+.choice-btn.yes:hover{box-shadow:0 10px 36px rgba(251,191,36,.55)}
+.choice-btn.yes .sign-label{color:#fbbf24}
+.choice-btn.no{background:rgba(248,113,113,.1);border-color:#f87171;box-shadow:0 0 18px rgba(248,113,113,.35)}
+.choice-btn.no:hover{box-shadow:0 10px 36px rgba(248,113,113,.55)}
+.choice-btn.no .sign-label{color:#f87171}
+.choice-btn.forest{background:rgba(74,222,128,.1);border-color:#4ade80;box-shadow:0 0 18px rgba(74,222,128,.35)}
+.choice-btn.forest:hover{box-shadow:0 10px 36px rgba(74,222,128,.55)}
+.choice-btn.forest .sign-label{color:#4ade80}
+.choice-btn.city{background:rgba(96,165,250,.1);border-color:#60a5fa;box-shadow:0 0 18px rgba(96,165,250,.35)}
+.choice-btn.city:hover{box-shadow:0 10px 36px rgba(96,165,250,.55)}
+.choice-btn.city .sign-label{color:#60a5fa}
+
+/* ── Toolbar ── */
+#toolbar{position:relative;z-index:10;padding:6px 14px 12px;background:linear-gradient(transparent,rgba(10,10,26,.95));display:flex;justify-content:space-between;align-items:center}
+.tool-btn{border-radius:8px;padding:6px 14px;font-family:‘Press Start 2P’,monospace;font-size:7px;cursor:pointer;border:1px solid;transition:all .2s}
+#cam-btn{background:rgba(255,255,255,.04);border-color:#1e3060;color:#7a80a0}
+#cam-btn.active{background:rgba(99,102,241,.2);border-color:#6366f1;color:#6366f1}
+#help-btn{background:linear-gradient(135deg,rgba(167,139,250,.2),rgba(255,210,50,.15));border-color:#ffd232;color:#ffd232}
+#help-btn.pulse{animation:glow 1.5s ease-in-out infinite}
+
+/* ── Camera ── */
+#camera-overlay{position:absolute;right:12px;z-index:15;width:155px;border-radius:12px;overflow:hidden;border:2px solid #1e3060;background:#000;display:none}
+#camera-overlay.show{display:block}
+#camera-overlay video{width:100%;display:block;transform:scaleX(-1)}
+.rec-badge{position:absolute;bottom:5px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.7);border:1px solid #1e3060;border-radius:16px;padding:2px 10px;font-family:‘Press Start 2P’,monospace;font-size:6px;color:#4ade80;white-space:nowrap}
+
+/* ── Particles ── */
+#particles{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:20}
+.particle{position:absolute;pointer-events:none}
+
+/* ── Modal ── */
+#modal{position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(8px);z-index:200;display:none;align-items:center;justify-content:center}
+#modal.show{display:flex}
+.modal-box{background:linear-gradient(135deg,#141d35,#0f1729);border:2px solid #1e3060;border-radius:22px;padding:28px 32px;max-width:480px;width:92%;box-shadow:0 28px 80px rgba(0,0,0,.8)}
+.modal-title{font-family:‘Press Start 2P’,monospace;font-size:12px;color:#ffd232;text-align:center;margin-bottom:6px}
+.modal-sub{font-size:14px;color:#7a80a0;text-align:center;margin-bottom:22px}
+.modal-signs{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+.modal-sign{background:rgba(255,255,255,.04);border:1px solid #1e3060;border-radius:14px;padding:10px;flex:1 1 150px;max-width:200px;display:flex;flex-direction:column;gap:7px}
+.modal-sign .video-wrap{border-radius:8px;overflow:hidden;aspect-ratio:4/3;background:#000;position:relative}
+.modal-sign .video-wrap video{width:100%;height:100%;object-fit:cover;display:block}
+.modal-close-btn{display:block;margin:22px auto 0;background:linear-gradient(135deg,#a78bfa,#ffd232);color:#fff;border:none;border-radius:28px;padding:11px 32px;font-family:‘Press Start 2P’,monospace;font-size:9px;cursor:pointer}
+
+/* ── Title screen ── */
+#title-screen{background:linear-gradient(160deg,#0a0a2e,#1a1040,#2d1b5e,#1a0a20);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0}
+.title-word{font-family:‘Press Start 2P’,monospace;font-size:clamp(22px,6vw,36px);color:#ffd232;text-shadow:0 0 40px #ffd232,0 0 80px rgba(255,210,50,.3);animation:titlePop .8s ease both;line-height:1.5;text-align:center}
+.title-sub{font-size:16px;color:#7a80a0;margin:12px 0 32px;animation:titlePop .8s .2s ease both;text-align:center;line-height:1.6}
+.title-char{width:110px;animation:titlePop .8s .1s ease both,float 3s 1s ease-in-out infinite}
+.start-btn{background:linear-gradient(135deg,#a78bfa,#ffd232);border:none;border-radius:12px;padding:15px 44px;font-family:‘Press Start 2P’,monospace;font-size:12px;color:#fff;cursor:pointer;animation:glow 2s ease-in-out infinite,titlePop .8s .4s ease both;letter-spacing:1px;margin-top:8px}
+.title-chapter{font-family:‘Press Start 2P’,monospace;font-size:7px;color:#7a80a0;margin-top:18px;animation:titlePop .8s .5s ease both}
+
+/* ── Ending screen ── */
+#ending-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;gap:0}
+.ending-icon{font-size:56px;animation:float 2s ease-in-out infinite;margin-bottom:8px}
+.ending-title{font-family:‘Press Start 2P’,monospace;font-size:clamp(14px,4vw,20px);color:#ffd232;text-align:center;text-shadow:0 0 28px #ffd232;margin-bottom:10px;animation:titlePop .6s ease}
+.ending-desc{font-size:17px;color:#e8e8ff;margin-bottom:16px;text-align:center}
+.xp-earned{background:linear-gradient(135deg,rgba(20,29,53,.9),rgba(15,23,41,.9));border:2px solid #ffd232;border-radius:14px;padding:14px 26px;text-align:center;box-shadow:0 0 28px rgba(255,210,50,.3);margin-bottom:22px}
+.xp-earned-label{font-family:‘Press Start 2P’,monospace;font-size:8px;color:#7a80a0;margin-bottom:4px}
+.xp-earned-num{font-family:‘Press Start 2P’,monospace;font-size:24px;color:#ffd232}
+.xp-earned-words{font-size:14px;margin-top:5px}
+.restart-btn{border:none;border-radius:12px;padding:13px 36px;font-family:‘Press Start 2P’,monospace;font-size:10px;color:#fff;cursor:pointer}
+</style>
+
 </head>
 <body>
-  <div id="root"></div>
-  <script type="text/babel">
-    const { useState, useEffect, useRef, useCallback } = React;
+<div id="app">
 
-const FONTS = `@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Fredoka:wght@400;600;700&display=swap');`;
+  <!-- ═══ TITLE SCREEN ═══ -->
 
-/* ═══════════════════════════════════════════════════════
-GLOBAL STYLES
-═══════════════════════════════════════════════════════ */
-const GLOBAL_CSS = `
-${FONTS}
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { width: 100%; height: 100%; overflow: hidden; background: #0a0a1a; }
+  <div id="title-screen" class="screen">
+    <div class="bg" id="title-bg"></div>
+    <div class="stars" id="title-stars"></div>
+    <div style="position:relative;z-index:10;display:flex;flex-direction:column;align-items:center">
+      <div class="title-word">BSL<br>QUEST</div>
+      <div class="title-sub">Learn British Sign Language<br>through story &amp; adventure</div>
+      <svg class="title-char" viewBox="0 0 100 140" id="title-char-svg"></svg>
+      <button class="start-btn" onclick="startGame()">▶&nbsp; START</button>
+      <div class="title-chapter">CHAPTER 1: THE LOST CAT</div>
+    </div>
+  </div>
 
-@keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
-@keyframes floatSlow { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
-@keyframes walkCycle {
-0%   { transform: translateX(0) scaleX(1); }
-49%  { transform: translateX(0) scaleX(1); }
-50%  { transform: translateX(2px) scaleX(1); }
-100% { transform: translateX(0) scaleX(1); }
-}
-@keyframes starTwinkle {
-0%,100% { opacity:.3; transform:scale(1); }
-50% { opacity:1; transform:scale(1.4); }
-}
-@keyframes bubbleIn {
-0% { transform:scale(0) translateY(20px); opacity:0; }
-70% { transform:scale(1.06) translateY(-4px); }
-100% { transform:scale(1) translateY(0); opacity:1; }
-}
-@keyframes choiceIn {
-0% { transform:translateY(30px) scale(.9); opacity:0; }
-100% { transform:translateY(0) scale(1); opacity:1; }
-}
-@keyframes xpFill { from{width:var(–from)} to{width:var(–to)} }
-@keyframes coinSpin {
-0%{transform:rotateY(0deg)} 100%{transform:rotateY(360deg)}
-}
-@keyframes celebConfetti {
-0%   { transform:translateY(0) rotate(0deg); opacity:1; }
-100% { transform:translateY(-300px) rotate(720deg); opacity:0; }
-}
-@keyframes rainDrop {
-0%   { transform:translateY(-30px); opacity:0; }
-20%  { opacity:.8; }
-100% { transform:translateY(220px); opacity:0; }
-}
-@keyframes shake {
-0%,100%{transform:translateX(0)}
-20%{transform:translateX(-8px)}
-40%{transform:translateX(8px)}
-60%{transform:translateX(-5px)}
-80%{transform:translateX(5px)}
-}
-@keyframes slideSceneIn {
-from { transform:translateX(100%); opacity:0; }
-to   { transform:translateX(0); opacity:1; }
-}
-@keyframes titlePop {
-0%   { transform:scale(0) rotate(-10deg); opacity:0; }
-60%  { transform:scale(1.1) rotate(2deg); }
-100% { transform:scale(1) rotate(0deg); opacity:1; }
-}
-@keyframes scanline {
-0%   { transform:translateY(-100%); }
-100% { transform:translateY(100vh); }
-}
-@keyframes glowPulse {
-0%,100% { box-shadow: 0 0 20px rgba(255,210,50,.3), 0 0 40px rgba(255,210,50,.1); }
-50%      { box-shadow: 0 0 40px rgba(255,210,50,.6), 0 0 80px rgba(255,210,50,.2); }
-}
-@keyframes heartBeat {
-0%,100%{transform:scale(1)} 14%{transform:scale(1.3)} 28%{transform:scale(1)} 42%{transform:scale(1.2)} 70%{transform:scale(1)}
-}
-@keyframes walkIn {
-from { transform: translateX(-120px); opacity:0; }
-to   { transform: translateX(0); opacity:1; }
-}
-@keyframes blink {
-0%,90%,100%{transform:scaleY(1)} 95%{transform:scaleY(0.08)}
-}
-@keyframes tailWag {
-0%,100%{transform:rotate(-10deg)} 50%{transform:rotate(15deg)}
-}
-@keyframes cloudDrift {
-from{transform:translateX(-80px)} to{transform:translateX(calc(100vw + 80px))}
-}
-@keyframes treeWay {
-0%,100%{transform:rotate(-1deg) translateX(0)} 50%{transform:rotate(1deg) translateX(1px)}
-}
-@keyframes cityLight {
-0%,100%{opacity:.6} 50%{opacity:1}
-}
-@keyframes moonGlow {
-0%,100%{filter:drop-shadow(0 0 8px #fde68a)} 50%{filter:drop-shadow(0 0 20px #fde68a)}
-}
-@keyframes bslYes {
-0%,100% { transform: translateY(0) rotate(0deg); }
-30%      { transform: translateY(14px) rotate(10deg); }
-60%      { transform: translateY(14px) rotate(10deg); }
-80%      { transform: translateY(0) rotate(0deg); }
-}
-@keyframes bslNo {
-0%,100% { transform: translateX(0); }
-25%     { transform: translateX(-10px); }
-75%     { transform: translateX(10px); }
-}
-@keyframes bslForest {
-0%,100% { transform: rotate(0deg) translateY(0); }
-40%     { transform: rotate(-10deg) translateY(-6px); }
-70%     { transform: rotate(8deg) translateY(-4px); }
-}
-@keyframes bslCity {
-0%,100% { transform: translateY(0); }
-35%     { transform: translateY(12px); }
-55%     { transform: translateY(12px); }
-75%     { transform: translateY(0); }
-}
-`;
+  <!-- ═══ GAME SCREEN ═══ -->
 
-/* ═══════════════════════════════════════════════════════
-COLOUR PALETTE
-═══════════════════════════════════════════════════════ */
-const C = {
-night:  “#0a0a1a”,
-deep:   “#0f1729”,
-panel:  “#141d35”,
-border: “#1e3060”,
-accent: “#ffd232”,
-accentB:”#ff6b6b”,
-green:  “#4ade80”,
-blue:   “#60a5fa”,
-purple: “#a78bfa”,
-text:   “#e8e8ff”,
-dim:    “#7a80a0”,
+  <div id="game-screen" class="screen hidden">
+    <div class="bg" id="game-bg"></div>
+    <div class="stars" id="game-stars"></div>
+    <div id="particles"></div>
+
+```
+<!-- HUD -->
+<div id="hud">
+  <div class="hud-top">
+    <div class="game-title">BSL QUEST</div>
+    <div class="badges" id="badges"></div>
+  </div>
+  <div class="xp-row">
+    <div class="level-tag" id="level-tag">LVL 1</div>
+    <div class="xp-bar"><div class="xp-fill" id="xp-fill" style="width:0%"></div></div>
+    <div class="xp-label" id="xp-label">0/100</div>
+  </div>
+</div>
+
+<!-- Scene -->
+<div id="scene">
+  <svg id="character" viewBox="0 0 100 140"></svg>
+  <div id="camera-overlay"><video id="cam-video" autoplay muted playsinline></video><div class="rec-badge">● REC</div></div>
+  <div id="dialogue-wrap" style="display:none">
+    <div class="bubble">
+      <div class="bubble-corner-tr"></div>
+      <div class="bubble-corner-bl"></div>
+      <p id="dialogue-text"></p>
+      <div class="next" id="next-arrow" style="display:none" onclick="advanceLine()">▼</div>
+    </div>
+  </div>
+  <div id="choices-wrap" style="display:none">
+    <div class="q-label" id="q-label"></div>
+    <div class="choices" id="choices"></div>
+    <div style="text-align:center;font-size:12px;color:#4a5070;margin-top:10px;font-family:'Press Start 2P',monospace;font-size:7px">TAP A SIGN TO RESPOND · ❓ HELP TO SEE HOW</div>
+  </div>
+</div>
+
+<!-- Toolbar -->
+<div id="toolbar">
+  <button class="tool-btn" id="cam-btn" onclick="toggleCamera()">📷 CAM</button>
+  <button class="tool-btn" id="help-btn" onclick="showHelp()">❓ HELP</button>
+</div>
+```
+
+  </div>
+
+  <!-- ═══ ENDING SCREEN ═══ -->
+
+  <div id="ending-screen" class="screen hidden">
+    <div class="bg" id="ending-bg"></div>
+    <div class="stars" id="ending-stars"></div>
+    <div style="position:relative;z-index:10;display:flex;flex-direction:column;align-items:center">
+      <div class="ending-icon">🐱</div>
+      <div class="ending-title" id="ending-title">YOU FOUND THE CAT!</div>
+      <div class="ending-desc" id="ending-desc"></div>
+      <div class="xp-earned">
+        <div class="xp-earned-label">XP EARNED</div>
+        <div class="xp-earned-num" id="ending-xp">+60</div>
+        <div class="xp-earned-words" id="ending-words"></div>
+      </div>
+      <button class="restart-btn" id="restart-btn" onclick="restartGame()">▶ PLAY AGAIN</button>
+    </div>
+  </div>
+
+  <!-- ═══ HELP MODAL ═══ -->
+
+  <div id="modal" onclick="hideHelp()">
+    <div class="modal-box" onclick="event.stopPropagation()">
+      <div class="modal-title">HOW TO SIGN</div>
+      <div class="modal-sub">Mimic the hand shape, then tap your choice!</div>
+      <div class="modal-signs" id="modal-signs"></div>
+      <button class="modal-close-btn" onclick="hideHelp()">GOT IT!</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ══════════════════════════════════════════════
+   BSL VIDEO DATA — real signers from SignBSL.com
+══════════════════════════════════════════════ */
+const BSL = {
+  yes:    { color:'#fbbf24', hint:'Fist nods forward twice',
+    urls:['https://media.signbsl.com/videos/bsl/signstation/yes.mp4',
+          'https://media.signbsl.com/videos/bsl/ucl/yes.mp4'],
+    page:'https://www.signbsl.com/sign/yes' },
+  no:     { color:'#f87171', hint:'Both fists, pinky up, tap together',
+    urls:['https://media.signbsl.com/videos/bsl/signstation/no.mp4',
+          'https://media.signbsl.com/videos/bsl/ucl/no.mp4'],
+    page:'https://www.signbsl.com/sign/no' },
+  forest: { color:'#4ade80', hint:'Open hand sways from elbow',
+    urls:['https://media.signbsl.com/videos/bsl/signstation/forest.mp4',
+          'https://media.signbsl.com/videos/bsl/ucl/forest.mp4'],
+    page:'https://www.signbsl.com/sign/forest' },
+  city:   { color:'#60a5fa', hint:'Index finger taps index finger',
+    urls:['https://media.signbsl.com/videos/bsl/signstation/city.mp4',
+          'https://media.signbsl.com/videos/bsl/ucl/city.mp4'],
+    page:'https://www.signbsl.com/sign/city' },
 };
 
-/* ═══════════════════════════════════════════════════════
-STARFIELD
-═══════════════════════════════════════════════════════ */
-function Starfield() {
-const stars = useRef(
-Array.from({length:80},(_,i)=>({
-x: Math.random()*100, y: Math.random()*100,
-s: .5+Math.random()*2.5, d: Math.random()*4+“s”,
-o: .2+Math.random()*.8,
-}))
-).current;
-return (
-<div style={{position:“absolute”,inset:0,overflow:“hidden”,zIndex:0}}>
-{stars.map((s,i)=>(
-<div key={i} style={{
-position:“absolute”, left:`${s.x}%`, top:`${s.y}%`,
-width:s.s, height:s.s, borderRadius:“50%”, background:“white”,
-opacity:s.o, animation:`starTwinkle ${s.d} ease-in-out infinite`,
-animationDelay:`${Math.random()*4}s`,
-}}/>
-))}
-</div>
-);
-}
-
-/* ═══════════════════════════════════════════════════════
-ANIMATED CLOUD
-═══════════════════════════════════════════════════════ */
-function Cloud({top,size,speed,delay,opacity=.18}) {
-return (
-<div style={{
-position:“absolute”, top, left:-size*2, width:size*2, height:size*.6,
-animation:`cloudDrift ${speed}s ${delay}s linear infinite`,
-opacity, zIndex:1,
-}}>
-<svg viewBox=“0 0 120 40” style={{width:“100%”,height:“100%”}}>
-<ellipse cx="60" cy="28" rx="55" ry="16" fill="white"/>
-<ellipse cx="40" cy="20" rx="28" ry="18" fill="white"/>
-<ellipse cx="75" cy="18" rx="24" ry="16" fill="white"/>
-</svg>
-</div>
-);
-}
-
-/* ═══════════════════════════════════════════════════════
-SCENE BACKGROUNDS
-═══════════════════════════════════════════════════════ */
-function NightVillageBg() {
-return (
-<div style={{position:“absolute”,inset:0,overflow:“hidden”}}>
-{/* sky gradient */}
-<div style={{position:“absolute”,inset:0,background:“linear-gradient(180deg,#0a0a2e 0%,#1a1040 40%,#2d1b5e 70%,#1a0a20 100%)”}}/>
-{/* moon */}
-<div style={{position:“absolute”,top:32,right:“18%”,animation:“moonGlow 4s ease-in-out infinite”}}>
-<svg width="64" height="64" viewBox="0 0 64 64">
-<circle cx="32" cy="32" r="28" fill="#fde68a"/>
-<circle cx="44" cy="20" r="20" fill="#1a1040"/>
-</svg>
-</div>
-<Cloud top="8%" size={120} speed={28} delay={0}/>
-<Cloud top="14%" size={80}  speed={38} delay={6}/>
-{/* hills */}
-<svg style={{position:“absolute”,bottom:0,left:0,width:“100%”}} viewBox=“0 0 800 200” preserveAspectRatio=“none”>
-<ellipse cx="200" cy="200" rx="280" ry="100" fill="#0f1a0f"/>
-<ellipse cx="600" cy="210" rx="260" ry="90" fill="#0a140a"/>
-<ellipse cx="400" cy="210" rx="200" ry="80" fill="#121a12"/>
-</svg>
-{/* distant trees silhouette */}
-{[60,140,220,300,380,460,540,620,700,780].map((x,i)=>(
-<svg key={i} style={{position:“absolute”,bottom:60+Math.sin(i)*20,left:x-20}} width=“40” height=“80” viewBox=“0 0 40 80”>
-<polygon points="20,0 0,50 40,50" fill="#0a1a0a"/>
-<rect x="16" y="50" width="8" height="20" fill="#060e06"/>
-</svg>
-))}
-{/* ground */}
-<div style={{position:“absolute”,bottom:0,left:0,right:0,height:80,background:“linear-gradient(180deg,#0a1a0a,#050d05)”}}/>
-</div>
-);
-}
-
-function ForestBg() {
-return (
-<div style={{position:“absolute”,inset:0,overflow:“hidden”}}>
-<div style={{position:“absolute”,inset:0,background:“linear-gradient(180deg,#0d2010 0%,#0a3018 40%,#0d2510 100%)”}}/>
-{/* light rays */}
-{[20,35,55,72].map((x,i)=>(
-<div key={i} style={{
-position:“absolute”,top:0,left:`${x}%`,
-width:3+i, height:“70%”,
-background:`linear-gradient(180deg,rgba(255,230,100,.12),transparent)`,
-transform:`rotate(${-5+i*3}deg)`,transformOrigin:“top center”,
-}}/>
-))}
-{/* background trees */}
-{[0,80,160,240,320,400,480,560,640,720].map((x,i)=>(
-<svg key={i} style={{
-position:“absolute”,bottom:50,left:x,
-animation:`treeWay ${3+i*.5}s ease-in-out infinite`,
-animationDelay:`${i*.3}s`,
-}} width=“80” height=“180” viewBox=“0 0 80 180”>
-<polygon points=“40,0 2,110 78,110” fill={i%2===0?”#1a4a1a”:”#154015”}/>
-<polygon points=“40,30 5,130 75,130” fill={i%2===0?”#155015”:”#1a5a1a”}/>
-<polygon points=“40,60 8,148 72,148” fill={i%2===0?”#0f400f”:”#134513”}/>
-<rect x="32" y="148" width="16" height="32" fill="#3d1a00"/>
-</svg>
-))}
-{/* ground */}
-<div style={{position:“absolute”,bottom:0,left:0,right:0,height:60,background:“linear-gradient(180deg,#0a2010,#050e05)”}}/>
-{/* fireflies */}
-{[15,30,50,65,80].map((x,i)=>(
-<div key={i} style={{
-position:“absolute”,left:`${x}%`,bottom:`${30+i*8}%`,
-width:4,height:4,borderRadius:“50%”,background:”#fffb80”,
-boxShadow:“0 0 8px #fffb80”,
-animation:`starTwinkle ${1.5+i*.4}s ease-in-out infinite`,
-animationDelay:`${i*.6}s`,
-}}/>
-))}
-</div>
-);
-}
-
-function CityBg() {
-const buildings = [
-{x:0,  w:80, h:220, c:”#0d1b2e”},
-{x:70, w:60, h:280, c:”#0a1525”},
-{x:120,w:100,h:180, c:”#0f2035”},
-{x:210,w:70, h:310, c:”#0a1830”},
-{x:270,w:90, h:200, c:”#0d2040”},
-{x:350,w:60, h:260, c:”#0a1525”},
-{x:400,w:110,h:190, c:”#0f1e32”},
-{x:500,w:80, h:300, c:”#0a1525”},
-{x:570,w:70, h:170, c:”#0d2035”},
-{x:630,w:100,h:240, c:”#0a1830”},
-{x:720,w:80, h:210, c:”#0f2040”},
-];
-return (
-<div style={{position:“absolute”,inset:0,overflow:“hidden”}}>
-<div style={{position:“absolute”,inset:0,background:“linear-gradient(180deg,#020812 0%,#050f20 40%,#0a1830 100%)”}}/>
-{/* moon/sun glow */}
-<div style={{position:“absolute”,top:20,left:“15%”,width:80,height:80,borderRadius:“50%”,background:“radial-gradient(circle,#fde68a 0%,transparent 70%)”,opacity:.3}}/>
-{/* buildings */}
-<svg style={{position:“absolute”,bottom:0,left:0,width:“100%”}} viewBox=“0 0 800 320” preserveAspectRatio=“none”>
-{buildings.map((b,i)=>(
-<g key={i}>
-<rect x={b.x} y={320-b.h} width={b.w} height={b.h} fill={b.c}/>
-{/* windows */}
-{Array.from({length:Math.floor(b.h/28)}).map((*,r)=>
-Array.from({length:Math.floor(b.w/18)}).map((*,c)=>(
-<rect key={`${r}-${c}`}
-x={b.x+4+c*18} y={320-b.h+8+r*28}
-width={10} height={14}
-fill={Math.random()>.4?”#fbbf24”:”#1a3060”}
-opacity={.7+Math.random()*.3}
-style={{animation:`cityLight ${2+Math.random()*3}s ease-in-out infinite`,animationDelay:`${Math.random()*4}s`}}
-/>
-))
-)}
-</g>
-))}
-{/* ground */}
-<rect x="0" y="300" width="800" height="20" fill="#050d1e"/>
-</svg>
-{/* neon ground glow */}
-<div style={{position:“absolute”,bottom:0,left:0,right:0,height:40,background:“linear-gradient(transparent,rgba(96,165,250,.08))”}}/>
-</div>
-);
-}
-
-/* ═══════════════════════════════════════════════════════
-MAIN CHARACTER (Pixel-art style cat-eared girl)
-═══════════════════════════════════════════════════════ */
-function Character({mood, walking}) {
-const eyeClose = mood===“sad”;
-const smile = mood===“excited”||mood===“adventure”||mood===“wave”;
-const bodyCol = {
-wave:”#6366f1”, excited:”#f59e0b”, sad:”#64748b”,
-pleading:”#8b5cf6”, adventure:”#10b981”, normal:”#6366f1”
-}[mood] || “#6366f1”;
-
-return (
-<svg viewBox=“0 0 100 140” style={{
-width:“100%”, height:“100%”,
-filter:`drop-shadow(0 8px 24px ${bodyCol}88)`,
-animation: walking ? “walkIn .6s ease-out” : “float 3s ease-in-out infinite”,
-}}>
-{/* Shadow */}
-<ellipse cx="50" cy="136" rx="22" ry="5" fill="rgba(0,0,0,.4)"/>
-{/* Body */}
-<rect x="32" y="80" width="36" height="44" rx="10" fill={bodyCol}/>
-{/* Scarf */}
-<rect x=“30” y=“80” width=“40” height=“14” rx=“7” fill={mood===“sad”?”#94a3b8”:”#f472b6”}/>
-{/* Arms */}
-<rect x="18" y="82" width="14" height="28" rx="7" fill={bodyCol}/>
-<rect x=“68” y=“82” width=“14” height=“28” rx=“7” fill={bodyCol}
-style={mood===“wave”?{transformOrigin:“68px 82px”,animation:“tailWag .6s ease-in-out infinite”}:{}}
-/>
-{/* Legs */}
-<rect x="36" y="116" width="12" height="24" rx="6" fill={bodyCol}/>
-<rect x="52" y="116" width="12" height="24" rx="6" fill={bodyCol}/>
-{/* Feet */}
-<ellipse cx="42" cy="139" rx="9" ry="5" fill="#1e293b"/>
-<ellipse cx="58" cy="139" rx="9" ry="5" fill="#1e293b"/>
-{/* Neck */}
-<rect x="42" y="68" width="16" height="14" rx="5" fill="#fde68a"/>
-{/* Head */}
-<ellipse cx="50" cy="50" rx="28" ry="30" fill="#fef3c7"/>
-{/* Cat ears */}
-<polygon points="22,26 14,6 34,22" fill={bodyCol}/>
-<polygon points="78,26 86,6 66,22" fill={bodyCol}/>
-<polygon points="25,24 19,12 32,22" fill="#fca5a5"/>
-<polygon points="75,24 81,12 68,22" fill="#fca5a5"/>
-{/* Hair */}
-<ellipse cx="50" cy="24" rx="26" ry="14" fill="#7c3aed"/>
-<rect x="24" y="24" width="10" height="22" rx="5" fill="#7c3aed"/>
-<rect x="66" y="24" width="10" height="22" rx="5" fill="#7c3aed"/>
-{/* Eyes */}
-{eyeClose ? (
-<>
-<path d="M 36 48 Q 40 52 44 48" stroke="#1e293b" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
-<path d="M 56 48 Q 60 52 64 48" stroke="#1e293b" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
-</>
-) : (
-<>
-<ellipse cx=“40” cy=“48” rx=“6” ry=“7” fill=”#1e293b”
-style={{animation:“blink 4s ease-in-out infinite”}}/>
-<ellipse cx=“60” cy=“48” rx=“6” ry=“7” fill=”#1e293b”
-style={{animation:“blink 4s ease-in-out infinite”,animationDelay:”.1s”}}/>
-<circle cx="43" cy="45" r="2.5" fill="white"/>
-<circle cx="63" cy="45" r="2.5" fill="white"/>
-{/* Star highlight */}
-<circle cx="38" cy="50" r="1" fill="white"/>
-<circle cx="58" cy="50" r="1" fill="white"/>
-</>
-)}
-{/* Blush */}
-{(mood===“excited”||mood===“wave”||mood===“pleading”) &&
-<><ellipse cx="30" cy="56" rx="8" ry="5" fill="#fca5a5" opacity=".5"/>
-<ellipse cx="70" cy="56" rx="8" ry="5" fill="#fca5a5" opacity=".5"/></>}
-{/* Mouth */}
-{smile
-? <path d="M 42 60 Q 50 70 58 60" stroke="#1e293b" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
-: mood===“sad”
-? <path d="M 42 66 Q 50 58 58 66" stroke="#1e293b" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
-: <path d="M 42 62 Q 50 66 58 62" stroke="#1e293b" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
-}
-{/* Nose */}
-<ellipse cx="50" cy="58" rx="5" ry="3.5" fill="#fca5a5"/>
-{/* Tail */}
-<path d=“M 68 115 Q 90 100 82 82” stroke={bodyCol} strokeWidth=“8” fill=“none” strokeLinecap=“round”
-style={{animation:“tailWag 1.2s ease-in-out infinite”,transformOrigin:“68px 115px”}}/>
-</svg>
-);
-}
-
-/* ═══════════════════════════════════════════════════════════════
-BSL HAND ANIMATIONS  —  Option 2 + 3
-─────────────────────────────────────────────────────────────
-Each sign is drawn as a detailed SVG hand (skin, knuckles,
-nails, palm shading, wrist) and animated through a sequence
-of keyframe “poses” using React useEffect frame cycling.
-
-Signs implemented:
-YES    – right fist, knuckles forward, nods forward×2
-NO     – both fists pinky-up, tap inward×2  (2 hands)
-FOREST – dominant flat hand rises from non-dom elbow, sways
-CITY   – dominant index taps non-dominant index tip ×2
-═══════════════════════════════════════════════════════════════ */
-
-/* ── Skin tone palette ─────────────────────────────────────── */
-const S = {
-light:  “#f5c898”,   // dorsal highlight
-mid:    “#e8a870”,   // main dorsal
-dark:   “#c87840”,   // shadow / crease
-palm:   “#dda060”,   // palm face (slightly darker)
-deep:   “#a05828”,   // deep crease
-nail:   “#f0d0b8”,   // nail plate
-nailRim:”#d09878”,   // nail rim / lunula
-white:  “rgba(255,255,255,0.22)”,  // knuckle hi
-arm:    “#d09060”,   // forearm
-};
-
-/* ── useFrames: cycles through an array of frame indices ─── */
-function useFrames(frames, ms=120) {
-const [i, setI] = useState(0);
-useEffect(()=>{
-let idx = 0;
-function tick() {
-idx = (idx+1) % frames.length;
-setI(idx);
-}
-// use the per-frame timing if frames is array of [frameIdx, delay]
-// otherwise equal spacing
-const iv = setInterval(tick, ms);
-return ()=>clearInterval(iv);
-},[]);
-return frames[i];
-}
-
-/* ─────────────────────────────────────────────────────────────
-SHARED HAND PARTS
-All coords in a 120×160 viewBox, wrist at bottom-centre.
-Fingers radiate upward. We draw the dominant (right) hand
-viewed from ~35° angle — slightly side-on so depth reads.
-───────────────────────────────────────────────────────────── */
-
-/* Wrist + forearm stub */
-function Wrist({y=130, w=54}) {
-return <>
-<rect x={60-w/2} y={y} width={w} height={36} rx={16} fill={S.arm}/>
-<rect x={60-w/2+4} y={y} width={w-8} height={36} rx={13} fill={S.mid}/>
-{/* wrist crease */}
-<path d={`M${60-w/2+6} ${y+6} Q60 ${y+12} ${60+w/2-6} ${y+6}`}
-stroke={S.dark} strokeWidth=“1.2” fill=“none” strokeLinecap=“round” opacity=”.5”/>
-</>;
-}
-
-/* Palm slab — the back of the hand */
-function Palm({x=60,y=90,w=58,h=46,rx=14,rotate=0,cx=60,cy=110}) {
-return <g transform={`rotate(${rotate},${cx},${cy})`}>
-<rect x={x-w/2} y={y-h} width={w} height={h} rx={rx} fill={S.mid}/>
-{/* side shading */}
-<rect x={x-w/2} y={y-h+8} width={8} height={h-8} rx={4} fill={S.dark} opacity=".35"/>
-{/* palm crease lines */}
-<path d={`M${x-w/2+10} ${y-20} Q${x} ${y-14} ${x+w/2-10} ${y-20}`}
-stroke={S.dark} strokeWidth=“1” fill=“none” strokeLinecap=“round” opacity=”.3”/>
-<path d={`M${x-w/2+10} ${y-32} Q${x} ${y-28} ${x+w/2-10} ${y-32}`}
-stroke={S.dark} strokeWidth=“1” fill=“none” strokeLinecap=“round” opacity=”.2”/>
-</g>;
-}
-
-/* One finger — rect with rounded top, nail, knuckle lines
-x,y = base centre; len = length; w = width; curl = 0..1 (1=fully curled)
-rot = rotation angle around base (positive = curl toward palm) */
-function Finger({x, y, len, w=11, curl=0, rot=0, nail=true, cx, cy}) {
-const bx = cx ?? x;
-const by = cy ?? y;
-// curled: shorten visible length, add bend
-const vis = len * (1 - curl*0.55);
-const bend = curl * 28; // degrees of arc
-return (
-<g transform={`rotate(${rot+bend},${bx},${by})`}>
-{/* finger shaft */}
-<rect x={x-w/2} y={y-vis} width={w} height={vis} rx={w/2} fill={S.mid}/>
-{/* side shade */}
-<rect x={x-w/2} y={y-vis} width={3} height={vis} rx={1.5} fill={S.dark} opacity=".3"/>
-{/* highlight */}
-<rect x={x-w/2+3} y={y-vis+4} width={w-8} height={vis*0.4} rx={2} fill={S.white}/>
-{/* knuckle bumps */}
-{[0.35,0.6].map((t,i)=>(
-<ellipse key={i} cx={x} cy={y-vis*t} rx={w/2+1} ry={3.5}
-fill={S.mid} stroke={S.dark} strokeWidth=".8" opacity=".5"/>
-))}
-{/* knuckle crease lines */}
-<line x1={x-w/2+2} y1={y-vis*0.35} x2={x+w/2-2} y2={y-vis*0.35}
-stroke={S.deep} strokeWidth="1" strokeLinecap="round" opacity=".4"/>
-<line x1={x-w/2+2} y1={y-vis*0.6} x2={x+w/2-2} y2={y-vis*0.6}
-stroke={S.deep} strokeWidth=".8" strokeLinecap="round" opacity=".3"/>
-{/* fingernail */}
-{nail && vis>16 && <>
-<rect x={x-w/2+1.5} y={y-vis+1} width={w-3} height={vis*0.28} rx={w/2-1} fill={S.nail}/>
-<rect x={x-w/2+1.5} y={y-vis+1} width={w-3} height={vis*0.28} rx={w/2-1}
-fill="none" stroke={S.nailRim} strokeWidth=".9"/>
-{/* nail shine */}
-<rect x={x-w/2+3} y={y-vis+3} width={4} height={vis*0.1} rx={2} fill="white" opacity=".4"/>
-</>}
-</g>
-);
-}
-
-/* Thumb — shorter, wider, rotated out to side */
-function Thumb({x, y, len=38, w=14, curl=0, side=1, pivotX, pivotY}) {
-const px = pivotX ?? x;
-const py = pivotY ?? y;
-const baseRot = side>0 ? -55 : 55;  // out to side
-const curlRot = curl * 38;
-return (
-<g transform={`rotate(${baseRot+curlRot},${px},${py})`}>
-<rect x={x-w/2} y={y-len} width={w} height={len} rx={w/2} fill={S.mid}/>
-<rect x={x-w/2} y={y-len} width={3} height={len} rx={1.5} fill={S.dark} opacity=".3"/>
-<rect x={x-w/2+3} y={y-len+4} width={w-8} height={len*0.35} rx={2} fill={S.white}/>
-<ellipse cx={x} cy={y-len*0.45} rx={w/2+1} ry={3.5}
-fill={S.mid} stroke={S.dark} strokeWidth=".8" opacity=".5"/>
-<line x1={x-w/2+2} y1={y-len*0.45} x2={x+w/2-2} y2={y-len*0.45}
-stroke={S.deep} strokeWidth="1" strokeLinecap="round" opacity=".4"/>
-{/* nail */}
-<rect x={x-w/2+1.5} y={y-len+1} width={w-3} height={len*0.28} rx={w/2-1} fill={S.nail}/>
-<rect x={x-w/2+1.5} y={y-len+1} width={w-3} height={len*0.28} rx={w/2-1}
-fill="none" stroke={S.nailRim} strokeWidth=".9"/>
-</g>
-);
-}
-
-/* ─────────────────────────────────────────────────────────────
-CLOSED FIST — all fingers curled, thumb rests on side
-Used for YES (nodding fist) and as base for NO (pinky up)
-───────────────────────────────────────────────────────────── */
-function ClosedFist({x=60, y=90, scale=1, rotate=0, pivX=60, pivY=110,
-pinkyCurl=1, ringCurl=1, middleCurl=1, indexCurl=1, thumbCurl=.8}) {
-return (
-<g transform={`translate(${x-60},${y-90}) scale(${scale}) rotate(${rotate},${pivX},${pivY})`}>
-{/* knuckle row highlight — the row of knuckles facing viewer */}
-<ellipse cx="60" cy="65" rx="27" ry="6" fill={S.white} opacity=".25"/>
-
-```
-  {/* four fingers from left (pinky) to right (index) */}
-  {/* pinky */}
-  <Finger x={38} y={88} len={40} w={9}  curl={pinkyCurl}  rot={4}  cx={38} cy={88}/>
-  {/* ring */}
-  <Finger x={49} y={84} len={48} w={10} curl={ringCurl}   rot={1}  cx={49} cy={84}/>
-  {/* middle */}
-  <Finger x={60} y={82} len={52} w={11} curl={middleCurl} rot={0}  cx={60} cy={82}/>
-  {/* index */}
-  <Finger x={71} y={84} len={50} w={10} curl={indexCurl}  rot={-2} cx={71} cy={84}/>
-
-  {/* palm */}
-  <rect x="30" y="60" width="58" height="48" rx="12" fill={S.mid}/>
-  <rect x="30" y="72" width="58" height="36" rx="10" fill={S.palm} opacity=".3"/>
-  {/* palm crease */}
-  <path d="M34 76 Q60 82 86 76" stroke={S.dark} strokeWidth="1.1" fill="none" strokeLinecap="round" opacity=".3"/>
-  <path d="M34 88 Q60 94 86 88" stroke={S.dark} strokeWidth="1" fill="none" strokeLinecap="round" opacity=".2"/>
-
-  {/* thumb tucked along index side */}
-  <Thumb x={80} y={85} len={32} w={13} curl={thumbCurl} side={1} pivotX={80} pivotY={85}/>
-
-  {/* wrist */}
-  <Wrist y={106} w={52}/>
-</g>
-```
-
-);
-}
-
-/* ─────────────────────────────────────────────────────────────
-PINKY-UP FIST — closed fist but ONLY little finger extended
-Used for BSL NO (both hands)
-───────────────────────────────────────────────────────────── */
-function PinkyUpFist({x=60, y=90, scale=1, rotate=0, pivX=60, pivY=110, mirror=false}) {
-const mx = mirror ? -1 : 1;
-return (
-<g transform={`translate(${x-60},${y-90}) scale(${mx*scale},${scale}) rotate(${rotate},${pivX},${pivY})`}>
-{/* pinky EXTENDED straight up */}
-<Finger x={38} y={88} len={52} w={9}  curl={0}   rot={5}  cx={38} cy={88}/>
-{/* ring, middle, index curled */}
-<Finger x={49} y={84} len={48} w={10} curl={1}   rot={1}  cx={49} cy={84}/>
-<Finger x={60} y={82} len={52} w={11} curl={1}   rot={0}  cx={60} cy={82}/>
-<Finger x={71} y={84} len={50} w={10} curl={1}   rot={-2} cx={71} cy={84}/>
-
-```
-  {/* knuckles of curled fingers */}
-  <ellipse cx="60" cy="65" rx="20" ry="5" fill={S.white} opacity=".2"/>
-
-  {/* palm */}
-  <rect x="30" y="60" width="58" height="48" rx="12" fill={S.mid}/>
-  <rect x="30" y="72" width="58" height="36" rx="10" fill={S.palm} opacity=".3"/>
-  <path d="M34 76 Q60 82 86 76" stroke={S.dark} strokeWidth="1.1" fill="none" strokeLinecap="round" opacity=".3"/>
-
-  {/* thumb tucked */}
-  <Thumb x={80} y={85} len={32} w={13} curl={.9} side={1} pivotX={80} pivotY={85}/>
-
-  <Wrist y={106} w={52}/>
-</g>
-```
-
-);
-}
-
-/* ─────────────────────────────────────────────────────────────
-OPEN FLAT HAND — all fingers extended, palm facing viewer
-Used for FOREST (dominant hand)
-───────────────────────────────────────────────────────────── */
-function OpenFlatHand({x=60, y=90, scale=1, rotate=0}) {
-return (
-<g transform={`translate(${x-60},${y-90}) scale(${scale}) rotate(${rotate},60,110)`}>
-{/* all 4 fingers extended */}
-<Finger x={38} y={90} len={44} w={9}  curl={0} rot={6}  cx={38} cy={90}/>
-<Finger x={49} y={86} len={54} w={10} curl={0} rot={2}  cx={49} cy={86}/>
-<Finger x={60} y={84} len={58} w={11} curl={0} rot={0}  cx={60} cy={84}/>
-<Finger x={71} y={86} len={56} w={10} curl={0} rot={-2} cx={71} cy={86}/>
-
-```
-  {/* palm */}
-  <rect x="30" y="62" width="58" height="44" rx="12" fill={S.mid}/>
-  <rect x="30" y="74" width="58" height="32" rx="10" fill={S.palm} opacity=".25"/>
-  <path d="M34 74 Q60 80 86 74" stroke={S.dark} strokeWidth="1" fill="none" strokeLinecap="round" opacity=".25"/>
-  <path d="M34 86 Q60 92 86 86" stroke={S.dark} strokeWidth="1" fill="none" strokeLinecap="round" opacity=".18"/>
-
-  {/* thumb out to side */}
-  <Thumb x={80} y={84} len={38} w={13} curl={0} side={1} pivotX={80} pivotY={90}/>
-
-  <Wrist y={104} w={52}/>
-</g>
-```
-
-);
-}
-
-/* ─────────────────────────────────────────────────────────────
-INDEX POINTING — fist with only index extended upward
-Used for CITY (both hands)
-───────────────────────────────────────────────────────────── */
-function IndexPointing({x=60, y=90, scale=1, rotate=0, mirror=false}) {
-const mx = mirror ? -1 : 1;
-return (
-<g transform={`translate(${x-60},${y-90}) scale(${mx*scale},${scale}) rotate(${rotate},60,110)`}>
-{/* index only extended */}
-<Finger x={71} y={84} len={58} w={10} curl={0} rot={-2} cx={71} cy={84}/>
-{/* others curled */}
-<Finger x={38} y={88} len={40} w={9}  curl={1} rot={4}  cx={38} cy={88}/>
-<Finger x={49} y={84} len={48} w={10} curl={1} rot={1}  cx={49} cy={84}/>
-<Finger x={60} y={82} len={52} w={11} curl={1} rot={0}  cx={60} cy={82}/>
-
-```
-  {/* palm */}
-  <rect x="30" y="60" width="58" height="48" rx="12" fill={S.mid}/>
-  <rect x="30" y="72" width="58" height="36" rx="10" fill={S.palm} opacity=".3"/>
-  <path d="M34 76 Q60 82 86 76" stroke={S.dark} strokeWidth="1.1" fill="none" strokeLinecap="round" opacity=".28"/>
-  <ellipse cx="57" cy="62" rx="18" ry="5" fill={S.white} opacity=".18"/>
-
-  {/* thumb tucked */}
-  <Thumb x={80} y={85} len={32} w={13} curl={.85} side={1} pivotX={80} pivotY={85}/>
-
-  <Wrist y={106} w={52}/>
-</g>
-```
-
-);
-}
-
-/* ─────────────────────────────────────────────────────────────
-FLAT ARM — the non-dominant forearm held horizontal
-Used as the base in FOREST
-───────────────────────────────────────────────────────────── */
-function FlatArm() {
-return (
-<g transform="translate(0,10)">
-{/* forearm horizontal across bottom */}
-<rect x="8" y="128" width="164" height="28" rx="14" fill={S.arm}/>
-<rect x="12" y="130" width="156" height="22" rx="11" fill={S.mid}/>
-{/* elbow crease */}
-<ellipse cx="22" cy="139" rx="9" ry="10" fill={S.dark} opacity=".3"/>
-{/* fist at end (just a rounded cap) */}
-<ellipse cx="172" cy="139" rx="14" ry="13" fill={S.mid}/>
-<ellipse cx="172" cy="139" rx="10" ry="9" fill={S.palm} opacity=".4"/>
-</g>
-);
-}
-
-/* ═══════════════════════════════════════════════════════
-BSL SIGNS — YES & NO
-YES: 3-frame flipbook, forward nod, capsule fingers
-NO:  single fist, SVG group rotates ±38° at wrist
-Both use identical finger drawing approach.
-═══════════════════════════════════════════════════════ */
-
-const SKBSL = {
-base:   “#D4956A”,
-light:  “#EAC090”,
-vlight: “#F5D8B8”,
-dark:   “#A86840”,
-deep:   “#7A4820”,
-nail:   “#F0CEAA”,
-nailRm: “#C09070”,
-arm:    “#C07848”,
-top:    “#C07040”,
-};
-
-function YesDefs({id}) {
-return (
-<defs>
-<radialGradient id={`ypG${id}`} cx=“40%” cy=“35%” r=“68%”>
-<stop offset="0%"   stopColor={SKBSL.vlight}/>
-<stop offset="55%"  stopColor={SKBSL.base}/>
-<stop offset="100%" stopColor={SKBSL.dark}/>
-</radialGradient>
-<radialGradient id={`ytG${id}`} cx=“32%” cy=“28%” r=“72%”>
-<stop offset="0%"   stopColor={SKBSL.light}/>
-<stop offset="100%" stopColor={SKBSL.dark}/>
-</radialGradient>
-<radialGradient id={`yfG${id}`} cx=“38%” cy=“20%” r=“70%”>
-<stop offset="0%"   stopColor={SKBSL.vlight}/>
-<stop offset="60%"  stopColor={SKBSL.base}/>
-<stop offset="100%" stopColor={SKBSL.dark}/>
-</radialGradient>
-<radialGradient id={`ysG${id}`} cx=“50%” cy=“30%” r=“70%”>
-<stop offset="0%"   stopColor={SKBSL.light}/>
-<stop offset="100%" stopColor={SKBSL.top}/>
-</radialGradient>
-<filter id={`yf${id}`}>
-<feDropShadow dx="2" dy="6" stdDeviation="6" floodColor="#00000050"/>
-</filter>
-</defs>
-);
-}
-
-/* One capsule finger — shaft + knuckle + PIP crease + tip + nail + separator */
-function Fgr({id, x,y,w,h,rx, kx,ky,krx,kry, py, tx,ty,trx,try_, nx,ny,nrx,nry, sx}) {
-return <>
-<rect x={x} y={y} width={w} height={h} rx={rx} fill={`url(#yfG${id})`}/>
-<rect x={x} y={y+4} width={4} height={h-8} rx={2} fill={SKBSL.dark} opacity=".28"/>
-<rect x={x+7} y={y+4} width={w-10} height={h*0.38} rx={3} fill={SKBSL.vlight} opacity=".42"/>
-<ellipse cx={kx} cy={ky} rx={krx} ry={kry} fill={SKBSL.vlight} opacity=".92"/>
-<ellipse cx={kx} cy={ky-kry*0.35} rx={krx*0.68} ry={kry*0.58} fill="white" opacity=".32"/>
-<path d={`M ${kx-krx} ${ky+kry*0.2} Q ${kx} ${ky-kry*0.1} ${kx+krx} ${ky+kry*0.2}`}
-stroke={SKBSL.deep} strokeWidth=“1.9” fill=“none” strokeLinecap=“round” opacity=”.58”/>
-<path d={`M ${x+2} ${py} Q ${kx} ${py-4} ${x+w-2} ${py}`}
-stroke={SKBSL.deep} strokeWidth=“1.3” fill=“none” strokeLinecap=“round” opacity=”.44”/>
-{sx && <line x1={sx} y1={ky-kry} x2={sx} y2={ty+try_} stroke={SKBSL.deep} strokeWidth="2" opacity=".32"/>}
-<ellipse cx={tx} cy={ty} rx={trx} ry={try_} fill={SKBSL.base}/>
-<ellipse cx={tx} cy={ty+try_*0.35} rx={trx*0.85} ry={try_*0.6} fill={SKBSL.dark} opacity=".18"/>
-<path d={`M ${tx-trx+1} ${ty-try_*0.12} Q ${tx} ${ty-try_*0.4} ${tx+trx-1} ${ty-try_*0.12}`}
-stroke={SKBSL.deep} strokeWidth=“1.1” fill=“none” strokeLinecap=“round” opacity=”.4”/>
-<ellipse cx={nx} cy={ny} rx={nrx} ry={nry} fill={SKBSL.nail} opacity=".9"/>
-<ellipse cx={nx} cy={ny} rx={nrx} ry={nry} fill="none" stroke={SKBSL.nailRm} strokeWidth="1.1" opacity=".62"/>
-<ellipse cx={nx-nrx*0.3} cy={ny-nry*0.3} rx={nrx*0.35} ry={nry*0.4} fill="white" opacity=".32"/>
-</>;
-}
-
-/* Thumb shape */
-function Thm({id, body, c1, c2, hi, nx, ny, nr}) {
-return <>
-<path d={body} fill={`url(#ytG${id})`} filter={`url(#yf${id})`}/>
-<path d={body} fill={SKBSL.vlight} opacity=".22"/>
-<path d={c1} stroke={SKBSL.deep} strokeWidth="1.5" fill="none" strokeLinecap="round" opacity=".5"/>
-<path d={c2} stroke={SKBSL.deep} strokeWidth="1.2" fill="none" strokeLinecap="round" opacity=".36"/>
-<path d={hi} stroke={SKBSL.vlight} strokeWidth="2.5" fill="none" strokeLinecap="round" opacity=".48"/>
-<ellipse cx={nx} cy={ny} rx=“12” ry=“9” fill={SKBSL.nail} transform={`rotate(${nr} ${nx} ${ny})`}/>
-<ellipse cx={nx} cy={ny} rx=“12” ry=“9” fill=“none” stroke={SKBSL.nailRm} strokeWidth=“1.3” transform={`rotate(${nr} ${nx} ${ny})`} opacity=”.7”/>
-<ellipse cx={nx-4} cy={ny-3} rx=“4” ry=“3” fill=“white” opacity=”.32” transform={`rotate(${nr} ${nx} ${ny})`}/>
-</>;
-}
-
-/* ── Frame 0: fist upright ── */
-function YF0() {
-const id=“a”;
-return (
-<svg viewBox=“0 0 160 230” style={{width:“100%”,display:“block”,overflow:“visible”}}>
-<YesDefs id={id}/>
-<ellipse cx="80" cy="224" rx="42" ry="7" fill="rgba(0,0,0,0.25)"/>
-<rect x=“50” y=“162” width=“64” height=“56” rx=“24” fill={SKBSL.arm} filter={`url(#yf${id})`}/>
-<rect x="54" y="164" width="56" height="52" rx="21" fill={SKBSL.light} opacity=".32"/>
-<path d="M 56 171 Q 82 178 108 171" stroke={SKBSL.deep} strokeWidth="1.6" fill="none" strokeLinecap="round" opacity=".42"/>
-<path d="M 58 183 Q 82 189 106 183" stroke={SKBSL.deep} strokeWidth="1.1" fill="none" strokeLinecap="round" opacity=".28"/>
-<path d=“M 36 74 Q 34 58 50 50 Q 62 44 82 44 Q 102 44 118 50 Q 134 56 136 72 Q 138 96 134 124 Q 130 148 124 162 Q 114 172 82 172 Q 50 172 42 162 Q 34 148 32 124 Q 28 96 36 74 Z”
-fill={`url(#ypG${id})`} filter={`url(#yf${id})`}/>
-<path d="M 130 62 Q 140 80 138 114 Q 136 144 128 162" stroke={SKBSL.dark} strokeWidth="9" fill="none" strokeLinecap="round" opacity=".22"/>
-<path d="M 42 152 Q 82 160 124 152" stroke={SKBSL.dark} strokeWidth="12" fill="none" strokeLinecap="round" opacity=".14"/>
-<path d="M 48 130 Q 82 138 118 130" stroke={SKBSL.deep} strokeWidth="1.2" fill="none" strokeLinecap="round" opacity=".2"/>
-<Thm id={id} body="M 46 118 Q 26 108 20 90 Q 14 70 28 58 Q 40 48 54 58 Q 66 68 62 88 Q 58 106 50 120 Z"
-c1="M 34 92 Q 44 87 54 92" c2="M 42 112 Q 50 108 58 112"
-hi="M 22 88 Q 24 70 36 60" nx={32} ny={62} nr={-38}/>
-<Fgr id={id} x={36} y={76}  w={21} h={52} rx={10} kx={46.5} ky={76}  krx={12} kry={9}  py={105} tx={46.5} ty={131} trx={11}   try_={8.5} nx={46.5} ny={122} nrx={9.5}  nry={6}   sx={59}/>
-<Fgr id={id} x={62} y={64}  w={23} h={64} rx={11} kx={73.5} ky={64}  krx={13} kry={10} py={100} tx={73.5} ty={131} trx={12.5} try_={9.5} nx={73.5} ny={122} nrx={10.5} nry={6.5} sx={87}/>
-<Fgr id={id} x={90} y={54}  w={25} h={76} rx={12} kx={102.5} ky={54} krx={14} kry={11} py={100} tx={102.5} ty={133} trx={13.5} try_={10.5} nx={102.5} ny={123} nrx={11.5} nry={7} sx={117}/>
-<Fgr id={id} x={120} y={60} w={23} h={72} rx={11} kx={131.5} ky={60} krx={13} kry={10} py={102} tx={131.5} ty={135} trx={12.5} try_={9.5} nx={131.5} ny={125} nrx={10.5} nry={6.5} sx={null}/>
-<path d="M 38 72 Q 73 54 102.5 50 Q 124 50 145 60" stroke="rgba(255,255,255,0.24)" strokeWidth="11" fill="none" strokeLinecap="round"/>
-</svg>
-);
-}
-
-/* ── Frame 1: nodding ~20° ── */
-function YF1() {
-const id=“b”;
-return (
-<svg viewBox=“0 0 160 230” style={{width:“100%”,display:“block”,overflow:“visible”}}>
-<YesDefs id={id}/>
-<ellipse cx="80" cy="224" rx="42" ry="7" fill="rgba(0,0,0,0.25)"/>
-<rect x=“50” y=“162” width=“64” height=“56” rx=“24” fill={SKBSL.arm} filter={`url(#yf${id})`}/>
-<rect x="54" y="164" width="56" height="52" rx="21" fill={SKBSL.light} opacity=".30"/>
-<path d="M 56 171 Q 82 178 108 171" stroke={SKBSL.deep} strokeWidth="1.6" fill="none" strokeLinecap="round" opacity=".38"/>
-<path d=“M 34 68 Q 52 54 80 52 Q 108 52 128 66 Q 134 72 128 78 Q 108 72 80 70 Q 52 70 34 78 Q 28 72 34 68 Z” fill={`url(#ysG${id})`} opacity=”.9”/>
-<path d="M 34 68 Q 52 54 80 52 Q 108 52 128 66" stroke={SKBSL.dark} strokeWidth="1" fill="none" opacity=".4"/>
-<path d=“M 34 74 Q 32 58 48 50 Q 60 44 82 44 Q 104 44 120 50 Q 136 56 136 74 Q 138 98 134 128 Q 130 152 124 164 Q 114 174 82 174 Q 50 174 42 164 Q 34 150 32 128 Q 28 98 34 74 Z”
-fill={`url(#ypG${id})`} filter={`url(#yf${id})`}/>
-<path d="M 130 62 Q 140 82 138 118 Q 136 150 128 165" stroke={SKBSL.dark} strokeWidth="9" fill="none" strokeLinecap="round" opacity=".20"/>
-<path d="M 48 134 Q 82 142 118 134" stroke={SKBSL.deep} strokeWidth="1.2" fill="none" strokeLinecap="round" opacity=".18"/>
-<Thm id={id} body="M 44 122 Q 24 112 18 94 Q 12 74 26 62 Q 40 52 54 62 Q 66 72 62 92 Q 58 110 50 124 Z"
-c1="M 32 96 Q 42 91 52 96" c2="M 40 116 Q 48 112 56 116"
-hi="M 20 92 Q 22 74 34 64" nx={30} ny={66} nr={-35}/>
-{/* knuckles shifted down ~14px */}
-<Fgr id={id} x={36} y={90}  w={21} h={52} rx={10} kx={46.5} ky={90}  krx={12} kry={9}  py={119} tx={46.5} ty={145} trx={11}   try_={8.5} nx={46.5} ny={136} nrx={9.5}  nry={6}   sx={59}/>
-<Fgr id={id} x={62} y={78}  w={23} h={64} rx={11} kx={73.5} ky={78}  krx={13} kry={10} py={114} tx={73.5} ty={145} trx={12.5} try_={9.5} nx={73.5} ny={136} nrx={10.5} nry={6.5} sx={87}/>
-<Fgr id={id} x={90} y={68}  w={25} h={76} rx={12} kx={102.5} ky={68} krx={14} kry={11} py={114} tx={102.5} ty={147} trx={13.5} try_={10.5} nx={102.5} ny={137} nrx={11.5} nry={7} sx={117}/>
-<Fgr id={id} x={120} y={74} w={23} h={72} rx={11} kx={131.5} ky={74} krx={13} kry={10} py={116} tx={131.5} ty={149} trx={12.5} try_={9.5} nx={131.5} ny={139} nrx={10.5} nry={6.5} sx={null}/>
-<path d="M 38 86 Q 73 68 102.5 64 Q 124 64 145 74" stroke="rgba(255,255,255,0.22)" strokeWidth="11" fill="none" strokeLinecap="round"/>
-</svg>
-);
-}
-
-/* ── Frame 2: fully nodded ~35° ── */
-function YF2() {
-const id=“c”;
-return (
-<svg viewBox=“0 0 160 230” style={{width:“100%”,display:“block”,overflow:“visible”}}>
-<YesDefs id={id}/>
-<ellipse cx="80" cy="224" rx="42" ry="7" fill="rgba(0,0,0,0.25)"/>
-<rect x="50" y="166" width="64" height="52" rx="24" fill={SKBSL.arm}/>
-<rect x="54" y="168" width="56" height="48" rx="21" fill={SKBSL.light} opacity=".28"/>
-<path d="M 56 175 Q 82 181 108 175" stroke={SKBSL.deep} strokeWidth="1.5" fill="none" strokeLinecap="round" opacity=".35"/>
-<path d=“M 30 78 Q 50 56 80 52 Q 110 56 132 76 Q 136 88 132 96 Q 110 84 80 80 Q 50 82 30 96 Q 24 88 30 78 Z” fill={`url(#ysG${id})`}/>
-<path d="M 36 80 Q 50 66 64 74" stroke={SKBSL.dark} strokeWidth="1.2" fill="none" strokeLinecap="round" opacity=".3"/>
-<path d="M 58 72 Q 74 60 88 68" stroke={SKBSL.dark} strokeWidth="1.2" fill="none" strokeLinecap="round" opacity=".3"/>
-<path d="M 80 68 Q 98 56 112 64" stroke={SKBSL.dark} strokeWidth="1.2" fill="none" strokeLinecap="round" opacity=".3"/>
-<path d="M 104 68 Q 120 58 132 68" stroke={SKBSL.dark} strokeWidth="1.2" fill="none" strokeLinecap="round" opacity=".3"/>
-<path d=“M 28 96 Q 26 80 40 70 Q 54 58 82 58 Q 110 58 126 70 Q 140 80 138 98 Q 136 128 128 150 Q 118 166 82 168 Q 46 166 36 150 Q 26 128 28 96 Z”
-fill={`url(#ypG${id})`} filter={`url(#yf${id})`}/>
-<path d="M 132 70 Q 142 90 140 118 Q 138 150 130 162" stroke={SKBSL.dark} strokeWidth="9" fill="none" strokeLinecap="round" opacity=".18"/>
-<Thm id={id} body="M 42 130 Q 20 118 14 98 Q 10 78 24 68 Q 38 58 52 70 Q 64 82 58 102 Q 54 120 46 134 Z"
-c1="M 28 100 Q 38 95 48 100" c2="M 36 122 Q 44 118 52 122"
-hi="M 16 96 Q 18 78 28 68" nx={26} ny={72} nr={-30}/>
-{/* knuckles shifted down ~28px, fingers foreshortened */}
-<Fgr id={id} x={36} y={104} w={21} h={44} rx={10} kx={46.5} ky={104} krx={13} kry={10} py={128} tx={46.5} ty={151} trx={12}   try_={9}   nx={46.5} ny={143} nrx={10}   nry={6}   sx={59}/>
-<Fgr id={id} x={62} y={94}  w={23} h={54} rx={11} kx={73.5} ky={94}  krx={14} kry={11} py={122} tx={73.5} ty={151} trx={13}   try_={10}  nx={73.5} ny={142} nrx={11}   nry={6.5} sx={87}/>
-<Fgr id={id} x={90} y={86}  w={25} h={62} rx={12} kx={102.5} ky={86} krx={15} kry={12} py={118} tx={102.5} ty={151} trx={14}  try_={11}  nx={102.5} ny={141} nrx={12}  nry={7}   sx={117}/>
-<Fgr id={id} x={120} y={92} w={23} h={58} rx={11} kx={131.5} ky={92} krx={14} kry={11} py={122} tx={131.5} ty={153} trx={13}  try_={10}  nx={131.5} ny={144} nrx={11}  nry={6.5} sx={null}/>
-<path d="M 36 100 Q 70 84 102.5 82 Q 124 82 146 92" stroke="rgba(255,255,255,0.24)" strokeWidth="12" fill="none" strokeLinecap="round"/>
-</svg>
-);
-}
-
-const YES_SEQ = [0,0,0,1,2,2,2,1,0,0,1,2,2,2,1,0,0,0,0,0,0];
-const YES_MS  = [600,200,100,120,150,180,100,120,400,200,120,150,180,100,120,400,500,400,300,300,400];
-const YES_FR  = [YF0,YF1,YF2];
-
-function BSLYesSign() {
-const [fi,setFi]=useState(0);
-useEffect(()=>{
-let i=0;
-function tick(){i=(i+1)%YES_SEQ.length;setFi(i);setTimeout(tick,YES_MS[i]);}
-const t=setTimeout(tick,YES_MS[0]);
-return()=>clearTimeout(t);
-},[]);
-const Frame=YES_FR[YES_SEQ[fi]];
-return <div style={{width:“100%”}}><Frame/></div>;
-}
-
-function BSLNoSign() {
-const NO_SEQ=[0,0,-38,-38,0,38,38,0,-38,-38,0,38,38,0,0,0,0];
-const NO_MS =[500,80,90,110,90,90,110,90,90,110,90,90,110,280,400,400,600];
-const [fi,setFi]=useState(0);
-useEffect(()=>{
-let i=0;
-function tick(){i=(i+1)%NO_SEQ.length;setFi(i);setTimeout(tick,NO_MS[i]);}
-const t=setTimeout(tick,NO_MS[0]);
-return()=>clearTimeout(t);
-},[]);
-const deg=NO_SEQ[fi];
-return (
-<div style={{width:“100%”}}>
-<svg viewBox=“0 0 160 230” style={{width:“100%”,display:“block”,overflow:“visible”}}>
-<defs>
-<radialGradient id="noPG" cx="40%" cy="35%" r="68%">
-<stop offset="0%"   stopColor={SKBSL.vlight}/>
-<stop offset="55%"  stopColor={SKBSL.base}/>
-<stop offset="100%" stopColor={SKBSL.dark}/>
-</radialGradient>
-<radialGradient id="noTG" cx="32%" cy="28%" r="72%">
-<stop offset="0%"   stopColor={SKBSL.light}/>
-<stop offset="100%" stopColor={SKBSL.dark}/>
-</radialGradient>
-<radialGradient id="noFG" cx="38%" cy="20%" r="70%">
-<stop offset="0%"   stopColor={SKBSL.vlight}/>
-<stop offset="60%"  stopColor={SKBSL.base}/>
-<stop offset="100%" stopColor={SKBSL.dark}/>
-</radialGradient>
-<filter id="noD">
-<feDropShadow dx="2" dy="6" stdDeviation="6" floodColor="#00000050"/>
-</filter>
-</defs>
-<rect x="50" y="162" width="64" height="56" rx="24" fill={SKBSL.arm} filter="url(#noD)"/>
-<rect x="54" y="164" width="56" height="52" rx="21" fill={SKBSL.light} opacity=".32"/>
-<path d="M 56 171 Q 82 178 108 171" stroke={SKBSL.deep} strokeWidth="1.6" fill="none" strokeLinecap="round" opacity=".42"/>
-<path d="M 58 183 Q 82 189 106 183" stroke={SKBSL.deep} strokeWidth="1.1" fill="none" strokeLinecap="round" opacity=".28"/>
-<g transform={`rotate(${deg},82,162)`} style={{transition:“transform 0.08s cubic-bezier(0.4,0,0.2,1)”}}>
-<path d="M 36 74 Q 34 58 50 50 Q 62 44 82 44 Q 102 44 118 50 Q 134 56 136 72 Q 138 96 134 124 Q 130 148 124 162 Q 114 172 82 172 Q 50 172 42 162 Q 34 148 32 124 Q 28 96 36 74 Z" fill="url(#noPG)" filter="url(#noD)"/>
-<path d="M 130 62 Q 140 80 138 114 Q 136 144 128 162" stroke={SKBSL.dark} strokeWidth="9" fill="none" strokeLinecap="round" opacity=".22"/>
-<path d="M 42 152 Q 82 160 124 152" stroke={SKBSL.dark} strokeWidth="12" fill="none" strokeLinecap="round" opacity=".14"/>
-<path d="M 48 130 Q 82 138 118 130" stroke={SKBSL.deep} strokeWidth="1.2" fill="none" strokeLinecap="round" opacity=".2"/>
-<path d="M 46 118 Q 26 108 20 90 Q 14 70 28 58 Q 40 48 54 58 Q 66 68 62 88 Q 58 106 50 120 Z" fill="url(#noTG)" filter="url(#noD)"/>
-<path d="M 22 88 Q 24 70 36 60" stroke={SKBSL.vlight} strokeWidth="3" fill="none" strokeLinecap="round" opacity=".5"/>
-<path d="M 34 92 Q 44 87 54 92" stroke={SKBSL.deep} strokeWidth="1.5" fill="none" strokeLinecap="round" opacity=".5"/>
-<path d="M 42 112 Q 50 108 58 112" stroke={SKBSL.deep} strokeWidth="1.2" fill="none" strokeLinecap="round" opacity=".38"/>
-<ellipse cx="32" cy="62" rx="12" ry="9" fill={SKBSL.nail} transform="rotate(-38 32 62)"/>
-<ellipse cx="32" cy="62" rx="12" ry="9" fill="none" stroke={SKBSL.nailRm} strokeWidth="1.3" transform="rotate(-38 32 62)" opacity=".7"/>
-<ellipse cx="28" cy="57" rx="4.5" ry="3" fill="white" opacity=".35" transform="rotate(-38 32 62)"/>
-<rect x="36" y="76" width="21" height="52" rx="10" fill="url(#noFG)"/>
-<rect x="36" y="80" width="4" height="44" rx="2" fill={SKBSL.dark} opacity=".28"/>
-<rect x="42" y="80" width="8" height="30" rx="4" fill={SKBSL.vlight} opacity=".42"/>
-<ellipse cx="46.5" cy="76" rx="12" ry="9" fill={SKBSL.vlight} opacity=".92"/>
-<ellipse cx="46.5" cy="73" rx="8" ry="6" fill="white" opacity=".32"/>
-<path d="M 36 81 Q 46.5 73 57 81" stroke={SKBSL.deep} strokeWidth="1.9" fill="none" strokeLinecap="round" opacity=".58"/>
-<path d="M 37 105 Q 46.5 99 56 105" stroke={SKBSL.deep} strokeWidth="1.3" fill="none" strokeLinecap="round" opacity=".44"/>
-<line x1="59" y1="72" x2="59" y2="138" stroke={SKBSL.deep} strokeWidth="2" opacity=".35"/>
-<ellipse cx="46.5" cy="131" rx="11" ry="8.5" fill={SKBSL.base}/>
-<path d="M 37 128 Q 46.5 122 56 128" stroke={SKBSL.deep} strokeWidth="1.1" fill="none" strokeLinecap="round" opacity=".4"/>
-<ellipse cx="46.5" cy="122" rx="9.5" ry="6" fill={SKBSL.nail} opacity=".9"/>
-<ellipse cx="46.5" cy="122" rx="9.5" ry="6" fill="none" stroke={SKBSL.nailRm} strokeWidth="1.1" opacity=".62"/>
-<rect x="62" y="64" width="23" height="64" rx="11" fill="url(#noFG)"/>
-<rect x="62" y="68" width="4" height="56" rx="2" fill={SKBSL.dark} opacity=".24"/>
-<rect x="69" y="68" width="9" height="38" rx="4.5" fill={SKBSL.vlight} opacity=".4"/>
-<ellipse cx="73.5" cy="64" rx="13" ry="10" fill={SKBSL.vlight} opacity=".92"/>
-<ellipse cx="73.5" cy="61" rx="9" ry="6.5" fill="white" opacity=".32"/>
-<path d="M 62 70 Q 73.5 62 85 70" stroke={SKBSL.deep} strokeWidth="2" fill="none" strokeLinecap="round" opacity=".6"/>
-<path d="M 63 100 Q 73.5 93 84 100" stroke={SKBSL.deep} strokeWidth="1.4" fill="none" strokeLinecap="round" opacity=".44"/>
-<line x1="87" y1="60" x2="87" y2="142" stroke={SKBSL.deep} strokeWidth="2" opacity=".32"/>
-<ellipse cx="73.5" cy="131" rx="12.5" ry="9.5" fill={SKBSL.base}/>
-<path d="M 63 128 Q 73.5 121 84 128" stroke={SKBSL.deep} strokeWidth="1.2" fill="none" strokeLinecap="round" opacity=".4"/>
-<ellipse cx="73.5" cy="122" rx="10.5" ry="6.5" fill={SKBSL.nail} opacity=".9"/>
-<ellipse cx="73.5" cy="122" rx="10.5" ry="6.5" fill="none" stroke={SKBSL.nailRm} strokeWidth="1.1" opacity=".62"/>
-<rect x="90" y="54" width="25" height="76" rx="12" fill="url(#noFG)"/>
-<rect x="90" y="58" width="5" height="66" rx="2.5" fill={SKBSL.dark} opacity=".22"/>
-<rect x="97" y="58" width="10" height="44" rx="5" fill={SKBSL.vlight} opacity=".38"/>
-<ellipse cx="102.5" cy="54" rx="14" ry="11" fill={SKBSL.vlight}/>
-<ellipse cx="102.5" cy="51" rx="10" ry="7.5" fill="white" opacity=".32"/>
-<path d="M 90 61 Q 102.5 52 115 61" stroke={SKBSL.deep} strokeWidth="2.1" fill="none" strokeLinecap="round" opacity=".62"/>
-<path d="M 91 100 Q 102.5 92 114 100" stroke={SKBSL.deep} strokeWidth="1.5" fill="none" strokeLinecap="round" opacity=".44"/>
-<line x1="117" y1="50" x2="117" y2="144" stroke={SKBSL.deep} strokeWidth="2" opacity=".3"/>
-<ellipse cx="102.5" cy="133" rx="13.5" ry="10.5" fill={SKBSL.base}/>
-<path d="M 91 130 Q 102.5 122 114 130" stroke={SKBSL.deep} strokeWidth="1.3" fill="none" strokeLinecap="round" opacity=".4"/>
-<ellipse cx="102.5" cy="123" rx="11.5" ry="7" fill={SKBSL.nail} opacity=".9"/>
-<ellipse cx="102.5" cy="123" rx="11.5" ry="7" fill="none" stroke={SKBSL.nailRm} strokeWidth="1.2" opacity=".62"/>
-<rect x="120" y="60" width="23" height="72" rx="11" fill="url(#noFG)"/>
-<rect x="120" y="64" width="4" height="62" rx="2" fill={SKBSL.dark} opacity=".24"/>
-<rect x="127" y="64" width="9" height="42" rx="4.5" fill={SKBSL.vlight} opacity=".38"/>
-<ellipse cx="131.5" cy="60" rx="13" ry="10" fill={SKBSL.vlight} opacity=".9"/>
-<ellipse cx="131.5" cy="57" rx="9" ry="6.5" fill="white" opacity=".3"/>
-<path d="M 120 66 Q 131.5 57 143 66" stroke={SKBSL.deep} strokeWidth="2" fill="none" strokeLinecap="round" opacity=".6"/>
-<path d="M 121 102 Q 131.5 94 142 102" stroke={SKBSL.deep} strokeWidth="1.4" fill="none" strokeLinecap="round" opacity=".44"/>
-<ellipse cx="131.5" cy="135" rx="12.5" ry="9.5" fill={SKBSL.base}/>
-<path d="M 121 132 Q 131.5 124 142 132" stroke={SKBSL.deep} strokeWidth="1.2" fill="none" strokeLinecap="round" opacity=".4"/>
-<ellipse cx="131.5" cy="125" rx="10.5" ry="6.5" fill={SKBSL.nail} opacity=".9"/>
-<ellipse cx="131.5" cy="125" rx="10.5" ry="6.5" fill="none" stroke={SKBSL.nailRm} strokeWidth="1.2" opacity=".62"/>
-<path d="M 38 72 Q 73 54 102.5 50 Q 124 50 145 60" stroke="rgba(255,255,255,0.24)" strokeWidth="11" fill="none" strokeLinecap="round"/>
-</g>
-</svg>
-</div>
-);
-}
-
-function SignAnim({sign, showHint=false}) {
-const HINTS = {
-yes:    {text:“Fist nods forward × 2”,        color:”#fbbf24”},
-no:     {text:“Shake fist side to side”,       color:”#f87171”},
-forest: {text:“Hand rises from elbow · sways”, color:”#4ade80”},
-city:   {text:“Index taps index × 2”,          color:”#60a5fa”},
-};
-const meta = HINTS[sign];
-return (
-<div style={{display:“flex”,flexDirection:“column”,alignItems:“center”,gap:4,width:“100%”}}>
-<div style={{width:“100%”,maxWidth:130,overflow:“visible”}}>
-{sign===“yes” && <BSLYesSign/>}
-{sign===“no”  && <BSLNoSign/>}
-{(sign===“forest”||sign===“city”) && (
-<div style={{width:“100%”,aspectRatio:“3/4”,display:“flex”,flexDirection:“column”,alignItems:“center”,justifyContent:“center”,background:`${meta?.color}11`,borderRadius:12,gap:8}}>
-<div style={{fontSize:40}}>{sign===“forest”?“🌳”:“🏙️”}</div>
-<div style={{fontFamily:“Fredoka”,fontSize:11,color:meta?.color,textAlign:“center”,padding:“0 8px”}}>{meta?.text}</div>
-</div>
-)}
-</div>
-{showHint && meta && (
-<div style={{fontFamily:“Fredoka”,fontSize:11,color:meta.color,textAlign:“center”,background:`${meta.color}14`,borderRadius:8,padding:“3px 8px”}}>{meta.text}</div>
-)}
-</div>
-);
-}
-
-const SignIllustrations = {
-yes:    <SignAnim sign="yes"    showHint={true}/>,
-no:     <SignAnim sign="no"     showHint={true}/>,
-forest: <SignAnim sign="forest" showHint={true}/>,
-city:   <SignAnim sign="city"   showHint={true}/>,
-};
-
-/* ═══════════════════════════════════════════════════════
-PARTICLES
-═══════════════════════════════════════════════════════ */
-function Particles({type}) {
-if (!type) return null;
-const confettiColors = [”#ffd232”,”#ff6b6b”,”#4ade80”,”#60a5fa”,”#f472b6”,”#a78bfa”];
-const count = type===“celebrate”?24:16;
-return (
-<div style={{position:“absolute”,inset:0,pointerEvents:“none”,overflow:“hidden”,zIndex:20}}>
-{Array.from({length:count}).map((_,i)=>(
-type===“celebrate” ? (
-<div key={i} style={{
-position:“absolute”,
-left:`${5+i*3.8}%`, bottom:“15%”,
-width:8+i%4*4, height:8+i%3*4,
-borderRadius: i%3===0?“50%”:i%3===1?“2px”:“0”,
-background:confettiColors[i%6],
-animation:`celebConfetti ${.8+i*.06}s ${i*.04}s ease-out forwards`,
-}}/>
-) : (
-<div key={i} style={{
-position:“absolute”,
-left:`${i*6.2}%`, top:”-10%”,
-fontSize:16+i%3*6,
-animation:`rainDrop ${.8+i*.08}s ${i*.05}s linear forwards`,
-}}>💧</div>
-)
-))}
-</div>
-);
-}
-
-/* ═══════════════════════════════════════════════════════
-XP BAR
-═══════════════════════════════════════════════════════ */
-function XPBar({xp, maxXp=100, level}) {
-const pct = Math.min(100,(xp/maxXp)*100);
-return (
-<div style={{display:“flex”,alignItems:“center”,gap:10}}>
-<div style={{
-background:C.panel, border:`2px solid ${C.border}`,
-borderRadius:20, padding:“3px 10px 3px 6px”,
-display:“flex”,alignItems:“center”,gap:6,
-boxShadow:“inset 0 2px 4px rgba(0,0,0,.4)”,
-}}>
-<div style={{
-fontFamily:”‘Press Start 2P’”, fontSize:8, color:C.accent,
-lineHeight:1, whiteSpace:“nowrap”,
-}}>LVL {level}</div>
-</div>
-<div style={{flex:1,height:14,background:”#0a0a1a”,borderRadius:10,border:`2px solid ${C.border}`,overflow:“hidden”,position:“relative”}}>
-<div style={{
-position:“absolute”,top:0,left:0,height:“100%”,
-width:`${pct}%`,
-background:`linear-gradient(90deg,${C.purple},${C.accent})`,
-borderRadius:10,transition:“width .8s cubic-bezier(.4,0,.2,1)”,
-boxShadow:`0 0 12px ${C.purple}88`,
-}}/>
-</div>
-<div style={{fontFamily:”‘Press Start 2P’”,fontSize:7,color:C.dim,whiteSpace:“nowrap”}}>{xp}/{maxXp}</div>
-</div>
-);
-}
-
-/* ═══════════════════════════════════════════════════════
-DIALOGUE BOX (game-style)
-═══════════════════════════════════════════════════════ */
-function DialogueBox({text, onNext, showNext, characterName=“Luna”}) {
-const [displayed, setDisplayed] = useState(””);
-const [done, setDone] = useState(false);
-const idx = useRef(0);
-
-useEffect(()=>{
-setDisplayed(””); setDone(false); idx.current=0;
-const iv = setInterval(()=>{
-if(idx.current < text.length) {
-setDisplayed(text.slice(0,++idx.current));
-} else { clearInterval(iv); setDone(true); }
-},28);
-return ()=>clearInterval(iv);
-},[text]);
-
-return (
-<div style={{
-background:`linear-gradient(135deg,${C.panel}ee,${C.deep}ee)`,
-border:`2px solid ${C.border}`,
-borderRadius:16, padding:“16px 20px 14px”,
-position:“relative”,
-boxShadow:`0 8px 40px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.05)`,
-animation:“bubbleIn .4s cubic-bezier(.4,0,.2,1)”,
-}}>
-{/* Name tag */}
-<div style={{
-position:“absolute”,top:-14,left:16,
-background:`linear-gradient(90deg,${C.purple},${C.accent})`,
-borderRadius:6,padding:“3px 12px”,
-fontFamily:”‘Press Start 2P’”,fontSize:8,color:”#fff”,
-boxShadow:“0 2px 8px rgba(167,139,250,.5)”,
-}}>{characterName}</div>
-{/* corner pixels */}
-<div style={{position:“absolute”,top:6,right:6,width:6,height:6,borderRight:`2px solid ${C.accent}`,borderTop:`2px solid ${C.accent}`}}/>
-<div style={{position:“absolute”,bottom:6,left:6,width:6,height:6,borderLeft:`2px solid ${C.accent}`,borderBottom:`2px solid ${C.accent}`}}/>
-
-```
-  <p style={{
-    fontFamily:"Fredoka",fontSize:18,fontWeight:600,color:C.text,
-    lineHeight:1.55,minHeight:54, letterSpacing:.3,
-  }}>{displayed}</p>
-
-  {done && showNext && (
-    <div onClick={onNext} style={{
-      position:"absolute",bottom:10,right:14,
-      fontFamily:"'Press Start 2P'",fontSize:8,color:C.accent,
-      cursor:"pointer",animation:"float .8s ease-in-out infinite",
-    }}>▼</div>
-  )}
-</div>
-```
-
-);
-}
-
-/* ═══════════════════════════════════════════════════════
-CHOICE BUTTONS
-═══════════════════════════════════════════════════════ */
-function ChoiceButton({choice, idx, onClick, disabled}) {
-const colors = {
-yes:  {bg:”#fbbf2420”,border:”#fbbf24”,glow:”#fbbf2466”},
-no:   {bg:”#f8717120”,border:”#f87171”,glow:”#f8717166”},
-forest:{bg:”#4ade8020”,border:”#4ade80”,glow:”#4ade8066”},
-city: {bg:”#60a5fa20”,border:”#60a5fa”,glow:”#60a5fa66”},
-}[choice.sign] || {bg:”#ffffff10”,border:”#ffffff40”,glow:”#ffffff33”};
-
-return (
-<button
-onClick={()=>!disabled&&onClick(choice)}
-style={{
-flex:1, minWidth:140,
-background:colors.bg,
-border:`2px solid ${colors.border}`,
-borderRadius:16, padding:“10px 8px 12px”,
-cursor: disabled?“not-allowed”:“pointer”,
-display:“flex”,flexDirection:“column”,alignItems:“center”,gap:4,
-opacity: disabled?.5:1,
-transition:“transform .15s,box-shadow .15s”,
-animation:`choiceIn .4s ${idx*.12}s cubic-bezier(.4,0,.2,1) both`,
-boxShadow:`0 0 20px ${colors.glow}`,
-position:“relative”, overflow:“visible”,
-}}
-onMouseEnter={e=>{if(!disabled){e.currentTarget.style.transform=“translateY(-4px) scale(1.02)”;e.currentTarget.style.boxShadow=`0 12px 40px ${colors.glow}`;} }}
-onMouseLeave={e=>{e.currentTarget.style.transform=“none”;e.currentTarget.style.boxShadow=`0 0 20px ${colors.glow}`;}}
->
-<div style={{width:“100%”, maxWidth:110, height:130, overflow:“visible”, display:“flex”, alignItems:“center”, justifyContent:“center”}}>
-<SignAnim sign={choice.sign} showHint={false}/>
-</div>
-<span style={{
-fontFamily:”‘Press Start 2P’”,fontSize:9,color:colors.border,
-letterSpacing:1,marginTop:2,
-}}>{choice.label}</span>
-<span style={{
-fontFamily:“Fredoka”,fontSize:11,color:colors.border,
-opacity:.7, textAlign:“center”, lineHeight:1.3, marginTop:1,
-}}>{
-{yes:“Fist nods forward × 2”, no:“Shake fist side to side”, forest:“Hand rises & sways”, city:“Index taps index × 2”}[choice.sign]
-}</span>
-</button>
-);
-}
-
-/* ═══════════════════════════════════════════════════════
-HELP MODAL
-═══════════════════════════════════════════════════════ */
-function HelpModal({choices, onClose}) {
-return (
-<div style={{
-position:“fixed”,inset:0,
-background:“rgba(0,0,0,.85)”,backdropFilter:“blur(10px)”,
-zIndex:200,display:“flex”,alignItems:“center”,justifyContent:“center”,
-}} onClick={onClose}>
-<div onClick={e=>e.stopPropagation()} style={{
-background:`linear-gradient(135deg,${C.panel},${C.deep})`,
-border:`2px solid ${C.border}`,borderRadius:24,
-padding:“32px 36px”,maxWidth:480,width:“90%”,
-boxShadow:“0 32px 80px rgba(0,0,0,.8)”,
-position:“relative”,
-}}>
-<div style={{position:“absolute”,top:12,right:16,cursor:“pointer”,color:C.dim,fontSize:20}} onClick={onClose}>✕</div>
-<div style={{fontFamily:”‘Press Start 2P’”,fontSize:13,color:C.accent,marginBottom:6,textAlign:“center”}}>HOW TO SIGN</div>
-<p style={{fontFamily:“Fredoka”,color:C.dim,fontSize:15,textAlign:“center”,marginBottom:24}}>
-Mimic the hand shape, then tap your choice below!
-</p>
-<div style={{display:“flex”,gap:16,justifyContent:“center”,flexWrap:“wrap”}}>
-{choices.map(c=>(
-<div key={c.sign} style={{
-background:“rgba(255,255,255,.04)”,border:`1px solid ${C.border}`,
-borderRadius:16,padding:“14px 12px 10px”,
-flex:“1 1 130px”,maxWidth:170,minWidth:120,
-display:“flex”,flexDirection:“column”,alignItems:“center”,gap:6,
-}}>
-<div style={{width:“100%”, maxWidth:120, height:130, overflow:“hidden”, display:“flex”, alignItems:“center”, justifyContent:“center”}}>
-<SignAnim sign={c.sign} showHint={false}/>
-</div>
-<span style={{fontFamily:”‘Press Start 2P’”,fontSize:7,color:C.text,textAlign:“center”}}>{c.label}</span>
-</div>
-))}
-</div>
-<button onClick={onClose} style={{
-display:“block”,margin:“24px auto 0”,
-background:`linear-gradient(135deg,${C.purple},${C.accent})`,
-color:“white”,border:“none”,borderRadius:30,padding:“12px 32px”,
-fontFamily:”‘Press Start 2P’”,fontSize:10,cursor:“pointer”,
-boxShadow:“0 4px 20px rgba(167,139,250,.4)”,
-}}>GOT IT!</button>
-</div>
-</div>
-);
-}
-
-/* ═══════════════════════════════════════════════════════
-CAMERA
-═══════════════════════════════════════════════════════ */
-function CameraView({active}) {
-const videoRef = useRef(null);
-const streamRef = useRef(null);
-useEffect(()=>{
-if(!active){streamRef.current?.getTracks().forEach(t=>t.stop());return;}
-navigator.mediaDevices?.getUserMedia({video:true}).then(s=>{
-streamRef.current=s;
-if(videoRef.current) videoRef.current.srcObject=s;
-}).catch(()=>{});
-return()=>streamRef.current?.getTracks().forEach(t=>t.stop());
-},[active]);
-return (
-<div style={{
-borderRadius:12,overflow:“hidden”,
-border:`2px solid ${C.border}`,
-position:“relative”,background:”#000”,
-aspectRatio:“4/3”,
-}}>
-<video ref={videoRef} autoPlay muted playsInline style={{width:“100%”,height:“100%”,objectFit:“cover”,transform:“scaleX(-1)”}}/>
-{/* corner decorations */}
-{[[0,0,“top”,“left”],[0,“auto”,“top”,“right”],[“auto”,0,“bottom”,“left”],[“auto”,“auto”,“bottom”,“right”]].map(([t,b,tt,ll],i)=>(
-<div key={i} style={{position:“absolute”,top:t,bottom:b,left:ll===“left”?0:“auto”,right:ll===“right”?0:“auto”,width:16,height:16,
-borderTop:i<2?`2px solid ${C.accent}`:“none”,
-borderBottom:i>=2?`2px solid ${C.accent}`:“none”,
-borderLeft:i%2===0?`2px solid ${C.accent}`:“none”,
-borderRight:i%2===1?`2px solid ${C.accent}`:“none”,
-}}/>
-))}
-<div style={{position:“absolute”,bottom:6,left:“50%”,transform:“translateX(-50%)”,
-background:“rgba(0,0,0,.7)”,border:`1px solid ${C.border}`,borderRadius:20,
-padding:“3px 12px”,fontFamily:”‘Press Start 2P’”,fontSize:7,color:C.green,
-whiteSpace:“nowrap”,
-}}>● REC</div>
-</div>
-);
-}
-
-/* ═══════════════════════════════════════════════════════
-WORD UNLOCK BADGE
-═══════════════════════════════════════════════════════ */
-function WordBadge({word, isNew}) {
-return (
-<div style={{
-background: isNew?“rgba(250,210,50,.15)”:“rgba(255,255,255,.04)”,
-border:`1px solid ${isNew?C.accent:C.border}`,
-borderRadius:20,padding:“4px 12px”,
-fontFamily:”‘Press Start 2P’”,fontSize:7,
-color:isNew?C.accent:C.dim,
-boxShadow:isNew?`0 0 12px ${C.accent}44`:“none”,
-animation:isNew?“glowPulse 2s ease-in-out infinite”:“none”,
-transition:“all .4s”,
-}}>🔓 {word}</div>
-);
-}
-
-/* ═══════════════════════════════════════════════════════
-TITLE SCREEN
-═══════════════════════════════════════════════════════ */
-function TitleScreen({onStart}) {
-return (
-<div style={{
-position:“relative”,width:“100%”,height:“100%”,
-display:“flex”,flexDirection:“column”,alignItems:“center”,justifyContent:“center”,
-overflow:“hidden”,
-}}>
-<NightVillageBg/>
-<Starfield/>
-<div style={{position:“relative”,zIndex:10,textAlign:“center”,padding:“0 20px”}}>
-<div style={{
-fontFamily:”‘Press Start 2P’”,fontSize:28,color:C.accent,
-textShadow:`0 0 40px ${C.accent}, 0 0 80px ${C.accent}44`,
-animation:“titlePop .8s cubic-bezier(.4,0,.2,1) both”,
-lineHeight:1.4,
-}}>BSL<br/>QUEST</div>
-<div style={{
-fontFamily:“Fredoka”,fontSize:18,color:C.dim,marginTop:16,marginBottom:40,
-animation:“titlePop .8s .2s cubic-bezier(.4,0,.2,1) both”,
-}}>Learn British Sign Language<br/>through story & adventure</div>
-<div style={{
-width:120,margin:“0 auto 40px”,
-animation:“titlePop .8s .1s cubic-bezier(.4,0,.2,1) both”,
-}}>
-<Character mood="wave"/>
-</div>
-<button onClick={onStart} style={{
-background:`linear-gradient(135deg,${C.purple},${C.accent})`,
-border:“none”,borderRadius:12,padding:“16px 48px”,
-fontFamily:”‘Press Start 2P’”,fontSize:13,color:“white”,cursor:“pointer”,
-boxShadow:`0 8px 32px rgba(167,139,250,.5)`,
-animation:`glowPulse 2s ease-in-out infinite, titlePop .8s .4s cubic-bezier(.4,0,.2,1) both`,
-letterSpacing:1,
-}}>▶  START</button>
-<p style={{fontFamily:”‘Press Start 2P’”,fontSize:7,color:C.dim,marginTop:20}}>
-CHAPTER 1: THE LOST CAT
-</p>
-</div>
-</div>
-);
-}
-
-/* ═══════════════════════════════════════════════════════
-ENDING SCREEN
-═══════════════════════════════════════════════════════ */
-function EndingScreen({type, onRestart, xp}) {
-const isForest = type===“forest”;
-return (
-<div style={{position:“relative”,width:“100%”,height:“100%”,overflow:“hidden”,display:“flex”,flexDirection:“column”}}>
-{isForest ? <ForestBg/> : <CityBg/>}
-<Starfield/>
-<div style={{position:“relative”,zIndex:10,flex:1,display:“flex”,flexDirection:“column”,alignItems:“center”,justifyContent:“center”,padding:24}}>
-<div style={{fontSize:60,animation:“float 2s ease-in-out infinite”,marginBottom:8}}>🐱</div>
-<div style={{fontFamily:”‘Press Start 2P’”,fontSize:18,color:C.accent,textAlign:“center”,
-textShadow:`0 0 30px ${C.accent}`,marginBottom:12,animation:“titlePop .6s ease both”}}>
-YOU FOUND<br/>THE CAT!
-</div>
-<div style={{fontFamily:“Fredoka”,fontSize:18,color:C.text,marginBottom:8}}>
-{isForest?“She was hiding behind a great oak tree 🌳”:“She was sitting on a city rooftop 🏙️”}
-</div>
-<div style={{
-background:`linear-gradient(135deg,${C.panel}dd,${C.deep}dd)`,
-border:`2px solid ${C.accent}`,borderRadius:16,padding:“16px 28px”,marginTop:20,marginBottom:28,
-textAlign:“center”,boxShadow:`0 0 30px ${C.accent}44`,
-}}>
-<div style={{fontFamily:”‘Press Start 2P’”,fontSize:9,color:C.dim,marginBottom:6}}>XP EARNED</div>
-<div style={{fontFamily:”‘Press Start 2P’”,fontSize:22,color:C.accent}}>+{xp}</div>
-<div style={{fontFamily:“Fredoka”,fontSize:15,color:C.green,marginTop:6}}>
-✓ YES  ✓ NO  ✓ {isForest?“FOREST”:“CITY”}
-</div>
-</div>
-<button onClick={onRestart} style={{
-background:`linear-gradient(135deg,${isForest?"#166534":"#1e3a8a"},${isForest?"#4ade80":"#60a5fa"})`,
-border:“none”,borderRadius:12,padding:“14px 40px”,
-fontFamily:”‘Press Start 2P’”,fontSize:11,color:“white”,cursor:“pointer”,
-boxShadow:`0 8px 24px ${isForest?"rgba(74,222,128,.3)":"rgba(96,165,250,.3)"}`,
-}}>▶  PLAY AGAIN</button>
-</div>
-</div>
-);
-}
-
-/* ═══════════════════════════════════════════════════════
-STORY DATA
-═══════════════════════════════════════════════════════ */
-const STORY = {
-scene1: {
-id:“scene1”, mood:“wave”, bg:“night”,
-lines:[“Hi there! I’m Luna! 🐾”,“Will you help me find my cat?”],
-question:“Sign your answer!”,
-choices:[{label:“YES”,sign:“yes”,next:“scene_yes”},{label:“NO”,sign:“no”,next:“scene_no”}],
-xpGain:10,
-},
-scene_no: {
-id:“scene_no”, mood:“sad”, bg:“night”,
-lines:[“That’s not the sign for YES…”,“Try again! 🌧️”],
-question:“Will you help me?”,
-choices:[{label:“YES”,sign:“yes”,next:“scene_yes”},{label:“NO”,sign:“no”,next:“scene_no2”}],
-xpGain:0,
-},
-scene_no2: {
-id:“scene_no2”, mood:“pleading”, bg:“night”,
-lines:[“We don’t have all day…”,“PLEASE help me find her! 🥺”],
-question:“One more chance!”,
-choices:[{label:“YES”,sign:“yes”,next:“scene_yes”},{label:“NO”,sign:“no”,next:“scene_yes”}],
-xpGain:0,
-},
-scene_yes: {
-id:“scene_yes”, mood:“excited”, bg:“night”,
-lines:[“YAY! Thank you so much! ✨”,“I lost my cat Mochi! 🐱”,“Where should we look first?”],
-question:“Choose your path!”,
-choices:[{label:“FOREST”,sign:“forest”,next:“end_forest”},{label:“CITY”,sign:“city”,next:“end_city”}],
-xpGain:20,
-},
-end_forest: { id:“end_forest”, isEnding:true, endingType:“forest”, xpGain:30 },
-end_city:   { id:“end_city”,   isEnding:true, endingType:“city”,   xpGain:30 },
-};
-
-/* ═══════════════════════════════════════════════════════
-MAIN GAME
-═══════════════════════════════════════════════════════ */
-export default function App() {
-const [screen, setScreen] = useState(“title”);
-const [sceneId, setSceneId] = useState(“scene1”);
-const [lineIdx, setLineIdx] = useState(0);
-const [phase, setPhase] = useState(“dialogue”); // dialogue | choose
-const [particles, setParticles] = useState(null);
-const [showHelp, setShowHelp] = useState(false);
-const [showCamera, setShowCamera] = useState(false);
-const [xp, setXp] = useState(0);
-const [level, setLevel] = useState(1);
-const [unlocked, setUnlocked] = useState([“YES”,“NO”]);
-const [newWord, setNewWord] = useState(null);
-const [choiceDisabled, setChoiceDisabled] = useState(false);
-const [shaking, setShaking] = useState(false);
-const [walking, setWalking] = useState(false);
-const [endingXp, setEndingXp] = useState(0);
-const autoRef = useRef(null);
-
-const scene = STORY[sceneId];
-
-const gainXp = (amt) => {
-if(!amt) return;
-setXp(prev=>{
-const next = prev+amt;
-if(next >= 100*(level)) setLevel(l=>l+1);
-return next;
-});
-};
-
-const nextLine = useCallback(()=>{
-if(!scene||scene.isEnding) return;
-if(lineIdx < scene.lines.length-1) {
-setLineIdx(i=>i+1);
-} else {
-setPhase(“choose”);
-}
-},[scene,lineIdx]);
-
-// Auto-advance for slower readers
-useEffect(()=>{
-if(phase!==“dialogue”) return;
-clearTimeout(autoRef.current);
-autoRef.current = setTimeout(nextLine, 3500);
-return()=>clearTimeout(autoRef.current);
-},[phase,lineIdx,nextLine]);
-
-useEffect(()=>{
-setLineIdx(0); setPhase(“dialogue”); setParticles(null);
-setChoiceDisabled(false); setWalking(true);
-setTimeout(()=>setWalking(false),700);
-},[sceneId]);
-
-const handleChoice = (choice) => {
-if(choiceDisabled) return;
-setChoiceDisabled(true);
-
-```
-const isPositive = choice.next!=="scene_no" && choice.next!=="scene_no2";
-setParticles(isPositive?"celebrate":"rain");
-
-// Unlock new word
-if(!unlocked.includes(choice.label)) {
-  setUnlocked(w=>[...w,choice.label]);
-  setNewWord(choice.label);
-  setTimeout(()=>setNewWord(null),3000);
-}
-
-gainXp(scene.xpGain||0);
-
-if(!isPositive) {
-  setShaking(true);
-  setTimeout(()=>setShaking(false),500);
-}
-
-setTimeout(()=>{
-  setParticles(null);
-  if(choice.next.startsWith("end_")) {
-    setEndingXp(STORY[choice.next].xpGain);
-    gainXp(STORY[choice.next].xpGain);
-    setScreen("ending_"+STORY[choice.next].endingType);
-  } else {
-    setSceneId(choice.next);
+function makeVideoEl(sign, cls='') {
+  const d = BSL[sign];
+  const wrap = document.createElement('div');
+  wrap.className = 'video-wrap' + (cls ? ' '+cls : '');
+
+  const vid = document.createElement('video');
+  vid.autoplay = true; vid.loop = true; vid.muted = true; vid.playsInline = true;
+  let idx = 0;
+  function tryNext() {
+    idx++;
+    if (idx < d.urls.length) { vid.src = d.urls[idx]; vid.load(); }
+    else { vid.style.display='none'; showFallback(); }
   }
-},1600);
-```
+  vid.onerror = tryNext;
+  vid.src = d.urls[0];
+  wrap.appendChild(vid);
 
-};
+  const credit = document.createElement('a');
+  credit.href = d.page; credit.target='_blank'; credit.rel='noopener noreferrer';
+  credit.className = 'video-credit'; credit.textContent = 'signbsl.com ↗';
+  wrap.appendChild(credit);
 
-const restart = () => {
-setScreen(“game”);
-setSceneId(“scene1”);
-setXp(0); setLevel(1);
-setUnlocked([“YES”,“NO”]);
-setNewWord(null);
-};
-
-const bgMap = { night:<NightVillageBg/>, forest:<ForestBg/>, city:<CityBg/> };
-
-/* ── TITLE ── */
-if(screen===“title”) return (
-<div style={{width:“100vw”,height:“100vh”,position:“relative”}}>
-<style>{GLOBAL_CSS}</style>
-<TitleScreen onStart={()=>setScreen(“game”)}/>
-</div>
-);
-
-/* ── ENDINGS ── */
-if(screen.startsWith(“ending_”)) return (
-<div style={{width:“100vw”,height:“100vh”,position:“relative”}}>
-<style>{GLOBAL_CSS}</style>
-<EndingScreen type={screen.replace(“ending_”,””)} onRestart={restart} xp={endingXp}/>
-</div>
-);
-
-/* ── GAME ── */
-return (
-<div style={{width:“100vw”,height:“100vh”,position:“relative”,overflow:“hidden”,display:“flex”,flexDirection:“column”}}>
-<style>{GLOBAL_CSS}</style>
-
-```
-  {/* BG */}
-  {bgMap[scene?.bg||"night"]}
-  <Starfield/>
-
-  {/* Particles */}
-  <Particles type={particles}/>
-
-  {/* HUD */}
-  <div style={{
-    position:"relative",zIndex:10,
-    padding:"12px 16px 8px",
-    background:`linear-gradient(180deg,rgba(10,10,26,.9),transparent)`,
-  }}>
-    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
-      <div style={{fontFamily:"'Press Start 2P'",fontSize:9,color:C.accent,textShadow:`0 0 12px ${C.accent}`}}>
-        BSL QUEST
-      </div>
-      <div style={{display:"flex",gap:8}}>
-        {/* word badges */}
-        <div style={{display:"flex",gap:6,flexWrap:"wrap",justifyContent:"flex-end"}}>
-          {unlocked.map(w=><WordBadge key={w} word={w} isNew={w===newWord}/>)}
-        </div>
-      </div>
-    </div>
-    <XPBar xp={xp%100} maxXp={100} level={level}/>
-  </div>
-
-  {/* Scene area — character + dialogue */}
-  <div style={{
-    flex:1,position:"relative",zIndex:5,
-    display:"flex",flexDirection:"column",justifyContent:"flex-end",
-    padding:"0 16px 16px",
-    animation:sceneId.startsWith("scene")?"slideSceneIn .5s ease":"none",
-  }}>
-    {/* Character */}
-    <div style={{
-      position:"absolute",
-      left:20, bottom: phase==="choose"?260:200,
-      width:130, height:160,
-      animation: shaking?"shake .4s ease":"none",
-      transition:"bottom .5s cubic-bezier(.4,0,.2,1)",
-      zIndex:6,
-    }}>
-      <Character mood={scene?.mood||"normal"} walking={walking}/>
-    </div>
-
-    {/* Camera (small overlay) */}
-    {showCamera && (
-      <div style={{
-        position:"absolute",right:12,bottom: phase==="choose"?290:220,
-        width:160,zIndex:15,
-        animation:"bubbleIn .3s ease",
-      }}>
-        <CameraView active={showCamera}/>
-      </div>
-    )}
-
-    {/* Dialogue */}
-    {phase==="dialogue" && scene && !scene.isEnding && (
-      <div style={{marginLeft:140,marginBottom:12,zIndex:7,position:"relative"}}>
-        <DialogueBox
-          text={scene.lines[lineIdx]}
-          onNext={nextLine}
-          showNext={lineIdx<(scene.lines.length-1)}
-          characterName="Luna ✨"
-        />
-      </div>
-    )}
-
-    {/* Choices */}
-    {phase==="choose" && scene && !scene.isEnding && (
-      <div style={{zIndex:7,position:"relative"}}>
-        {/* Question */}
-        <div style={{
-          textAlign:"center",marginBottom:12,
-          fontFamily:"'Press Start 2P'",fontSize:9,
-          color:C.dim,letterSpacing:1,
-        }}>{scene.question}</div>
-        <div style={{display:"flex",gap:12,flexWrap:"wrap"}}>
-          {scene.choices.map((c,i)=>(
-            <ChoiceButton key={c.sign} choice={c} idx={i} onClick={handleChoice} disabled={choiceDisabled}/>
-          ))}
-        </div>
-      </div>
-    )}
-  </div>
-
-  {/* Bottom toolbar */}
-  <div style={{
-    position:"relative",zIndex:10,
-    background:`linear-gradient(transparent,rgba(10,10,26,.95))`,
-    padding:"8px 16px 14px",
-    display:"flex",justifyContent:"space-between",alignItems:"center",
-  }}>
-    <div style={{display:"flex",gap:10}}>
-      <button onClick={()=>setShowCamera(v=>!v)} style={{
-        background: showCamera?`${C.green}22`:"rgba(255,255,255,.05)",
-        border:`1px solid ${showCamera?C.green:C.border}`,
-        borderRadius:8, padding:"6px 14px",
-        fontFamily:"'Press Start 2P'",fontSize:8,
-        color:showCamera?C.green:C.dim,cursor:"pointer",
-      }}>📷 {showCamera?"HIDE":"CAM"}</button>
-    </div>
-    <button onClick={()=>setShowHelp(true)} style={{
-      background:`linear-gradient(135deg,${C.purple}33,${C.accent}22)`,
-      border:`1px solid ${C.accent}`,
-      borderRadius:8,padding:"6px 18px",
-      fontFamily:"'Press Start 2P'",fontSize:8,color:C.accent,
-      cursor:"pointer",
-      animation: phase==="choose"?"glowPulse 1.5s ease-in-out infinite":"none",
-      boxShadow: phase==="choose"?`0 0 16px ${C.accent}44`:"none",
-    }}>❓ HELP</button>
-  </div>
-
-  {/* Help modal */}
-  {showHelp && scene?.choices && (
-    <HelpModal choices={scene.choices} onClose={()=>setShowHelp(false)}/>
-  )}
-</div>
-```
-
-);
+  function showFallback() {
+    wrap.innerHTML = '';
+    wrap.style.background = d.color+'15';
+    const fb = document.createElement('a');
+    fb.href = d.page; fb.target='_blank'; fb.rel='noopener noreferrer';
+    fb.className = 'video-fallback';
+    fb.innerHTML = `<div class="ficon">🤟</div>
+      <div class="ftext" style="color:${d.color}">WATCH ${sign.toUpperCase()}<br>ON SIGNBSL.COM</div>
+      <div class="fhint">${d.hint}</div>
+      <div class="fbtn" style="background:${d.color}">TAP TO WATCH ↗</div>`;
+    wrap.appendChild(fb);
+  }
+  return wrap;
 }
-ReactDOM.createRoot(document.getElementById(‘root’)).render(<App/>);
+
+/* ══════════════════════════════════════════════
+   STORY DATA
+══════════════════════════════════════════════ */
+const STORY = {
+  scene1:    { mood:'wave',     bg:'night', lines:['Hi! I\'m Luna! 🐾','Will you help me?'],
+    q:'Sign your answer!',
+    choices:[{sign:'yes',label:'YES',next:'scene_yes'},{sign:'no',label:'NO',next:'scene_no'}], xp:10 },
+  scene_no:  { mood:'sad',      bg:'night', lines:['That\'s not YES...','Try again! 🌧️'],
+    q:'Will you help me?',
+    choices:[{sign:'yes',label:'YES',next:'scene_yes'},{sign:'no',label:'NO',next:'scene_no2'}], xp:0 },
+  scene_no2: { mood:'pleading', bg:'night', lines:['We don\'t have all day...','PLEASE help me! 🥺'],
+    q:'One more chance!',
+    choices:[{sign:'yes',label:'YES',next:'scene_yes'},{sign:'no',label:'NO',next:'scene_yes'}], xp:0 },
+  scene_yes: { mood:'excited',  bg:'night', lines:['YAY! Thank you! ✨','I lost my cat Mochi! 🐱','Where should we look?'],
+    q:'Choose your path!',
+    choices:[{sign:'forest',label:'FOREST',next:'end_forest'},{sign:'city',label:'CITY',next:'end_city'}], xp:20 },
+  end_forest:{ isEnding:true, type:'forest', xp:30 },
+  end_city:  { isEnding:true, type:'city',   xp:30 },
+};
+
+/* ══════════════════════════════════════════════
+   STATE
+══════════════════════════════════════════════ */
+let state = { sceneId:'scene1', lineIdx:0, phase:'dialogue',
+  xp:0, level:1, unlocked:['YES','NO'], choiceDisabled:false };
+let camStream = null;
+let autoTimer = null;
+
+/* ══════════════════════════════════════════════
+   STARFIELD
+══════════════════════════════════════════════ */
+function makeStars(container) {
+  container.innerHTML = '';
+  for (let i=0;i<70;i++) {
+    const s = document.createElement('div');
+    s.style.cssText = `position:absolute;border-radius:50%;background:white;
+      left:${Math.random()*100}%;top:${Math.random()*100}%;
+      width:${.5+Math.random()*2.5}px;height:${.5+Math.random()*2.5}px;
+      opacity:${.2+Math.random()*.8};
+      animation:twinkle ${2+Math.random()*3}s ${Math.random()*4}s ease-in-out infinite`;
+    container.appendChild(s);
+  }
+}
+
+/* ══════════════════════════════════════════════
+   BACKGROUNDS
+══════════════════════════════════════════════ */
+function makeNightBg(el) {
+  el.innerHTML = `
+    <div style="position:absolute;inset:0;background:linear-gradient(180deg,#0a0a2e,#1a1040 40%,#2d1b5e 70%,#1a0a20)"></div>
+    <div style="position:absolute;top:28px;right:17%;animation:moonGlow 4s ease-in-out infinite">
+      <svg width="60" height="60" viewBox="0 0 60 60"><circle cx="30" cy="30" r="26" fill="#fde68a"/><circle cx="42" cy="19" r="19" fill="#1a1040"/></svg>
+    </div>
+    ${[0,80,160,240,320,400,480,560,640,720].map((x,i)=>`
+    <svg style="position:absolute;bottom:${50+Math.sin(i)*18}px;left:${x}px;animation:treeWay ${3+i*.5}s ${i*.3}s ease-in-out infinite" width="70" height="160" viewBox="0 0 70 160">
+      <polygon points="35,0 2,96 68,96" fill="${i%2?'#0a1a0a':'#0f200f'}"/>
+      <polygon points="35,28 4,116 66,116" fill="${i%2?'#0a1400':'#0f1a00'}"/>
+      <rect x="28" y="116" width="14" height="30" fill="#060e06"/>
+    </svg>`).join('')}
+    <div style="position:absolute;bottom:0;left:0;right:0;height:70px;background:linear-gradient(180deg,#0a1a0a,#050d05)"></div>`;
+}
+
+function makeForestBg(el) {
+  el.innerHTML = `
+    <div style="position:absolute;inset:0;background:linear-gradient(180deg,#0d2010,#0a3018 40%,#0d2510)"></div>
+    ${[20,35,55,72].map((x,i)=>`<div style="position:absolute;top:0;left:${x}%;width:${3+i}px;height:70%;background:linear-gradient(180deg,rgba(255,230,100,.1),transparent);transform:rotate(${-5+i*3}deg);transform-origin:top center"></div>`).join('')}
+    ${[0,80,160,240,320,400,480,560,640,720].map((x,i)=>`
+    <svg style="position:absolute;bottom:44px;left:${x}px;animation:treeWay ${3+i*.5}s ${i*.3}s ease-in-out infinite" width="80" height="180" viewBox="0 0 80 180">
+      <polygon points="40,0 2,110 78,110" fill="${i%2?'#1a4a1a':'#154015'}"/>
+      <polygon points="40,30 5,130 75,130" fill="${i%2?'#155015':'#1a5a1a'}"/>
+      <polygon points="40,60 8,148 72,148" fill="${i%2?'#0f400f':'#134513'}"/>
+      <rect x="32" y="148" width="16" height="32" fill="#3d1a00"/>
+    </svg>`).join('')}
+    ${[15,30,50,65,80].map((x,i)=>`<div style="position:absolute;left:${x}%;bottom:${30+i*8}%;width:4px;height:4px;border-radius:50%;background:#fffb80;box-shadow:0 0 8px #fffb80;animation:twinkle ${1.5+i*.4}s ${i*.6}s ease-in-out infinite"></div>`).join('')}
+    <div style="position:absolute;bottom:0;left:0;right:0;height:55px;background:linear-gradient(180deg,#0a2010,#050e05)"></div>`;
+}
+
+function makeCityBg(el) {
+  const blds=[{x:0,w:80,h:220,c:'#0d1b2e'},{x:70,w:60,h:280,c:'#0a1525'},{x:120,w:100,h:180,c:'#0f2035'},
+    {x:210,w:70,h:310,c:'#0a1830'},{x:270,w:90,h:200,c:'#0d2040'},{x:350,w:60,h:260,c:'#0a1525'},
+    {x:400,w:110,h:190,c:'#0f1e32'},{x:500,w:80,h:300,c:'#0a1525'},{x:570,w:70,h:170,c:'#0d2035'},
+    {x:630,w:100,h:240,c:'#0a1830'},{x:720,w:80,h:210,c:'#0f2040'}];
+  el.innerHTML = `
+    <div style="position:absolute;inset:0;background:linear-gradient(180deg,#020812,#050f20 40%,#0a1830)"></div>
+    <div style="position:absolute;top:18px;left:14%;width:70px;height:70px;border-radius:50%;background:radial-gradient(circle,#fde68a,transparent 70%);opacity:.3"></div>
+    <svg style="position:absolute;bottom:0;left:0;width:100%" viewBox="0 0 800 320" preserveAspectRatio="none">
+      ${blds.map(b=>`<rect x="${b.x}" y="${320-b.h}" width="${b.w}" height="${b.h}" fill="${b.c}"/>
+        ${Array.from({length:Math.floor(b.h/28)}).map((_,r)=>Array.from({length:Math.floor(b.w/18)}).map((_,c)=>`<rect x="${b.x+4+c*18}" y="${320-b.h+8+r*28}" width="10" height="14" fill="${Math.random()>.4?'#fbbf24':'#1a3060'}" opacity="${.6+Math.random()*.4}"/>`).join('')).join('')}`).join('')}
+      <rect x="0" y="300" width="800" height="20" fill="#050d1e"/>
+    </svg>
+    <div style="position:absolute;bottom:0;left:0;right:0;height:35px;background:linear-gradient(transparent,rgba(96,165,250,.06))"></div>`;
+}
+
+/* ══════════════════════════════════════════════
+   CHARACTER SVG
+══════════════════════════════════════════════ */
+function charSVG(mood) {
+  const bodyCol = {wave:'#6366f1',excited:'#f59e0b',sad:'#64748b',pleading:'#8b5cf6',adventure:'#10b981',normal:'#6366f1'}[mood]||'#6366f1';
+  const smile = ['excited','adventure','wave'].includes(mood);
+  const sad = mood==='sad';
+  const blush = ['excited','wave','pleading'].includes(mood);
+  const mouthD = smile ? 'M 42 60 Q 50 70 58 60' : sad ? 'M 42 66 Q 50 58 58 66' : 'M 42 62 Q 50 66 58 62';
+  const eyeAnim = sad ? 'style="transform:translateY(3px)"' : '';
+  return `
+    <ellipse cx="50" cy="136" rx="20" ry="5" fill="rgba(0,0,0,.4)"/>
+    <rect x="32" y="80" width="36" height="44" rx="10" fill="${bodyCol}"/>
+    <rect x="30" y="80" width="40" height="14" rx="7" fill="${sad?'#94a3b8':'#f472b6'}"/>
+    <rect x="18" y="82" width="14" height="28" rx="7" fill="${bodyCol}" ${mood==='wave'?`style="transform-origin:18px 82px;animation:tailWag .6s ease-in-out infinite"`:''} />
+    <rect x="68" y="82" width="14" height="28" rx="7" fill="${bodyCol}" ${mood==='excited'?`style="transform-origin:68px 82px;animation:tailWag .5s ease-in-out infinite"`:''} />
+    <rect x="36" y="116" width="12" height="24" rx="6" fill="${bodyCol}"/>
+    <rect x="52" y="116" width="12" height="24" rx="6" fill="${bodyCol}"/>
+    <ellipse cx="42" cy="139" rx="9" ry="5" fill="#1e293b"/>
+    <ellipse cx="58" cy="139" rx="9" ry="5" fill="#1e293b"/>
+    <rect x="42" y="68" width="16" height="14" rx="5" fill="#fde68a"/>
+    <ellipse cx="50" cy="50" rx="28" ry="30" fill="#fef3c7"/>
+    <polygon points="22,26 14,6 34,22" fill="${bodyCol}"/>
+    <polygon points="78,26 86,6 66,22" fill="${bodyCol}"/>
+    <polygon points="25,24 19,12 32,22" fill="#fca5a5"/>
+    <polygon points="75,24 81,12 68,22" fill="#fca5a5"/>
+    <ellipse cx="50" cy="24" rx="26" ry="14" fill="#7c3aed"/>
+    <rect x="24" y="24" width="10" height="22" rx="5" fill="#7c3aed"/>
+    <rect x="66" y="24" width="10" height="22" rx="5" fill="#7c3aed"/>
+    ${sad ? `
+      <path d="M 36 48 Q 40 52 44 48" stroke="#1e293b" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <path d="M 56 48 Q 60 52 64 48" stroke="#1e293b" stroke-width="2.5" fill="none" stroke-linecap="round"/>` : `
+      <ellipse cx="40" cy="48" rx="6" ry="7" fill="#1e293b" ${eyeAnim} style="animation:blink 4s ease-in-out infinite"/>
+      <ellipse cx="60" cy="48" rx="6" ry="7" fill="#1e293b" style="animation:blink 4s ease-in-out infinite;animation-delay:.1s"/>
+      <circle cx="43" cy="45" r="2.5" fill="white"/>
+      <circle cx="63" cy="45" r="2.5" fill="white"/>`}
+    ${blush ? `<ellipse cx="30" cy="56" rx="8" ry="5" fill="#fca5a5" opacity=".5"/><ellipse cx="70" cy="56" rx="8" ry="5" fill="#fca5a5" opacity=".5"/>` : ''}
+    <path d="${mouthD}" stroke="#1e293b" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    <ellipse cx="50" cy="58" rx="5" ry="3.5" fill="#fca5a5"/>
+    <path d="M 68 115 Q 90 100 82 82" stroke="${bodyCol}" stroke-width="8" fill="none" stroke-linecap="round" style="animation:tailWag 1.2s ease-in-out infinite;transform-origin:68px 115px"/>
+    <filter id="glow"><feGaussianBlur stdDeviation="4" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>`;
+}
+
+/* ══════════════════════════════════════════════
+   PARTICLES
+══════════════════════════════════════════════ */
+function spawnParticles(type) {
+  const el = document.getElementById('particles');
+  el.innerHTML = '';
+  const colors = ['#ffd232','#ff6b6b','#4ade80','#60a5fa','#f472b6','#a78bfa'];
+  const count = type==='celebrate' ? 22 : 14;
+  for (let i=0;i<count;i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    if (type==='celebrate') {
+      p.style.cssText = `left:${5+i*4.2}%;bottom:15%;width:${8+i%4*4}px;height:${8+i%3*4}px;
+        border-radius:${i%3===0?'50%':i%3===1?'3px':'0'};background:${colors[i%6]};
+        animation:confetti ${.7+i*.06}s ${i*.04}s ease-out forwards`;
+    } else {
+      p.style.cssText = `left:${i*7}%;top:-5%;font-size:${16+i%3*6}px;
+        animation:rain ${.7+i*.08}s ${i*.05}s linear forwards`;
+      p.textContent = '💧';
+    }
+    el.appendChild(p);
+  }
+  setTimeout(()=>{ el.innerHTML=''; }, 1800);
+}
+
+/* ══════════════════════════════════════════════
+   CHOICE BUTTON BUILDER
+══════════════════════════════════════════════ */
+function makeChoiceBtn(choice, idx) {
+  const btn = document.createElement('button');
+  btn.className = `choice-btn ${choice.sign}`;
+  btn.style.animationDelay = `${idx*.12}s`;
+  btn.style.animation = `choiceIn .4s ${idx*.12}s cubic-bezier(.4,0,.2,1) both`;
+
+  const vw = makeVideoEl(choice.sign);
+  btn.appendChild(vw);
+
+  const lbl = document.createElement('div');
+  lbl.className = 'sign-label';
+  lbl.textContent = choice.label;
+  btn.appendChild(lbl);
+
+  btn.onclick = () => handleChoice(choice);
+  return btn;
+}
+
+/* ══════════════════════════════════════════════
+   GAME LOGIC
+══════════════════════════════════════════════ */
+function startGame() {
+  document.getElementById('title-screen').classList.add('hidden');
+  document.getElementById('game-screen').classList.remove('hidden');
+  makeStars(document.getElementById('game-stars'));
+  loadScene('scene1');
+}
+
+function loadScene(id) {
+  clearTimeout(autoTimer);
+  state.sceneId = id;
+  state.lineIdx = 0;
+  state.phase = 'dialogue';
+  state.choiceDisabled = false;
+
+  const scene = STORY[id];
+  if (scene.isEnding) { showEnding(scene); return; }
+
+  // Background
+  const bg = document.getElementById('game-bg');
+  const bgFn = {night:makeNightBg, forest:makeForestBg, city:makeCityBg}[scene.bg||'night'];
+  if (bgFn) bgFn(bg);
+
+  // Character
+  const charEl = document.getElementById('character');
+  charEl.innerHTML = charSVG(scene.mood);
+  charEl.style.animation = 'walkIn .6s ease-out';
+  setTimeout(()=>{ charEl.style.animation = 'float 3s ease-in-out infinite'; }, 700);
+
+  // Position character higher when choices shown
+  charEl.style.bottom = '200px';
+
+  document.getElementById('dialogue-wrap').style.display = 'block';
+  document.getElementById('choices-wrap').style.display = 'none';
+
+  // Help pulse off
+  document.getElementById('help-btn').classList.remove('pulse');
+
+  showLine();
+}
+
+function showLine() {
+  const scene = STORY[state.sceneId];
+  const text = scene.lines[state.lineIdx];
+  const el = document.getElementById('dialogue-text');
+  const nextArrow = document.getElementById('next-arrow');
+
+  // Typewriter
+  el.textContent = '';
+  let i = 0;
+  const iv = setInterval(()=>{
+    if (i < text.length) { el.textContent = text.slice(0, ++i); }
+    else {
+      clearInterval(iv);
+      const hasMore = state.lineIdx < scene.lines.length - 1;
+      nextArrow.style.display = hasMore ? 'block' : 'none';
+      if (!hasMore) {
+        autoTimer = setTimeout(advanceLine, 3500);
+      }
+    }
+  }, 28);
+}
+
+function advanceLine() {
+  clearTimeout(autoTimer);
+  const scene = STORY[state.sceneId];
+  if (state.lineIdx < scene.lines.length - 1) {
+    state.lineIdx++;
+    showLine();
+  } else {
+    showChoices();
+  }
+}
+
+function showChoices() {
+  state.phase = 'choose';
+  document.getElementById('dialogue-wrap').style.display = 'none';
+  document.getElementById('choices-wrap').style.display = 'block';
+
+  const scene = STORY[state.sceneId];
+  document.getElementById('q-label').textContent = scene.q;
+
+  const container = document.getElementById('choices');
+  container.innerHTML = '';
+  scene.choices.forEach((c, i) => container.appendChild(makeChoiceBtn(c, i)));
+
+  // Character moves up
+  document.getElementById('character').style.bottom = '260px';
+  document.getElementById('help-btn').classList.add('pulse');
+}
+
+function handleChoice(choice) {
+  if (state.choiceDisabled) return;
+  state.choiceDisabled = true;
+  document.getElementById('help-btn').classList.remove('pulse');
+
+  const isGood = !['scene_no','scene_no2'].includes(choice.next);
+  spawnParticles(isGood ? 'celebrate' : 'rain');
+
+  // Shake character on bad
+  if (!isGood) {
+    const c = document.getElementById('character');
+    c.style.animation = 'shake .4s ease';
+    setTimeout(()=>{ c.style.animation = 'float 3s ease-in-out infinite'; }, 450);
+  }
+
+  // Unlock word
+  const word = choice.label;
+  if (!state.unlocked.includes(word)) {
+    state.unlocked.push(word);
+    renderBadges(word);
+  }
+
+  // XP
+  gainXP(STORY[state.sceneId].xp || 0);
+
+  setTimeout(() => {
+    spawnParticles(null);
+    if (choice.next.startsWith('end_')) {
+      const endScene = STORY[choice.next];
+      gainXP(endScene.xp);
+      showEnding(endScene, choice.next);
+    } else {
+      loadScene(choice.next);
+    }
+  }, 1500);
+}
+
+/* ══════════════════════════════════════════════
+   ENDING
+══════════════════════════════════════════════ */
+function showEnding(scene, id) {
+  document.getElementById('game-screen').classList.add('hidden');
+  const es = document.getElementById('ending-screen');
+  es.classList.remove('hidden');
+
+  const isForest = id === 'end_forest';
+  const bg = document.getElementById('ending-bg');
+  isForest ? makeForestBg(bg) : makeCityBg(bg);
+  makeStars(document.getElementById('ending-stars'));
+
+  document.getElementById('ending-title').textContent = 'YOU FOUND THE CAT!';
+  document.getElementById('ending-desc').textContent = isForest
+    ? 'She was hiding behind a great oak tree 🌳'
+    : 'She was sitting on a city rooftop 🏙️';
+  document.getElementById('ending-xp').textContent = '+' + (scene.xp||30);
+  document.getElementById('ending-words').innerHTML = `<span style="color:#4ade80">✓ YES &nbsp;✓ NO &nbsp;✓ ${isForest?'FOREST':'CITY'}</span>`;
+
+  const rb = document.getElementById('restart-btn');
+  rb.style.background = isForest
+    ? 'linear-gradient(135deg,#166534,#4ade80)'
+    : 'linear-gradient(135deg,#1e3a8a,#60a5fa)';
+}
+
+function restartGame() {
+  state = { sceneId:'scene1', lineIdx:0, phase:'dialogue',
+    xp:0, level:1, unlocked:['YES','NO'], choiceDisabled:false };
+  renderBadges();
+  updateXP();
+  document.getElementById('ending-screen').classList.add('hidden');
+  document.getElementById('game-screen').classList.remove('hidden');
+  loadScene('scene1');
+}
+
+/* ══════════════════════════════════════════════
+   XP + BADGES
+══════════════════════════════════════════════ */
+function gainXP(amt) {
+  if (!amt) return;
+  state.xp += amt;
+  if (state.xp >= 100 * state.level) state.level++;
+  updateXP();
+}
+
+function updateXP() {
+  const pct = Math.min(100, (state.xp % 100));
+  document.getElementById('xp-fill').style.width = pct + '%';
+  document.getElementById('xp-label').textContent = `${state.xp}/100`;
+  document.getElementById('level-tag').textContent = `LVL ${state.level}`;
+}
+
+function renderBadges(newWord) {
+  const el = document.getElementById('badges');
+  el.innerHTML = '';
+  state.unlocked.forEach(w => {
+    const b = document.createElement('div');
+    b.className = 'badge' + (w === newWord ? ' new' : '');
+    b.textContent = '🔓 ' + w;
+    el.appendChild(b);
+    if (w === newWord) setTimeout(()=>b.classList.remove('new'), 3000);
+  });
+}
+
+/* ══════════════════════════════════════════════
+   CAMERA
+══════════════════════════════════════════════ */
+function toggleCamera() {
+  const overlay = document.getElementById('camera-overlay');
+  const btn = document.getElementById('cam-btn');
+  const vid = document.getElementById('cam-video');
+  if (camStream) {
+    camStream.getTracks().forEach(t=>t.stop());
+    camStream = null;
+    overlay.classList.remove('show');
+    btn.classList.remove('active');
+    btn.textContent = '📷 CAM';
+  } else {
+    navigator.mediaDevices?.getUserMedia({video:true}).then(s=>{
+      camStream = s; vid.srcObject = s;
+      overlay.classList.add('show');
+      btn.classList.add('active');
+      btn.textContent = '📷 HIDE';
+      // Position below HUD
+      const hudH = document.getElementById('hud').offsetHeight;
+      overlay.style.top = (hudH + 8) + 'px';
+    }).catch(()=>alert('Camera not available'));
+  }
+}
+
+/* ══════════════════════════════════════════════
+   HELP MODAL
+══════════════════════════════════════════════ */
+function showHelp() {
+  const scene = STORY[state.sceneId];
+  if (!scene || !scene.choices) return;
+  const container = document.getElementById('modal-signs');
+  container.innerHTML = '';
+  scene.choices.forEach(c => {
+    const div = document.createElement('div');
+    div.className = 'modal-sign';
+    const vw = makeVideoEl(c.sign);
+    vw.style.borderRadius = '8px';
+    div.appendChild(vw);
+    const lbl = document.createElement('div');
+    lbl.style.cssText = `font-family:'Press Start 2P',monospace;font-size:8px;color:#e8e8ff;text-align:center`;
+    lbl.textContent = c.label;
+    div.appendChild(lbl);
+    container.appendChild(div);
+  });
+  document.getElementById('modal').classList.add('show');
+}
+
+function hideHelp() {
+  document.getElementById('modal').classList.remove('show');
+}
+
+/* ══════════════════════════════════════════════
+   INIT
+══════════════════════════════════════════════ */
+window.addEventListener('load', () => {
+  // Title screen setup
+  makeNightBg(document.getElementById('title-bg'));
+  makeStars(document.getElementById('title-stars'));
+  document.getElementById('title-char-svg').innerHTML = charSVG('wave');
+  renderBadges();
+  updateXP();
+});
 </script>
 
 </body>
