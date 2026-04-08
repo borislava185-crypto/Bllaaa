@@ -10,731 +10,606 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html,body{width:100%;height:100%;overflow:hidden;background:#0a0a1a;font-family:'Fredoka',sans-serif}
 
-/* ── Animations ── */
 @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
-@keyframes twinkle{0%,100%{opacity:.3;transform:scale(1)}50%{opacity:1;transform:scale(1.5)}}
-@keyframes bubbleIn{0%{transform:scale(0);opacity:0}70%{transform:scale(1.05)}100%{transform:scale(1);opacity:1}}
-@keyframes choiceIn{0%{transform:translateY(28px);opacity:0}100%{transform:translateY(0);opacity:1}}
-@keyframes walkIn{from{transform:translateX(-100px);opacity:0}to{transform:translateX(0);opacity:1}}
-@keyframes confetti{0%{transform:translateY(0) rotate(0);opacity:1}100%{transform:translateY(-280px) rotate(720deg);opacity:0}}
-@keyframes rain{0%{transform:translateY(-20px);opacity:0}20%{opacity:.9}100%{transform:translateY(200px);opacity:0}}
-@keyframes titlePop{0%{transform:scale(0) rotate(-8deg);opacity:0}65%{transform:scale(1.08) rotate(1deg)}100%{transform:scale(1) rotate(0);opacity:1}}
-@keyframes glow{0%,100%{box-shadow:0 0 20px rgba(255,210,50,.3)}50%{box-shadow:0 0 40px rgba(255,210,50,.7)}}
-@keyframes blink{0%,88%,100%{transform:scaleY(1)}94%{transform:scaleY(0.08)}}
+@keyframes twinkle{0%,100%{opacity:.2;transform:scale(1)}50%{opacity:1;transform:scale(1.4)}}
+@keyframes titlePop{0%{transform:scale(0) rotate(-8deg);opacity:0}70%{transform:scale(1.06)}100%{transform:scale(1);opacity:1}}
+@keyframes glow{0%,100%{box-shadow:0 0 18px rgba(255,210,50,.25)}50%{box-shadow:0 0 42px rgba(255,210,50,.65)}}
+@keyframes blink{0%,88%,100%{transform:scaleY(1)}94%{transform:scaleY(0.1)}}
 @keyframes moonGlow{0%,100%{filter:drop-shadow(0 0 8px #fde68a)}50%{filter:drop-shadow(0 0 22px #fde68a)}}
-@keyframes treeWay{0%,100%{transform:rotate(-1deg)}50%{transform:rotate(1deg)}}
+@keyframes treeWay{0%,100%{transform:rotate(-1deg)}50%{transform:rotate(1.2deg)}}
 @keyframes tailWag{0%,100%{transform:rotate(-12deg)}50%{transform:rotate(16deg)}}
-@keyframes cloudDrift{from{transform:translateX(-200px)}to{transform:translateX(110vw)}}
-@keyframes slideIn{from{opacity:0;transform:translateX(60px)}to{opacity:1;transform:translateX(0)}}
-@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}40%{transform:translateX(7px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+@keyframes walkIn{from{transform:translateX(-120px);opacity:0}to{transform:translateX(0);opacity:1}}
+@keyframes confetti{0%{transform:translateY(0) rotate(0deg);opacity:1}100%{transform:translateY(-260px) rotate(720deg);opacity:0}}
+@keyframes rainDrop{0%{transform:translateY(-10px);opacity:0}20%{opacity:1}100%{transform:translateY(200px);opacity:0}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}50%{transform:translateX(8px)}80%{transform:translateX(-4px)}}
+@keyframes choiceIn{0%{transform:translateY(24px);opacity:0}100%{transform:translateY(0);opacity:1}}
+@keyframes pulseBtn{0%,100%{box-shadow:0 0 0 0 rgba(255,210,50,.45)}60%{box-shadow:0 0 0 9px rgba(255,210,50,0)}}
 
-/* ── Layout ── */
-#app{width:100vw;height:100vh;position:relative;overflow:hidden;display:flex;flex-direction:column}
-.screen{position:absolute;inset:0;display:flex;flex-direction:column}
-.screen.hidden{display:none}
-.bg{position:absolute;inset:0;overflow:hidden}
-.stars{position:absolute;inset:0;pointer-events:none}
+/* ONE screen visible at a time — display:none / display:flex */
+.screen{position:fixed;inset:0;display:none;flex-direction:column}
+.screen.active{display:flex}
+.bg{position:absolute;inset:0;overflow:hidden;z-index:0}
+.stars-l{position:absolute;inset:0;pointer-events:none;z-index:1}
+.over{position:relative;z-index:2;display:flex;flex-direction:column;flex:1;min-height:0}
 
-/* ── HUD ── */
-#hud{position:relative;z-index:10;padding:10px 14px 6px;background:linear-gradient(180deg,rgba(10,10,26,.95),transparent)}
-.hud-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
-.game-title{font-family:‘Press Start 2P’,monospace;font-size:9px;color:#ffd232;text-shadow:0 0 12px #ffd232}
-.badges{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
-.badge{background:rgba(255,255,255,.04);border:1px solid #1e3060;border-radius:20px;padding:3px 10px;font-family:‘Press Start 2P’,monospace;font-size:7px;color:#7a80a0;transition:all .4s}
-.badge.new{background:rgba(255,210,50,.15);border-color:#ffd232;color:#ffd232;box-shadow:0 0 10px rgba(255,210,50,.4)}
-.xp-row{display:flex;align-items:center;gap:8px}
-.level-tag{background:#141d35;border:2px solid #1e3060;border-radius:16px;padding:3px 10px;font-family:‘Press Start 2P’,monospace;font-size:7px;color:#ffd232}
-.xp-bar{flex:1;height:12px;background:#0a0a1a;border-radius:8px;border:2px solid #1e3060;overflow:hidden}
-.xp-fill{height:100%;background:linear-gradient(90deg,#a78bfa,#ffd232);border-radius:8px;transition:width .8s cubic-bezier(.4,0,.2,1);box-shadow:0 0 10px #a78bfa88}
-.xp-label{font-family:‘Press Start 2P’,monospace;font-size:6px;color:#7a80a0;white-space:nowrap}
+/* ─ TITLE ─ */
+#ts .over{align-items:center;justify-content:center;padding:20px;gap:2px}
+.t-word{font-family:‘Press Start 2P’,monospace;font-size:clamp(24px,6vw,40px);color:#ffd232;
+text-shadow:0 0 40px #ffd232,0 0 80px rgba(255,210,50,.2);
+animation:titlePop .8s ease both;text-align:center;line-height:1.45}
+.t-sub{font-size:16px;color:#7a80a0;margin:10px 0 22px;animation:titlePop .8s .2s ease both;text-align:center;line-height:1.6}
+#t-char{width:108px;height:132px;animation:titlePop .8s .1s ease both,float 3s 1.2s ease-in-out infinite}
+.t-start{background:linear-gradient(135deg,#a78bfa,#ffd232);border:none;border-radius:14px;
+padding:15px 50px;font-family:‘Press Start 2P’,monospace;font-size:13px;color:#fff;
+cursor:pointer;margin-top:14px;letter-spacing:1px;
+animation:glow 2s ease-in-out infinite,titlePop .8s .4s ease both}
+.t-chap{font-family:‘Press Start 2P’,monospace;font-size:7px;color:#7a80a0;margin-top:14px;animation:titlePop .8s .5s ease both}
 
-/* ── Scene ── */
-#scene{flex:1;position:relative;z-index:5;display:flex;flex-direction:column;justify-content:flex-end;padding:0 14px 12px}
-#character{position:absolute;left:14px;width:120px;height:150px;transition:bottom .5s cubic-bezier(.4,0,.2,1)}
-#dialogue-wrap{margin-left:130px;margin-bottom:10px;position:relative;z-index:6}
-.bubble{background:linear-gradient(135deg,#141d35ee,#0f1729ee);border:2px solid #1e3060;border-radius:14px;padding:14px 18px 12px;position:relative;animation:bubbleIn .35s ease;box-shadow:0 6px 32px rgba(0,0,0,.6)}
-.bubble::before{content:‘LUNA ✨’;position:absolute;top:-13px;left:14px;background:linear-gradient(90deg,#a78bfa,#ffd232);border-radius:5px;padding:2px 10px;font-family:‘Press Start 2P’,monospace;font-size:7px;color:#fff;box-shadow:0 2px 8px rgba(167,139,250,.5)}
-.bubble-corner-tr{position:absolute;top:5px;right:5px;width:6px;height:6px;border-right:2px solid #ffd232;border-top:2px solid #ffd232}
-.bubble-corner-bl{position:absolute;bottom:5px;left:5px;width:6px;height:6px;border-left:2px solid #ffd232;border-bottom:2px solid #ffd232}
-.bubble p{font-size:17px;font-weight:600;color:#e8e8ff;line-height:1.5;min-height:50px}
-.bubble .next{position:absolute;bottom:8px;right:12px;font-family:‘Press Start 2P’,monospace;font-size:8px;color:#ffd232;cursor:pointer;animation:float .8s ease-in-out infinite}
+/* ─ GAME ─ */
+#hud{padding:10px 14px 8px;background:linear-gradient(180deg,rgba(10,10,26,.96),transparent)}
+.hud1{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px}
+.htitle{font-family:‘Press Start 2P’,monospace;font-size:9px;color:#ffd232;text-shadow:0 0 12px #ffd232}
+.badges{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end}
+.badge{background:rgba(255,255,255,.04);border:1px solid #1e3060;border-radius:18px;
+padding:3px 9px;font-family:‘Press Start 2P’,monospace;font-size:6px;color:#7a80a0;transition:all .4s}
+.badge.lit{background:rgba(255,210,50,.15);border-color:#ffd232;color:#ffd232}
+.xpr{display:flex;align-items:center;gap:8px}
+.lvltag{background:#141d35;border:2px solid #1e3060;border-radius:14px;
+padding:3px 10px;font-family:‘Press Start 2P’,monospace;font-size:7px;color:#ffd232}
+.xptrack{flex:1;height:12px;background:#070710;border-radius:8px;border:2px solid #1e3060;overflow:hidden}
+.xpfill{height:100%;border-radius:8px;background:linear-gradient(90deg,#a78bfa,#ffd232);
+transition:width .8s cubic-bezier(.4,0,.2,1);box-shadow:0 0 10px #a78bfa55;width:0%}
+.xpnum{font-family:‘Press Start 2P’,monospace;font-size:6px;color:#7a80a0;white-space:nowrap}
 
-/* ── Choices ── */
-#choices-wrap{position:relative;z-index:6}
-.q-label{text-align:center;font-family:‘Press Start 2P’,monospace;font-size:8px;color:#7a80a0;margin-bottom:10px;letter-spacing:1px}
-.choices{display:flex;gap:10px;flex-wrap:wrap}
-.choice-btn{flex:1;min-width:140px;border-radius:14px;padding:10px 8px 12px;cursor:pointer;display:flex;flex-direction:column;align-items:stretch;gap:7px;transition:transform .15s,box-shadow .15s;border:2px solid transparent;background:transparent}
-.choice-btn:hover{transform:translateY(-4px) scale(1.02)}
-.choice-btn .sign-label{font-family:‘Press Start 2P’,monospace;font-size:8px;text-align:center;letter-spacing:1px;margin-top:2px}
-.choice-btn .video-wrap{border-radius:10px;overflow:hidden;width:100%;aspect-ratio:4/3;background:#000;position:relative}
-.choice-btn .video-wrap video{width:100%;height:100%;object-fit:cover;display:block}
-.choice-btn .video-credit{position:absolute;bottom:4px;right:6px;background:rgba(0,0,0,.75);color:#888;font-size:8px;border-radius:6px;padding:1px 6px;text-decoration:none;font-family:‘Fredoka’,sans-serif}
-.choice-btn .video-fallback{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:5px;text-decoration:none}
-.choice-btn .video-fallback .ficon{font-size:28px}
-.choice-btn .video-fallback .ftext{font-family:‘Press Start 2P’,monospace;font-size:6px;text-align:center;line-height:1.8}
-.choice-btn .video-fallback .fhint{font-size:10px;color:#888;text-align:center;padding:0 8px}
-.choice-btn .video-fallback .fbtn{border-radius:20px;padding:2px 10px;font-family:‘Press Start 2P’,monospace;font-size:5px;color:#000;margin-top:2px}
-.choice-btn.yes{background:rgba(251,191,36,.1);border-color:#fbbf24;box-shadow:0 0 18px rgba(251,191,36,.35)}
-.choice-btn.yes:hover{box-shadow:0 10px 36px rgba(251,191,36,.55)}
-.choice-btn.yes .sign-label{color:#fbbf24}
-.choice-btn.no{background:rgba(248,113,113,.1);border-color:#f87171;box-shadow:0 0 18px rgba(248,113,113,.35)}
-.choice-btn.no:hover{box-shadow:0 10px 36px rgba(248,113,113,.55)}
-.choice-btn.no .sign-label{color:#f87171}
-.choice-btn.forest{background:rgba(74,222,128,.1);border-color:#4ade80;box-shadow:0 0 18px rgba(74,222,128,.35)}
-.choice-btn.forest:hover{box-shadow:0 10px 36px rgba(74,222,128,.55)}
-.choice-btn.forest .sign-label{color:#4ade80}
-.choice-btn.city{background:rgba(96,165,250,.1);border-color:#60a5fa;box-shadow:0 0 18px rgba(96,165,250,.35)}
-.choice-btn.city:hover{box-shadow:0 10px 36px rgba(96,165,250,.55)}
-.choice-btn.city .sign-label{color:#60a5fa}
+#scene{flex:1;position:relative;display:flex;flex-direction:column;justify-content:flex-end;padding:0 14px 10px;min-height:0}
+#char{position:absolute;left:14px;width:115px;height:145px;bottom:190px;transition:bottom .5s ease}
+#camov{position:absolute;right:12px;width:150px;border-radius:12px;overflow:hidden;border:2px solid #1e3060;background:#000;display:none;z-index:8}
+#camov.on{display:block}
+#camvid{width:100%;display:block;transform:scaleX(-1)}
+.rec{position:absolute;bottom:5px;left:50%;transform:translateX(-50%);
+background:rgba(0,0,0,.7);border-radius:13px;padding:2px 9px;
+font-family:‘Press Start 2P’,monospace;font-size:6px;color:#4ade80;white-space:nowrap}
 
-/* ── Toolbar ── */
-#toolbar{position:relative;z-index:10;padding:6px 14px 12px;background:linear-gradient(transparent,rgba(10,10,26,.95));display:flex;justify-content:space-between;align-items:center}
-.tool-btn{border-radius:8px;padding:6px 14px;font-family:‘Press Start 2P’,monospace;font-size:7px;cursor:pointer;border:1px solid;transition:all .2s}
-#cam-btn{background:rgba(255,255,255,.04);border-color:#1e3060;color:#7a80a0}
-#cam-btn.active{background:rgba(99,102,241,.2);border-color:#6366f1;color:#6366f1}
-#help-btn{background:linear-gradient(135deg,rgba(167,139,250,.2),rgba(255,210,50,.15));border-color:#ffd232;color:#ffd232}
-#help-btn.pulse{animation:glow 1.5s ease-in-out infinite}
+#dw{margin-left:126px;margin-bottom:10px;display:none}
+.bubble{background:linear-gradient(135deg,rgba(20,29,53,.97),rgba(15,23,41,.97));
+border:2px solid #1e3060;border-radius:14px;padding:16px 18px 14px;position:relative;
+box-shadow:0 6px 26px rgba(0,0,0,.7)}
+.bname{position:absolute;top:-13px;left:14px;
+background:linear-gradient(90deg,#a78bfa,#ffd232);border-radius:5px;
+padding:2px 10px;font-family:‘Press Start 2P’,monospace;font-size:7px;color:#fff}
+.btr{position:absolute;top:5px;right:5px;width:6px;height:6px;border-right:2px solid #ffd232;border-top:2px solid #ffd232}
+.bbl{position:absolute;bottom:5px;left:5px;width:6px;height:6px;border-left:2px solid #ffd232;border-bottom:2px solid #ffd232}
+#dtxt{font-size:17px;font-weight:600;color:#e8e8ff;line-height:1.55;min-height:50px}
+#taph{margin-top:10px;text-align:center;font-family:‘Press Start 2P’,monospace;
+font-size:7px;color:#ffd232;cursor:pointer;animation:float .9s ease-in-out infinite;display:none}
 
-/* ── Camera ── */
-#camera-overlay{position:absolute;right:12px;z-index:15;width:155px;border-radius:12px;overflow:hidden;border:2px solid #1e3060;background:#000;display:none}
-#camera-overlay.show{display:block}
-#camera-overlay video{width:100%;display:block;transform:scaleX(-1)}
-.rec-badge{position:absolute;bottom:5px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.7);border:1px solid #1e3060;border-radius:16px;padding:2px 10px;font-family:‘Press Start 2P’,monospace;font-size:6px;color:#4ade80;white-space:nowrap}
+#cw{display:none}
+.qlbl{text-align:center;font-family:‘Press Start 2P’,monospace;font-size:8px;color:#7a80a0;margin-bottom:10px;letter-spacing:1px}
+.crow{display:flex;gap:10px;flex-wrap:wrap}
+.cbtn{flex:1;min-width:140px;border-radius:14px;padding:10px 8px 12px;cursor:pointer;
+display:flex;flex-direction:column;align-items:stretch;gap:7px;
+border:2px solid transparent;background:transparent;transition:transform .15s,box-shadow .15s}
+.cbtn:hover:not(:disabled){transform:translateY(-4px) scale(1.02)}
+.vwrap{border-radius:10px;overflow:hidden;aspect-ratio:4/3;background:#000;position:relative;flex-shrink:0}
+.vwrap video{width:100%;height:100%;object-fit:cover;display:block}
+.vcredit{position:absolute;bottom:4px;right:6px;background:rgba(0,0,0,.75);
+color:#888;font-size:8px;border-radius:6px;padding:1px 5px;text-decoration:none;pointer-events:all}
+.vfb{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:4px;text-decoration:none}
+.vlbl{font-family:‘Press Start 2P’,monospace;font-size:8px;text-align:center;letter-spacing:1px}
+.cbtn.yes{background:rgba(251,191,36,.1);border-color:#fbbf24;box-shadow:0 0 16px rgba(251,191,36,.28)}
+.cbtn.yes .vlbl{color:#fbbf24}
+.cbtn.no{background:rgba(248,113,113,.1);border-color:#f87171;box-shadow:0 0 16px rgba(248,113,113,.28)}
+.cbtn.no .vlbl{color:#f87171}
+.cbtn.forest{background:rgba(74,222,128,.1);border-color:#4ade80;box-shadow:0 0 16px rgba(74,222,128,.28)}
+.cbtn.forest .vlbl{color:#4ade80}
+.cbtn.city{background:rgba(96,165,250,.1);border-color:#60a5fa;box-shadow:0 0 16px rgba(96,165,250,.28)}
+.cbtn.city .vlbl{color:#60a5fa}
+.tapnote{text-align:center;font-family:‘Press Start 2P’,monospace;font-size:7px;color:#3a4060;margin-top:8px}
 
-/* ── Particles ── */
-#particles{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:20}
-.particle{position:absolute;pointer-events:none}
+#ptcl{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:20}
 
-/* ── Modal ── */
-#modal{position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(8px);z-index:200;display:none;align-items:center;justify-content:center}
-#modal.show{display:flex}
-.modal-box{background:linear-gradient(135deg,#141d35,#0f1729);border:2px solid #1e3060;border-radius:22px;padding:28px 32px;max-width:480px;width:92%;box-shadow:0 28px 80px rgba(0,0,0,.8)}
-.modal-title{font-family:‘Press Start 2P’,monospace;font-size:12px;color:#ffd232;text-align:center;margin-bottom:6px}
-.modal-sub{font-size:14px;color:#7a80a0;text-align:center;margin-bottom:22px}
-.modal-signs{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
-.modal-sign{background:rgba(255,255,255,.04);border:1px solid #1e3060;border-radius:14px;padding:10px;flex:1 1 150px;max-width:200px;display:flex;flex-direction:column;gap:7px}
-.modal-sign .video-wrap{border-radius:8px;overflow:hidden;aspect-ratio:4/3;background:#000;position:relative}
-.modal-sign .video-wrap video{width:100%;height:100%;object-fit:cover;display:block}
-.modal-close-btn{display:block;margin:22px auto 0;background:linear-gradient(135deg,#a78bfa,#ffd232);color:#fff;border:none;border-radius:28px;padding:11px 32px;font-family:‘Press Start 2P’,monospace;font-size:9px;cursor:pointer}
+#toolbar{padding:6px 14px 12px;background:linear-gradient(transparent,rgba(10,10,26,.95));
+display:flex;justify-content:space-between;align-items:center}
+.tbtn{border-radius:8px;padding:7px 14px;font-family:‘Press Start 2P’,monospace;
+font-size:7px;cursor:pointer;border:1px solid;transition:all .2s}
+#cbambtn{background:rgba(255,255,255,.04);border-color:#1e3060;color:#7a80a0}
+#cbambtn.on{background:rgba(99,102,241,.2);border-color:#6366f1;color:#6366f1}
+#helpbtn{background:rgba(255,210,50,.07);border-color:#ffd232;color:#ffd232}
+#helpbtn.pulse{animation:pulseBtn 1.4s ease-in-out infinite}
 
-/* ── Title screen ── */
-#title-screen{background:linear-gradient(160deg,#0a0a2e,#1a1040,#2d1b5e,#1a0a20);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0}
-.title-word{font-family:‘Press Start 2P’,monospace;font-size:clamp(22px,6vw,36px);color:#ffd232;text-shadow:0 0 40px #ffd232,0 0 80px rgba(255,210,50,.3);animation:titlePop .8s ease both;line-height:1.5;text-align:center}
-.title-sub{font-size:16px;color:#7a80a0;margin:12px 0 32px;animation:titlePop .8s .2s ease both;text-align:center;line-height:1.6}
-.title-char{width:110px;animation:titlePop .8s .1s ease both,float 3s 1s ease-in-out infinite}
-.start-btn{background:linear-gradient(135deg,#a78bfa,#ffd232);border:none;border-radius:12px;padding:15px 44px;font-family:‘Press Start 2P’,monospace;font-size:12px;color:#fff;cursor:pointer;animation:glow 2s ease-in-out infinite,titlePop .8s .4s ease both;letter-spacing:1px;margin-top:8px}
-.title-chapter{font-family:‘Press Start 2P’,monospace;font-size:7px;color:#7a80a0;margin-top:18px;animation:titlePop .8s .5s ease both}
+/* ─ ENDING ─ */
+#es .over{align-items:center;justify-content:center;padding:24px;gap:0}
+.ecat{font-size:58px;animation:float 2s ease-in-out infinite;margin-bottom:6px}
+.etitle{font-family:‘Press Start 2P’,monospace;font-size:clamp(13px,3.5vw,20px);
+color:#ffd232;text-align:center;text-shadow:0 0 26px #ffd232;margin-bottom:10px}
+.edesc{font-size:17px;color:#e8e8ff;margin-bottom:16px;text-align:center}
+.xpcard{background:linear-gradient(135deg,rgba(20,29,53,.95),rgba(15,23,41,.95));
+border:2px solid #ffd232;border-radius:14px;padding:14px 28px;text-align:center;
+box-shadow:0 0 26px rgba(255,210,50,.25);margin-bottom:20px}
+.xpclbl{font-family:‘Press Start 2P’,monospace;font-size:8px;color:#7a80a0;margin-bottom:4px}
+.xpcnum{font-family:‘Press Start 2P’,monospace;font-size:26px;color:#ffd232}
+.xpcw{font-size:14px;margin-top:5px;color:#4ade80}
+.ebtn{border:none;border-radius:12px;padding:14px 38px;font-family:‘Press Start 2P’,monospace;font-size:10px;color:#fff;cursor:pointer}
 
-/* ── Ending screen ── */
-#ending-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;gap:0}
-.ending-icon{font-size:56px;animation:float 2s ease-in-out infinite;margin-bottom:8px}
-.ending-title{font-family:‘Press Start 2P’,monospace;font-size:clamp(14px,4vw,20px);color:#ffd232;text-align:center;text-shadow:0 0 28px #ffd232;margin-bottom:10px;animation:titlePop .6s ease}
-.ending-desc{font-size:17px;color:#e8e8ff;margin-bottom:16px;text-align:center}
-.xp-earned{background:linear-gradient(135deg,rgba(20,29,53,.9),rgba(15,23,41,.9));border:2px solid #ffd232;border-radius:14px;padding:14px 26px;text-align:center;box-shadow:0 0 28px rgba(255,210,50,.3);margin-bottom:22px}
-.xp-earned-label{font-family:‘Press Start 2P’,monospace;font-size:8px;color:#7a80a0;margin-bottom:4px}
-.xp-earned-num{font-family:‘Press Start 2P’,monospace;font-size:24px;color:#ffd232}
-.xp-earned-words{font-size:14px;margin-top:5px}
-.restart-btn{border:none;border-radius:12px;padding:13px 36px;font-family:‘Press Start 2P’,monospace;font-size:10px;color:#fff;cursor:pointer}
+/* ─ MODAL ─ */
+#modal{position:fixed;inset:0;background:rgba(0,0,0,.87);backdrop-filter:blur(8px);
+z-index:100;display:none;align-items:center;justify-content:center}
+#modal.open{display:flex}
+.mbox{background:linear-gradient(135deg,#141d35,#0f1729);border:2px solid #1e3060;
+border-radius:22px;padding:26px 28px;max-width:480px;width:94%;box-shadow:0 24px 70px rgba(0,0,0,.85)}
+.mtitle{font-family:‘Press Start 2P’,monospace;font-size:12px;color:#ffd232;text-align:center;margin-bottom:6px}
+.msub{font-size:14px;color:#7a80a0;text-align:center;margin-bottom:20px}
+.msigns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.msign{background:rgba(255,255,255,.04);border:1px solid #1e3060;border-radius:14px;
+padding:10px;flex:1 1 150px;max-width:200px;display:flex;flex-direction:column;gap:7px}
+.msign .vwrap{border-radius:8px;overflow:hidden;aspect-ratio:4/3;background:#000;position:relative}
+.msign .vwrap video{width:100%;height:100%;object-fit:cover;display:block}
+.mslbl{font-family:‘Press Start 2P’,monospace;font-size:8px;color:#e8e8ff;text-align:center}
+.mclose{display:block;margin:20px auto 0;background:linear-gradient(135deg,#a78bfa,#ffd232);
+color:#fff;border:none;border-radius:26px;padding:11px 30px;
+font-family:‘Press Start 2P’,monospace;font-size:9px;cursor:pointer}
 </style>
 
 </head>
 <body>
 <div id="app">
 
-  <!-- ═══ TITLE SCREEN ═══ -->
+<!-- TITLE -->
 
-  <div id="title-screen" class="screen">
-    <div class="bg" id="title-bg"></div>
-    <div class="stars" id="title-stars"></div>
-    <div style="position:relative;z-index:10;display:flex;flex-direction:column;align-items:center">
-      <div class="title-word">BSL<br>QUEST</div>
-      <div class="title-sub">Learn British Sign Language<br>through story &amp; adventure</div>
-      <svg class="title-char" viewBox="0 0 100 140" id="title-char-svg"></svg>
-      <button class="start-btn" onclick="startGame()">▶&nbsp; START</button>
-      <div class="title-chapter">CHAPTER 1: THE LOST CAT</div>
-    </div>
-  </div>
-
-  <!-- ═══ GAME SCREEN ═══ -->
-
-  <div id="game-screen" class="screen hidden">
-    <div class="bg" id="game-bg"></div>
-    <div class="stars" id="game-stars"></div>
-    <div id="particles"></div>
-
-```
-<!-- HUD -->
-<div id="hud">
-  <div class="hud-top">
-    <div class="game-title">BSL QUEST</div>
-    <div class="badges" id="badges"></div>
-  </div>
-  <div class="xp-row">
-    <div class="level-tag" id="level-tag">LVL 1</div>
-    <div class="xp-bar"><div class="xp-fill" id="xp-fill" style="width:0%"></div></div>
-    <div class="xp-label" id="xp-label">0/100</div>
+<div id="ts" class="screen active">
+  <div class="bg" id="tbg"></div>
+  <div class="stars-l" id="tst"></div>
+  <div class="over">
+    <div class="t-word">BSL<br>QUEST</div>
+    <div class="t-sub">Learn British Sign Language<br>through story &amp; adventure</div>
+    <svg id="t-char" viewBox="0 0 100 140"></svg>
+    <button class="t-start" onclick="startGame()">▶&nbsp;&nbsp;START</button>
+    <div class="t-chap">CHAPTER 1: THE LOST CAT</div>
   </div>
 </div>
 
-<!-- Scene -->
-<div id="scene">
-  <svg id="character" viewBox="0 0 100 140"></svg>
-  <div id="camera-overlay"><video id="cam-video" autoplay muted playsinline></video><div class="rec-badge">● REC</div></div>
-  <div id="dialogue-wrap" style="display:none">
-    <div class="bubble">
-      <div class="bubble-corner-tr"></div>
-      <div class="bubble-corner-bl"></div>
-      <p id="dialogue-text"></p>
-      <div class="next" id="next-arrow" style="display:none" onclick="advanceLine()">▼</div>
-    </div>
-  </div>
-  <div id="choices-wrap" style="display:none">
-    <div class="q-label" id="q-label"></div>
-    <div class="choices" id="choices"></div>
-    <div style="text-align:center;font-size:12px;color:#4a5070;margin-top:10px;font-family:'Press Start 2P',monospace;font-size:7px">TAP A SIGN TO RESPOND · ❓ HELP TO SEE HOW</div>
-  </div>
-</div>
+<!-- GAME -->
 
-<!-- Toolbar -->
-<div id="toolbar">
-  <button class="tool-btn" id="cam-btn" onclick="toggleCamera()">📷 CAM</button>
-  <button class="tool-btn" id="help-btn" onclick="showHelp()">❓ HELP</button>
-</div>
-```
-
-  </div>
-
-  <!-- ═══ ENDING SCREEN ═══ -->
-
-  <div id="ending-screen" class="screen hidden">
-    <div class="bg" id="ending-bg"></div>
-    <div class="stars" id="ending-stars"></div>
-    <div style="position:relative;z-index:10;display:flex;flex-direction:column;align-items:center">
-      <div class="ending-icon">🐱</div>
-      <div class="ending-title" id="ending-title">YOU FOUND THE CAT!</div>
-      <div class="ending-desc" id="ending-desc"></div>
-      <div class="xp-earned">
-        <div class="xp-earned-label">XP EARNED</div>
-        <div class="xp-earned-num" id="ending-xp">+60</div>
-        <div class="xp-earned-words" id="ending-words"></div>
+<div id="gs" class="screen">
+  <div class="bg" id="gbg"></div>
+  <div class="stars-l" id="gst"></div>
+  <div id="ptcl"></div>
+  <div class="over">
+    <div id="hud">
+      <div class="hud1">
+        <div class="htitle">BSL QUEST</div>
+        <div class="badges" id="badges"></div>
       </div>
-      <button class="restart-btn" id="restart-btn" onclick="restartGame()">▶ PLAY AGAIN</button>
+      <div class="xpr">
+        <div class="lvltag" id="lvltag">LVL 1</div>
+        <div class="xptrack"><div class="xpfill" id="xpfill"></div></div>
+        <div class="xpnum" id="xpnum">0/100</div>
+      </div>
+    </div>
+    <div id="scene">
+      <svg id="char" viewBox="0 0 100 140"></svg>
+      <div id="camov"><video id="camvid" autoplay muted playsinline></video><div class="rec">● REC</div></div>
+      <div id="dw">
+        <div class="bubble">
+          <div class="bname">LUNA ✨</div>
+          <div class="btr"></div><div class="bbl"></div>
+          <div id="dtxt"></div>
+          <div id="taph" onclick="advLine()">▼ TAP TO CONTINUE</div>
+        </div>
+      </div>
+      <div id="cw">
+        <div class="qlbl" id="qlbl"></div>
+        <div class="crow" id="crow"></div>
+        <div class="tapnote">TAP A SIGN TO RESPOND · ❓ HELP TO SEE HOW</div>
+      </div>
+    </div>
+    <div id="toolbar">
+      <button class="tbtn" id="cbambtn" onclick="toggleCam()">📷 CAM</button>
+      <button class="tbtn" id="helpbtn" onclick="showHelp()">❓ HELP</button>
     </div>
   </div>
-
-  <!-- ═══ HELP MODAL ═══ -->
-
-  <div id="modal" onclick="hideHelp()">
-    <div class="modal-box" onclick="event.stopPropagation()">
-      <div class="modal-title">HOW TO SIGN</div>
-      <div class="modal-sub">Mimic the hand shape, then tap your choice!</div>
-      <div class="modal-signs" id="modal-signs"></div>
-      <button class="modal-close-btn" onclick="hideHelp()">GOT IT!</button>
-    </div>
-  </div>
-
 </div>
 
+<!-- ENDING -->
+
+<div id="es" class="screen">
+  <div class="bg" id="ebg"></div>
+  <div class="stars-l" id="est"></div>
+  <div class="over">
+    <div class="ecat">🐱</div>
+    <div class="etitle">YOU FOUND THE CAT!</div>
+    <div class="edesc" id="edesc"></div>
+    <div class="xpcard">
+      <div class="xpclbl">XP EARNED</div>
+      <div class="xpcnum" id="expcnum">+60</div>
+      <div class="xpcw" id="expcw"></div>
+    </div>
+    <button class="ebtn" id="ebtn" onclick="restartGame()">▶ PLAY AGAIN</button>
+  </div>
+</div>
+
+<!-- MODAL -->
+
+<div id="modal" onclick="hideHelp()">
+  <div class="mbox" onclick="event.stopPropagation()">
+    <div class="mtitle">HOW TO SIGN</div>
+    <div class="msub">Watch the video, then tap your answer!</div>
+    <div class="msigns" id="msigns"></div>
+    <button class="mclose" onclick="hideHelp()">GOT IT!</button>
+  </div>
+</div>
+
+</div>
 <script>
-/* ══════════════════════════════════════════════
-   BSL VIDEO DATA — real signers from SignBSL.com
-══════════════════════════════════════════════ */
-const BSL = {
-  yes:    { color:'#fbbf24', hint:'Fist nods forward twice',
+/* ── BSL videos ── */
+const BSL={
+  yes:   {color:'#fbbf24',hint:'Fist nods forward twice',
     urls:['https://media.signbsl.com/videos/bsl/signstation/yes.mp4',
           'https://media.signbsl.com/videos/bsl/ucl/yes.mp4'],
-    page:'https://www.signbsl.com/sign/yes' },
-  no:     { color:'#f87171', hint:'Both fists, pinky up, tap together',
+    page:'https://www.signbsl.com/sign/yes'},
+  no:    {color:'#f87171',hint:'Both fists, pinky up, tap together',
     urls:['https://media.signbsl.com/videos/bsl/signstation/no.mp4',
           'https://media.signbsl.com/videos/bsl/ucl/no.mp4'],
-    page:'https://www.signbsl.com/sign/no' },
-  forest: { color:'#4ade80', hint:'Open hand sways from elbow',
+    page:'https://www.signbsl.com/sign/no'},
+  forest:{color:'#4ade80',hint:'Open hand sways from elbow',
     urls:['https://media.signbsl.com/videos/bsl/signstation/forest.mp4',
           'https://media.signbsl.com/videos/bsl/ucl/forest.mp4'],
-    page:'https://www.signbsl.com/sign/forest' },
-  city:   { color:'#60a5fa', hint:'Index finger taps index finger',
+    page:'https://www.signbsl.com/sign/forest'},
+  city:  {color:'#60a5fa',hint:'Index finger taps index finger',
     urls:['https://media.signbsl.com/videos/bsl/signstation/city.mp4',
           'https://media.signbsl.com/videos/bsl/ucl/city.mp4'],
-    page:'https://www.signbsl.com/sign/city' },
+    page:'https://www.signbsl.com/sign/city'},
 };
 
-function makeVideoEl(sign, cls='') {
-  const d = BSL[sign];
-  const wrap = document.createElement('div');
-  wrap.className = 'video-wrap' + (cls ? ' '+cls : '');
-
-  const vid = document.createElement('video');
-  vid.autoplay = true; vid.loop = true; vid.muted = true; vid.playsInline = true;
-  let idx = 0;
-  function tryNext() {
-    idx++;
-    if (idx < d.urls.length) { vid.src = d.urls[idx]; vid.load(); }
-    else { vid.style.display='none'; showFallback(); }
-  }
-  vid.onerror = tryNext;
-  vid.src = d.urls[0];
-  wrap.appendChild(vid);
-
-  const credit = document.createElement('a');
-  credit.href = d.page; credit.target='_blank'; credit.rel='noopener noreferrer';
-  credit.className = 'video-credit'; credit.textContent = 'signbsl.com ↗';
-  wrap.appendChild(credit);
-
-  function showFallback() {
-    wrap.innerHTML = '';
-    wrap.style.background = d.color+'15';
-    const fb = document.createElement('a');
-    fb.href = d.page; fb.target='_blank'; fb.rel='noopener noreferrer';
-    fb.className = 'video-fallback';
-    fb.innerHTML = `<div class="ficon">🤟</div>
-      <div class="ftext" style="color:${d.color}">WATCH ${sign.toUpperCase()}<br>ON SIGNBSL.COM</div>
-      <div class="fhint">${d.hint}</div>
-      <div class="fbtn" style="background:${d.color}">TAP TO WATCH ↗</div>`;
-    wrap.appendChild(fb);
-  }
-  return wrap;
+function mkVid(sign){
+const d=BSL[sign];
+const wrap=document.createElement(‘div’);
+wrap.className=‘vwrap’;
+let idx=0;
+const v=document.createElement(‘video’);
+v.autoplay=v.loop=v.muted=v.playsInline=true;
+v.onerror=()=>{idx++;idx<d.urls.length?(v.src=d.urls[idx]):fb();};
+v.src=d.urls[0];
+wrap.appendChild(v);
+const cr=document.createElement(‘a’);
+cr.href=d.page;cr.target=’_blank’;cr.rel=‘noopener noreferrer’;
+cr.className=‘vcredit’;cr.textContent=‘signbsl.com ↗’;
+wrap.appendChild(cr);
+function fb(){
+wrap.innerHTML=’’;wrap.style.background=d.color+‘18’;
+const a=document.createElement(‘a’);
+a.href=d.page;a.target=’_blank’;a.rel=‘noopener noreferrer’;a.className=‘vfb’;
+a.innerHTML=`<div style="font-size:26px">🤟</div> <div style="font-family:'Press Start 2P',monospace;font-size:6px;color:${d.color};text-align:center;line-height:1.8">WATCH ${sign.toUpperCase()}<br>ON SIGNBSL.COM</div> <div style="font-size:10px;color:#888;text-align:center;padding:0 8px">${d.hint}</div>`;
+wrap.appendChild(a);
+}
+return wrap;
 }
 
-/* ══════════════════════════════════════════════
-   STORY DATA
-══════════════════════════════════════════════ */
-const STORY = {
-  scene1:    { mood:'wave',     bg:'night', lines:['Hi! I\'m Luna! 🐾','Will you help me?'],
-    q:'Sign your answer!',
-    choices:[{sign:'yes',label:'YES',next:'scene_yes'},{sign:'no',label:'NO',next:'scene_no'}], xp:10 },
-  scene_no:  { mood:'sad',      bg:'night', lines:['That\'s not YES...','Try again! 🌧️'],
-    q:'Will you help me?',
-    choices:[{sign:'yes',label:'YES',next:'scene_yes'},{sign:'no',label:'NO',next:'scene_no2'}], xp:0 },
-  scene_no2: { mood:'pleading', bg:'night', lines:['We don\'t have all day...','PLEASE help me! 🥺'],
-    q:'One more chance!',
-    choices:[{sign:'yes',label:'YES',next:'scene_yes'},{sign:'no',label:'NO',next:'scene_yes'}], xp:0 },
-  scene_yes: { mood:'excited',  bg:'night', lines:['YAY! Thank you! ✨','I lost my cat Mochi! 🐱','Where should we look?'],
-    q:'Choose your path!',
-    choices:[{sign:'forest',label:'FOREST',next:'end_forest'},{sign:'city',label:'CITY',next:'end_city'}], xp:20 },
-  end_forest:{ isEnding:true, type:'forest', xp:30 },
-  end_city:  { isEnding:true, type:'city',   xp:30 },
+/* ── Story ── */
+const STORY={
+scene1:   {mood:‘wave’,   bg:‘night’,
+lines:[“Hi! I’m Luna! 🐾”,“Will you help me find my cat?”],
+q:‘Sign your answer!’,
+choices:[{sign:‘yes’,label:‘YES’,next:‘scene_yes’},{sign:‘no’,label:‘NO’,next:‘scene_no’}],xp:10},
+scene_no: {mood:‘sad’,    bg:‘night’,
+lines:[“That’s not the sign for YES…”,“Try again! 🌧️”],
+q:‘Will you help me?’,
+choices:[{sign:‘yes’,label:‘YES’,next:‘scene_yes’},{sign:‘no’,label:‘NO’,next:‘scene_no2’}],xp:0},
+scene_no2:{mood:‘pleading’,bg:‘night’,
+lines:[“We don’t have all day…”,“PLEASE help me! 🥺”],
+q:‘Last chance!’,
+choices:[{sign:‘yes’,label:‘YES’,next:‘scene_yes’},{sign:‘no’,label:‘NO’,next:‘scene_yes’}],xp:0},
+scene_yes:{mood:‘excited’,bg:‘night’,
+lines:[“YAY! Thank you so much! ✨”,“I lost my cat Mochi! 🐱”,“Where should we look first?”],
+q:‘Choose your path!’,
+choices:[{sign:‘forest’,label:‘FOREST’,next:‘end_forest’},{sign:‘city’,label:‘CITY’,next:‘end_city’}],xp:20},
+end_forest:{isEnding:true,type:‘forest’,xp:30},
+end_city:  {isEnding:true,type:‘city’,  xp:30},
 };
 
-/* ══════════════════════════════════════════════
-   STATE
-══════════════════════════════════════════════ */
-let state = { sceneId:'scene1', lineIdx:0, phase:'dialogue',
-  xp:0, level:1, unlocked:['YES','NO'], choiceDisabled:false };
-let camStream = null;
-let autoTimer = null;
+/* ── State ── */
+let S={id:‘scene1’,line:0,xp:0,level:1,unlocked:[‘YES’,‘NO’],busy:false};
+let camStream=null,autoT=null,typIv=null;
 
-/* ══════════════════════════════════════════════
-   STARFIELD
-══════════════════════════════════════════════ */
-function makeStars(container) {
-  container.innerHTML = '';
-  for (let i=0;i<70;i++) {
-    const s = document.createElement('div');
-    s.style.cssText = `position:absolute;border-radius:50%;background:white;
-      left:${Math.random()*100}%;top:${Math.random()*100}%;
-      width:${.5+Math.random()*2.5}px;height:${.5+Math.random()*2.5}px;
-      opacity:${.2+Math.random()*.8};
-      animation:twinkle ${2+Math.random()*3}s ${Math.random()*4}s ease-in-out infinite`;
-    container.appendChild(s);
-  }
+/* ── Screen switching ── */
+function show(id){
+document.querySelectorAll(’.screen’).forEach(s=>s.classList.remove(‘active’));
+document.getElementById(id).classList.add(‘active’);
 }
 
-/* ══════════════════════════════════════════════
-   BACKGROUNDS
-══════════════════════════════════════════════ */
-function makeNightBg(el) {
-  el.innerHTML = `
-    <div style="position:absolute;inset:0;background:linear-gradient(180deg,#0a0a2e,#1a1040 40%,#2d1b5e 70%,#1a0a20)"></div>
-    <div style="position:absolute;top:28px;right:17%;animation:moonGlow 4s ease-in-out infinite">
-      <svg width="60" height="60" viewBox="0 0 60 60"><circle cx="30" cy="30" r="26" fill="#fde68a"/><circle cx="42" cy="19" r="19" fill="#1a1040"/></svg>
-    </div>
-    ${[0,80,160,240,320,400,480,560,640,720].map((x,i)=>`
-    <svg style="position:absolute;bottom:${50+Math.sin(i)*18}px;left:${x}px;animation:treeWay ${3+i*.5}s ${i*.3}s ease-in-out infinite" width="70" height="160" viewBox="0 0 70 160">
-      <polygon points="35,0 2,96 68,96" fill="${i%2?'#0a1a0a':'#0f200f'}"/>
-      <polygon points="35,28 4,116 66,116" fill="${i%2?'#0a1400':'#0f1a00'}"/>
-      <rect x="28" y="116" width="14" height="30" fill="#060e06"/>
-    </svg>`).join('')}
-    <div style="position:absolute;bottom:0;left:0;right:0;height:70px;background:linear-gradient(180deg,#0a1a0a,#050d05)"></div>`;
+/* ── Stars ── */
+function mkStars(el){
+el.innerHTML=’’;
+for(let i=0;i<65;i++){
+const d=document.createElement(‘div’);
+d.style.cssText=`position:absolute;border-radius:50%;background:#fff; left:${Math.random()*100}%;top:${Math.random()*100}%; width:${.5+Math.random()*2.5}px;height:${.5+Math.random()*2.5}px; opacity:${.15+Math.random()*.85}; animation:twinkle ${2+Math.random()*3}s ${Math.random()*4}s ease-in-out infinite`;
+el.appendChild(d);
+}
 }
 
-function makeForestBg(el) {
-  el.innerHTML = `
-    <div style="position:absolute;inset:0;background:linear-gradient(180deg,#0d2010,#0a3018 40%,#0d2510)"></div>
-    ${[20,35,55,72].map((x,i)=>`<div style="position:absolute;top:0;left:${x}%;width:${3+i}px;height:70%;background:linear-gradient(180deg,rgba(255,230,100,.1),transparent);transform:rotate(${-5+i*3}deg);transform-origin:top center"></div>`).join('')}
-    ${[0,80,160,240,320,400,480,560,640,720].map((x,i)=>`
-    <svg style="position:absolute;bottom:44px;left:${x}px;animation:treeWay ${3+i*.5}s ${i*.3}s ease-in-out infinite" width="80" height="180" viewBox="0 0 80 180">
-      <polygon points="40,0 2,110 78,110" fill="${i%2?'#1a4a1a':'#154015'}"/>
-      <polygon points="40,30 5,130 75,130" fill="${i%2?'#155015':'#1a5a1a'}"/>
-      <polygon points="40,60 8,148 72,148" fill="${i%2?'#0f400f':'#134513'}"/>
-      <rect x="32" y="148" width="16" height="32" fill="#3d1a00"/>
-    </svg>`).join('')}
-    ${[15,30,50,65,80].map((x,i)=>`<div style="position:absolute;left:${x}%;bottom:${30+i*8}%;width:4px;height:4px;border-radius:50%;background:#fffb80;box-shadow:0 0 8px #fffb80;animation:twinkle ${1.5+i*.4}s ${i*.6}s ease-in-out infinite"></div>`).join('')}
-    <div style="position:absolute;bottom:0;left:0;right:0;height:55px;background:linear-gradient(180deg,#0a2010,#050e05)"></div>`;
+/* ── Backgrounds ── */
+function nightBg(el){
+el.innerHTML=`
+
+  <div style="position:absolute;inset:0;background:linear-gradient(180deg,#080820,#18104a 45%,#2a1860 75%,#180a1e)"></div>
+  <div style="position:absolute;top:26px;right:16%;animation:moonGlow 4s ease-in-out infinite">
+    <svg width="58" height="58" viewBox="0 0 58 58"><circle cx="29" cy="29" r="25" fill="#fde68a"/><circle cx="40" cy="18" r="18" fill="#18104a"/></svg>
+  </div>
+  ${[0,75,155,235,315,400,480,560,640,720].map((x,i)=>`
+  <svg style="position:absolute;bottom:${45+Math.sin(i)*16}px;left:${x}px;animation:treeWay ${3+i*.5}s ${i*.3}s ease-in-out infinite" width="65" height="150" viewBox="0 0 65 150">
+    <polygon points="32,2 1,90 64,90" fill="${i%2?'#0a1a0a':'#0e1e0e'}"/>
+    <polygon points="32,26 3,115 62,115" fill="${i%2?'#091409':'#0c180c'}"/>
+    <rect x="25" y="115" width="14" height="28" fill="#060d06"/>
+  </svg>`).join('')}
+  <div style="position:absolute;bottom:0;left:0;right:0;height:55px;background:linear-gradient(#0a180a,#040c04)"></div>`;}
+
+function forestBg(el){
+el.innerHTML=`
+
+  <div style="position:absolute;inset:0;background:linear-gradient(180deg,#0c1e0e,#0a2e18 45%,#0c2210)"></div>
+  ${[18,34,54,70].map((x,i)=>`<div style="position:absolute;top:0;left:${x}%;width:${3+i}px;height:68%;background:linear-gradient(rgba(255,230,100,.09),transparent);transform:rotate(${-6+i*3}deg);transform-origin:top"></div>`).join('')}
+  ${[0,80,160,240,320,405,485,565,645,720].map((x,i)=>`
+  <svg style="position:absolute;bottom:42px;left:${x}px;animation:treeWay ${3+i*.5}s ${i*.3}s ease-in-out infinite" width="78" height="175" viewBox="0 0 78 175">
+    <polygon points="39,2 2,108 76,108" fill="${i%2?'#1a481a':'#154015'}"/>
+    <polygon points="39,28 4,128 74,128" fill="${i%2?'#154e15':'#1a581a'}"/>
+    <polygon points="39,58 7,146 71,146" fill="${i%2?'#0f3e0f':'#124212'}"/>
+    <rect x="31" y="146" width="16" height="30" fill="#3c1900"/>
+  </svg>`).join('')}
+  ${[14,29,48,64,79].map((x,i)=>`<div style="position:absolute;left:${x}%;bottom:${28+i*8}%;width:4px;height:4px;border-radius:50%;background:#fffb80;box-shadow:0 0 7px #fffb80;animation:twinkle ${1.4+i*.4}s ${i*.6}s ease-in-out infinite"></div>`).join('')}
+  <div style="position:absolute;bottom:0;left:0;right:0;height:52px;background:linear-gradient(#0a200e,#050e05)"></div>`;}
+
+function cityBg(el){
+const b=[{x:0,w:78,h:215},{x:68,w:58,h:275},{x:118,w:98,h:175},{x:208,w:68,h:305},
+{x:266,w:88,h:195},{x:346,w:58,h:255},{x:396,w:108,h:185},{x:496,w:78,h:295},
+{x:566,w:68,h:165},{x:626,w:98,h:235},{x:716,w:78,h:205}];
+const cl=[’#0d1b2e’,’#0a1525’,’#0f2035’,’#0a1830’,’#0d2040’];
+el.innerHTML=`
+
+  <div style="position:absolute;inset:0;background:linear-gradient(180deg,#020810,#050e1e 40%,#0a1628)"></div>
+  <svg style="position:absolute;bottom:0;left:0;width:100%" viewBox="0 0 800 320" preserveAspectRatio="none">
+    ${b.map((v,i)=>`<rect x="${v.x}" y="${320-v.h}" width="${v.w}" height="${v.h}" fill="${cl[i%5]}"/>
+      ${Array.from({length:Math.floor(v.h/27)}).flatMap((_,r)=>Array.from({length:Math.floor(v.w/17)}).map((_,c)=>`<rect x="${v.x+3+c*17}" y="${320-v.h+7+r*27}" width="10" height="13" fill="${Math.random()>.38?'#fbbf24':'#1a3060'}" opacity="${.55+Math.random()*.45}"/>`)).join('')}`).join('')}
+    <rect x="0" y="300" width="800" height="20" fill="#04101c"/>
+  </svg>`;}
+
+/* ── Character ── */
+function mkChar(mood){
+const col={wave:’#6366f1’,excited:’#f59e0b’,sad:’#64748b’,pleading:’#8b5cf6’,adventure:’#10b981’}[mood]||’#6366f1’;
+const smile=[‘excited’,‘adventure’,‘wave’].includes(mood);
+const sad=mood===‘sad’;
+const blush=[‘excited’,‘wave’,‘pleading’].includes(mood);
+const mouth=smile?‘M42,60 Q50,70 58,60’:sad?‘M42,66 Q50,58 58,66’:‘M42,62 Q50,66 58,62’;
+return`<ellipse cx="50" cy="136" rx="20" ry="5" fill="rgba(0,0,0,.4)"/> <rect x="32" y="80" width="36" height="44" rx="10" fill="${col}"/> <rect x="30" y="80" width="40" height="14" rx="7" fill="${sad?'#94a3b8':'#f472b6'}"/> <rect x="18" y="82" width="14" height="28" rx="7" fill="${col}"${mood==='wave'?' style="transform-origin:18px 82px;animation:tailWag .6s ease-in-out infinite"':''}/> <rect x="68" y="82" width="14" height="28" rx="7" fill="${col}"${mood==='excited'?' style="transform-origin:68px 82px;animation:tailWag .5s .1s ease-in-out infinite"':''}/> <rect x="36" y="116" width="12" height="24" rx="6" fill="${col}"/> <rect x="52" y="116" width="12" height="24" rx="6" fill="${col}"/> <ellipse cx="42" cy="139" rx="9" ry="5" fill="#1e293b"/> <ellipse cx="58" cy="139" rx="9" ry="5" fill="#1e293b"/> <rect x="42" y="68" width="16" height="14" rx="5" fill="#fde68a"/> <ellipse cx="50" cy="50" rx="28" ry="30" fill="#fef3c7"/> <polygon points="22,26 14,6 34,22" fill="${col}"/> <polygon points="78,26 86,6 66,22" fill="${col}"/> <polygon points="25,24 19,12 32,22" fill="#fca5a5"/> <polygon points="75,24 81,12 68,22" fill="#fca5a5"/> <ellipse cx="50" cy="24" rx="26" ry="14" fill="#7c3aed"/> <rect x="24" y="24" width="10" height="22" rx="5" fill="#7c3aed"/> <rect x="66" y="24" width="10" height="22" rx="5" fill="#7c3aed"/> ${sad ?`<path d="M36,48 Q40,52 44,48" stroke="#1e293b" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+<path d="M56,48 Q60,52 64,48" stroke="#1e293b" stroke-width="2.5" fill="none" stroke-linecap="round"/>` :`<ellipse cx="40" cy="48" rx="6" ry="7" fill="#1e293b" style="animation:blink 4s ease-in-out infinite"/>
+<ellipse cx="60" cy="48" rx="6" ry="7" fill="#1e293b" style="animation:blink 4s .15s ease-in-out infinite"/>
+<circle cx="43" cy="45" r="2.5" fill="white"/>
+<circle cx="63" cy="45" r="2.5" fill="white"/>`} ${blush?`<ellipse cx="30" cy="56" rx="8" ry="5" fill="#fca5a5" opacity=".5"/><ellipse cx="70" cy="56" rx="8" ry="5" fill="#fca5a5" opacity=".5"/>`:'' } <path d="${mouth}" stroke="#1e293b" stroke-width="2.5" fill="none" stroke-linecap="round"/> <ellipse cx="50" cy="58" rx="5" ry="3.5" fill="#fca5a5"/> <path d="M68,115 Q90,100 82,82" stroke="${col}" stroke-width="8" fill="none" stroke-linecap="round" style="animation:tailWag 1.2s ease-in-out infinite;transform-origin:68px 115px"/>`;}
+
+/* ── Particles ── */
+function burst(type){
+const el=document.getElementById(‘ptcl’);
+el.innerHTML=’’;
+const cols=[’#ffd232’,’#ff6b6b’,’#4ade80’,’#60a5fa’,’#f472b6’,’#a78bfa’];
+for(let i=0;i<(type===‘celebrate’?22:14);i++){
+const p=document.createElement(‘div’);
+p.style.cssText=‘position:absolute;pointer-events:none;’;
+if(type===‘celebrate’){
+p.style.cssText+=`left:${4+i*4.4}%;bottom:12%;width:${8+i%4*4}px;height:${8+i%3*4}px; border-radius:${i%3===0?'50%':i%3===1?'3px':'0'};background:${cols[i%6]}; animation:confetti ${.7+i*.055}s ${i*.04}s ease-out forwards`;
+} else {
+p.style.cssText+=`left:${i*7.1}%;top:-5%;font-size:${16+i%3*6}px; animation:rainDrop ${.75+i*.07}s ${i*.05}s linear forwards`;
+p.textContent=‘💧’;
+}
+el.appendChild(p);
+}
+setTimeout(()=>el.innerHTML=’’,1800);
 }
 
-function makeCityBg(el) {
-  const blds=[{x:0,w:80,h:220,c:'#0d1b2e'},{x:70,w:60,h:280,c:'#0a1525'},{x:120,w:100,h:180,c:'#0f2035'},
-    {x:210,w:70,h:310,c:'#0a1830'},{x:270,w:90,h:200,c:'#0d2040'},{x:350,w:60,h:260,c:'#0a1525'},
-    {x:400,w:110,h:190,c:'#0f1e32'},{x:500,w:80,h:300,c:'#0a1525'},{x:570,w:70,h:170,c:'#0d2035'},
-    {x:630,w:100,h:240,c:'#0a1830'},{x:720,w:80,h:210,c:'#0f2040'}];
-  el.innerHTML = `
-    <div style="position:absolute;inset:0;background:linear-gradient(180deg,#020812,#050f20 40%,#0a1830)"></div>
-    <div style="position:absolute;top:18px;left:14%;width:70px;height:70px;border-radius:50%;background:radial-gradient(circle,#fde68a,transparent 70%);opacity:.3"></div>
-    <svg style="position:absolute;bottom:0;left:0;width:100%" viewBox="0 0 800 320" preserveAspectRatio="none">
-      ${blds.map(b=>`<rect x="${b.x}" y="${320-b.h}" width="${b.w}" height="${b.h}" fill="${b.c}"/>
-        ${Array.from({length:Math.floor(b.h/28)}).map((_,r)=>Array.from({length:Math.floor(b.w/18)}).map((_,c)=>`<rect x="${b.x+4+c*18}" y="${320-b.h+8+r*28}" width="10" height="14" fill="${Math.random()>.4?'#fbbf24':'#1a3060'}" opacity="${.6+Math.random()*.4}"/>`).join('')).join('')}`).join('')}
-      <rect x="0" y="300" width="800" height="20" fill="#050d1e"/>
-    </svg>
-    <div style="position:absolute;bottom:0;left:0;right:0;height:35px;background:linear-gradient(transparent,rgba(96,165,250,.06))"></div>`;
+/* ── XP & badges ── */
+function addXP(n){
+if(!n)return;
+S.xp+=n;
+if(S.xp>=100*S.level)S.level++;
+const pct=Math.min(100,S.xp%100);
+document.getElementById(‘xpfill’).style.width=pct+’%’;
+document.getElementById(‘xpnum’).textContent=S.xp+’/100’;
+document.getElementById(‘lvltag’).textContent=‘LVL ‘+S.level;
+}
+function renderBadges(newW){
+const el=document.getElementById(‘badges’);
+el.innerHTML=’’;
+S.unlocked.forEach(w=>{
+const b=document.createElement(‘div’);
+b.className=‘badge’+(w===newW?’ lit’:’’);
+b.textContent=’🔓 ’+w;
+el.appendChild(b);
+if(w===newW)setTimeout(()=>b.classList.remove(‘lit’),3200);
+});
+}
+function unlock(w){
+if(S.unlocked.includes(w))return;
+S.unlocked.push(w);renderBadges(w);
 }
 
-/* ══════════════════════════════════════════════
-   CHARACTER SVG
-══════════════════════════════════════════════ */
-function charSVG(mood) {
-  const bodyCol = {wave:'#6366f1',excited:'#f59e0b',sad:'#64748b',pleading:'#8b5cf6',adventure:'#10b981',normal:'#6366f1'}[mood]||'#6366f1';
-  const smile = ['excited','adventure','wave'].includes(mood);
-  const sad = mood==='sad';
-  const blush = ['excited','wave','pleading'].includes(mood);
-  const mouthD = smile ? 'M 42 60 Q 50 70 58 60' : sad ? 'M 42 66 Q 50 58 58 66' : 'M 42 62 Q 50 66 58 62';
-  const eyeAnim = sad ? 'style="transform:translateY(3px)"' : '';
-  return `
-    <ellipse cx="50" cy="136" rx="20" ry="5" fill="rgba(0,0,0,.4)"/>
-    <rect x="32" y="80" width="36" height="44" rx="10" fill="${bodyCol}"/>
-    <rect x="30" y="80" width="40" height="14" rx="7" fill="${sad?'#94a3b8':'#f472b6'}"/>
-    <rect x="18" y="82" width="14" height="28" rx="7" fill="${bodyCol}" ${mood==='wave'?`style="transform-origin:18px 82px;animation:tailWag .6s ease-in-out infinite"`:''} />
-    <rect x="68" y="82" width="14" height="28" rx="7" fill="${bodyCol}" ${mood==='excited'?`style="transform-origin:68px 82px;animation:tailWag .5s ease-in-out infinite"`:''} />
-    <rect x="36" y="116" width="12" height="24" rx="6" fill="${bodyCol}"/>
-    <rect x="52" y="116" width="12" height="24" rx="6" fill="${bodyCol}"/>
-    <ellipse cx="42" cy="139" rx="9" ry="5" fill="#1e293b"/>
-    <ellipse cx="58" cy="139" rx="9" ry="5" fill="#1e293b"/>
-    <rect x="42" y="68" width="16" height="14" rx="5" fill="#fde68a"/>
-    <ellipse cx="50" cy="50" rx="28" ry="30" fill="#fef3c7"/>
-    <polygon points="22,26 14,6 34,22" fill="${bodyCol}"/>
-    <polygon points="78,26 86,6 66,22" fill="${bodyCol}"/>
-    <polygon points="25,24 19,12 32,22" fill="#fca5a5"/>
-    <polygon points="75,24 81,12 68,22" fill="#fca5a5"/>
-    <ellipse cx="50" cy="24" rx="26" ry="14" fill="#7c3aed"/>
-    <rect x="24" y="24" width="10" height="22" rx="5" fill="#7c3aed"/>
-    <rect x="66" y="24" width="10" height="22" rx="5" fill="#7c3aed"/>
-    ${sad ? `
-      <path d="M 36 48 Q 40 52 44 48" stroke="#1e293b" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-      <path d="M 56 48 Q 60 52 64 48" stroke="#1e293b" stroke-width="2.5" fill="none" stroke-linecap="round"/>` : `
-      <ellipse cx="40" cy="48" rx="6" ry="7" fill="#1e293b" ${eyeAnim} style="animation:blink 4s ease-in-out infinite"/>
-      <ellipse cx="60" cy="48" rx="6" ry="7" fill="#1e293b" style="animation:blink 4s ease-in-out infinite;animation-delay:.1s"/>
-      <circle cx="43" cy="45" r="2.5" fill="white"/>
-      <circle cx="63" cy="45" r="2.5" fill="white"/>`}
-    ${blush ? `<ellipse cx="30" cy="56" rx="8" ry="5" fill="#fca5a5" opacity=".5"/><ellipse cx="70" cy="56" rx="8" ry="5" fill="#fca5a5" opacity=".5"/>` : ''}
-    <path d="${mouthD}" stroke="#1e293b" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-    <ellipse cx="50" cy="58" rx="5" ry="3.5" fill="#fca5a5"/>
-    <path d="M 68 115 Q 90 100 82 82" stroke="${bodyCol}" stroke-width="8" fill="none" stroke-linecap="round" style="animation:tailWag 1.2s ease-in-out infinite;transform-origin:68px 115px"/>
-    <filter id="glow"><feGaussianBlur stdDeviation="4" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>`;
+/* ── Game flow ── */
+function startGame(){
+show(‘gs’);
+mkStars(document.getElementById(‘gst’));
+renderBadges();addXP(0);
+loadScene(‘scene1’);
 }
 
-/* ══════════════════════════════════════════════
-   PARTICLES
-══════════════════════════════════════════════ */
-function spawnParticles(type) {
-  const el = document.getElementById('particles');
-  el.innerHTML = '';
-  const colors = ['#ffd232','#ff6b6b','#4ade80','#60a5fa','#f472b6','#a78bfa'];
-  const count = type==='celebrate' ? 22 : 14;
-  for (let i=0;i<count;i++) {
-    const p = document.createElement('div');
-    p.className = 'particle';
-    if (type==='celebrate') {
-      p.style.cssText = `left:${5+i*4.2}%;bottom:15%;width:${8+i%4*4}px;height:${8+i%3*4}px;
-        border-radius:${i%3===0?'50%':i%3===1?'3px':'0'};background:${colors[i%6]};
-        animation:confetti ${.7+i*.06}s ${i*.04}s ease-out forwards`;
-    } else {
-      p.style.cssText = `left:${i*7}%;top:-5%;font-size:${16+i%3*6}px;
-        animation:rain ${.7+i*.08}s ${i*.05}s linear forwards`;
-      p.textContent = '💧';
-    }
-    el.appendChild(p);
-  }
-  setTimeout(()=>{ el.innerHTML=''; }, 1800);
+function loadScene(id){
+clearTimeout(autoT);
+if(typIv){clearInterval(typIv);typIv=null;}
+S.id=id;S.line=0;S.busy=false;
+
+const sc=STORY[id];
+if(sc.isEnding){doEnding(sc,id);return;}
+
+// Background
+({night:nightBg,forest:forestBg,city:cityBg}[sc.bg||‘night’])(document.getElementById(‘gbg’));
+
+// Character
+const ch=document.getElementById(‘char’);
+ch.innerHTML=mkChar(sc.mood);
+ch.style.cssText=‘position:absolute;left:14px;width:115px;height:145px;bottom:190px;transition:bottom .5s ease;animation:walkIn .6s ease-out’;
+setTimeout(()=>ch.style.animation=‘float 3s ease-in-out infinite’,750);
+
+document.getElementById(‘dw’).style.display=‘block’;
+document.getElementById(‘cw’).style.display=‘none’;
+document.getElementById(‘taph’).style.display=‘none’;
+document.getElementById(‘helpbtn’).classList.remove(‘pulse’);
+
+typeLine();
 }
 
-/* ══════════════════════════════════════════════
-   CHOICE BUTTON BUILDER
-══════════════════════════════════════════════ */
-function makeChoiceBtn(choice, idx) {
-  const btn = document.createElement('button');
-  btn.className = `choice-btn ${choice.sign}`;
-  btn.style.animationDelay = `${idx*.12}s`;
-  btn.style.animation = `choiceIn .4s ${idx*.12}s cubic-bezier(.4,0,.2,1) both`;
-
-  const vw = makeVideoEl(choice.sign);
-  btn.appendChild(vw);
-
-  const lbl = document.createElement('div');
-  lbl.className = 'sign-label';
-  lbl.textContent = choice.label;
-  btn.appendChild(lbl);
-
-  btn.onclick = () => handleChoice(choice);
-  return btn;
+function typeLine(){
+clearTimeout(autoT);
+if(typIv){clearInterval(typIv);typIv=null;}
+const sc=STORY[S.id];
+const text=sc.lines[S.line];
+const el=document.getElementById(‘dtxt’);
+const hint=document.getElementById(‘taph’);
+el.textContent=’’;
+hint.style.display=‘none’;
+let i=0;
+typIv=setInterval(()=>{
+if(i<text.length){ el.textContent=text.slice(0,++i); }
+else {
+clearInterval(typIv);typIv=null;
+// Show tap hint on EVERY line so player always knows to tap
+hint.style.display=‘block’;
+}
+},30);
 }
 
-/* ══════════════════════════════════════════════
-   GAME LOGIC
-══════════════════════════════════════════════ */
-function startGame() {
-  document.getElementById('title-screen').classList.add('hidden');
-  document.getElementById('game-screen').classList.remove('hidden');
-  makeStars(document.getElementById('game-stars'));
-  loadScene('scene1');
+function advLine(){
+// If still typing — skip to full text
+if(typIv){
+clearInterval(typIv);typIv=null;
+const sc=STORY[S.id];
+document.getElementById(‘dtxt’).textContent=sc.lines[S.line];
+document.getElementById(‘taph’).style.display=‘block’;
+return;
+}
+clearTimeout(autoT);
+const sc=STORY[S.id];
+if(S.line<sc.lines.length-1){
+S.line++;
+typeLine();
+} else {
+showChoices();
+}
 }
 
-function loadScene(id) {
-  clearTimeout(autoTimer);
-  state.sceneId = id;
-  state.lineIdx = 0;
-  state.phase = 'dialogue';
-  state.choiceDisabled = false;
-
-  const scene = STORY[id];
-  if (scene.isEnding) { showEnding(scene); return; }
-
-  // Background
-  const bg = document.getElementById('game-bg');
-  const bgFn = {night:makeNightBg, forest:makeForestBg, city:makeCityBg}[scene.bg||'night'];
-  if (bgFn) bgFn(bg);
-
-  // Character
-  const charEl = document.getElementById('character');
-  charEl.innerHTML = charSVG(scene.mood);
-  charEl.style.animation = 'walkIn .6s ease-out';
-  setTimeout(()=>{ charEl.style.animation = 'float 3s ease-in-out infinite'; }, 700);
-
-  // Position character higher when choices shown
-  charEl.style.bottom = '200px';
-
-  document.getElementById('dialogue-wrap').style.display = 'block';
-  document.getElementById('choices-wrap').style.display = 'none';
-
-  // Help pulse off
-  document.getElementById('help-btn').classList.remove('pulse');
-
-  showLine();
+function showChoices(){
+document.getElementById(‘dw’).style.display=‘none’;
+document.getElementById(‘cw’).style.display=‘block’;
+const sc=STORY[S.id];
+document.getElementById(‘qlbl’).textContent=sc.q;
+const row=document.getElementById(‘crow’);
+row.innerHTML=’’;
+sc.choices.forEach((c,i)=>{
+const btn=document.createElement(‘button’);
+btn.className=’cbtn ’+c.sign;
+btn.style.animation=`choiceIn .4s ${i*.12}s ease both`;
+btn.appendChild(mkVid(c.sign));
+const lbl=document.createElement(‘div’);
+lbl.className=‘vlbl’;lbl.textContent=c.label;
+btn.appendChild(lbl);
+btn.onclick=()=>pick(c);
+row.appendChild(btn);
+});
+document.getElementById(‘char’).style.bottom=‘255px’;
+document.getElementById(‘helpbtn’).classList.add(‘pulse’);
 }
 
-function showLine() {
-  const scene = STORY[state.sceneId];
-  const text = scene.lines[state.lineIdx];
-  const el = document.getElementById('dialogue-text');
-  const nextArrow = document.getElementById('next-arrow');
-
-  // Typewriter
-  el.textContent = '';
-  let i = 0;
-  const iv = setInterval(()=>{
-    if (i < text.length) { el.textContent = text.slice(0, ++i); }
-    else {
-      clearInterval(iv);
-      const hasMore = state.lineIdx < scene.lines.length - 1;
-      nextArrow.style.display = hasMore ? 'block' : 'none';
-      if (!hasMore) {
-        autoTimer = setTimeout(advanceLine, 3500);
-      }
-    }
-  }, 28);
+function pick(choice){
+if(S.busy)return;
+S.busy=true;
+document.getElementById(‘helpbtn’).classList.remove(‘pulse’);
+const good=![‘scene_no’,‘scene_no2’].includes(choice.next);
+burst(good?‘celebrate’:‘rain’);
+if(!good){
+const ch=document.getElementById(‘char’);
+ch.style.animation=‘shake .4s ease’;
+setTimeout(()=>ch.style.animation=‘float 3s ease-in-out infinite’,450);
+}
+unlock(choice.label);
+addXP(STORY[S.id].xp||0);
+setTimeout(()=>{
+if(choice.next.startsWith(‘end_’)){
+addXP(STORY[choice.next].xp||0);
+doEnding(STORY[choice.next],choice.next);
+} else {
+loadScene(choice.next);
+}
+},1500);
 }
 
-function advanceLine() {
-  clearTimeout(autoTimer);
-  const scene = STORY[state.sceneId];
-  if (state.lineIdx < scene.lines.length - 1) {
-    state.lineIdx++;
-    showLine();
-  } else {
-    showChoices();
-  }
+/* ── Ending ── */
+function doEnding(sc,id){
+show(‘es’);
+const forest=id===‘end_forest’;
+(forest?forestBg:cityBg)(document.getElementById(‘ebg’));
+mkStars(document.getElementById(‘est’));
+document.getElementById(‘edesc’).textContent=forest
+?‘She was hiding behind a great oak tree 🌳’
+:‘She was sitting on a city rooftop 🏙️’;
+document.getElementById(‘expcnum’).textContent=’+’+(sc.xp||30);
+document.getElementById(‘expcw’).textContent=’✓ YES  ✓ NO  ✓ ’+(forest?‘FOREST’:‘CITY’);
+document.getElementById(‘ebtn’).style.background=forest
+?‘linear-gradient(135deg,#166534,#4ade80)’
+:‘linear-gradient(135deg,#1e3a8a,#60a5fa)’;
 }
 
-function showChoices() {
-  state.phase = 'choose';
-  document.getElementById('dialogue-wrap').style.display = 'none';
-  document.getElementById('choices-wrap').style.display = 'block';
-
-  const scene = STORY[state.sceneId];
-  document.getElementById('q-label').textContent = scene.q;
-
-  const container = document.getElementById('choices');
-  container.innerHTML = '';
-  scene.choices.forEach((c, i) => container.appendChild(makeChoiceBtn(c, i)));
-
-  // Character moves up
-  document.getElementById('character').style.bottom = '260px';
-  document.getElementById('help-btn').classList.add('pulse');
+function restartGame(){
+S={id:‘scene1’,line:0,xp:0,level:1,unlocked:[‘YES’,‘NO’],busy:false};
+document.getElementById(‘xpfill’).style.width=‘0%’;
+document.getElementById(‘xpnum’).textContent=‘0/100’;
+document.getElementById(‘lvltag’).textContent=‘LVL 1’;
+renderBadges();
+show(‘gs’);
+loadScene(‘scene1’);
 }
 
-function handleChoice(choice) {
-  if (state.choiceDisabled) return;
-  state.choiceDisabled = true;
-  document.getElementById('help-btn').classList.remove('pulse');
-
-  const isGood = !['scene_no','scene_no2'].includes(choice.next);
-  spawnParticles(isGood ? 'celebrate' : 'rain');
-
-  // Shake character on bad
-  if (!isGood) {
-    const c = document.getElementById('character');
-    c.style.animation = 'shake .4s ease';
-    setTimeout(()=>{ c.style.animation = 'float 3s ease-in-out infinite'; }, 450);
-  }
-
-  // Unlock word
-  const word = choice.label;
-  if (!state.unlocked.includes(word)) {
-    state.unlocked.push(word);
-    renderBadges(word);
-  }
-
-  // XP
-  gainXP(STORY[state.sceneId].xp || 0);
-
-  setTimeout(() => {
-    spawnParticles(null);
-    if (choice.next.startsWith('end_')) {
-      const endScene = STORY[choice.next];
-      gainXP(endScene.xp);
-      showEnding(endScene, choice.next);
-    } else {
-      loadScene(choice.next);
-    }
-  }, 1500);
+/* ── Camera ── */
+function toggleCam(){
+const ov=document.getElementById(‘camov’);
+const btn=document.getElementById(‘cbambtn’);
+if(camStream){
+camStream.getTracks().forEach(t=>t.stop());camStream=null;
+ov.classList.remove(‘on’);btn.classList.remove(‘on’);btn.textContent=‘📷 CAM’;
+} else {
+navigator.mediaDevices?.getUserMedia({video:true}).then(s=>{
+camStream=s;document.getElementById(‘camvid’).srcObject=s;
+ov.classList.add(‘on’);btn.classList.add(‘on’);btn.textContent=‘📷 HIDE’;
+ov.style.top=(document.getElementById(‘hud’).offsetHeight+8)+‘px’;
+}).catch(()=>alert(‘Camera not available’));
+}
 }
 
-/* ══════════════════════════════════════════════
-   ENDING
-══════════════════════════════════════════════ */
-function showEnding(scene, id) {
-  document.getElementById('game-screen').classList.add('hidden');
-  const es = document.getElementById('ending-screen');
-  es.classList.remove('hidden');
-
-  const isForest = id === 'end_forest';
-  const bg = document.getElementById('ending-bg');
-  isForest ? makeForestBg(bg) : makeCityBg(bg);
-  makeStars(document.getElementById('ending-stars'));
-
-  document.getElementById('ending-title').textContent = 'YOU FOUND THE CAT!';
-  document.getElementById('ending-desc').textContent = isForest
-    ? 'She was hiding behind a great oak tree 🌳'
-    : 'She was sitting on a city rooftop 🏙️';
-  document.getElementById('ending-xp').textContent = '+' + (scene.xp||30);
-  document.getElementById('ending-words').innerHTML = `<span style="color:#4ade80">✓ YES &nbsp;✓ NO &nbsp;✓ ${isForest?'FOREST':'CITY'}</span>`;
-
-  const rb = document.getElementById('restart-btn');
-  rb.style.background = isForest
-    ? 'linear-gradient(135deg,#166534,#4ade80)'
-    : 'linear-gradient(135deg,#1e3a8a,#60a5fa)';
+/* ── Help ── */
+function showHelp(){
+const sc=STORY[S.id];
+if(!sc||!sc.choices)return;
+const el=document.getElementById(‘msigns’);
+el.innerHTML=’’;
+sc.choices.forEach(c=>{
+const div=document.createElement(‘div’);div.className=‘msign’;
+div.appendChild(mkVid(c.sign));
+const lbl=document.createElement(‘div’);lbl.className=‘mslbl’;lbl.textContent=c.label;
+div.appendChild(lbl);el.appendChild(div);
+});
+document.getElementById(‘modal’).classList.add(‘open’);
 }
+function hideHelp(){document.getElementById(‘modal’).classList.remove(‘open’);}
 
-function restartGame() {
-  state = { sceneId:'scene1', lineIdx:0, phase:'dialogue',
-    xp:0, level:1, unlocked:['YES','NO'], choiceDisabled:false };
-  renderBadges();
-  updateXP();
-  document.getElementById('ending-screen').classList.add('hidden');
-  document.getElementById('game-screen').classList.remove('hidden');
-  loadScene('scene1');
-}
-
-/* ══════════════════════════════════════════════
-   XP + BADGES
-══════════════════════════════════════════════ */
-function gainXP(amt) {
-  if (!amt) return;
-  state.xp += amt;
-  if (state.xp >= 100 * state.level) state.level++;
-  updateXP();
-}
-
-function updateXP() {
-  const pct = Math.min(100, (state.xp % 100));
-  document.getElementById('xp-fill').style.width = pct + '%';
-  document.getElementById('xp-label').textContent = `${state.xp}/100`;
-  document.getElementById('level-tag').textContent = `LVL ${state.level}`;
-}
-
-function renderBadges(newWord) {
-  const el = document.getElementById('badges');
-  el.innerHTML = '';
-  state.unlocked.forEach(w => {
-    const b = document.createElement('div');
-    b.className = 'badge' + (w === newWord ? ' new' : '');
-    b.textContent = '🔓 ' + w;
-    el.appendChild(b);
-    if (w === newWord) setTimeout(()=>b.classList.remove('new'), 3000);
-  });
-}
-
-/* ══════════════════════════════════════════════
-   CAMERA
-══════════════════════════════════════════════ */
-function toggleCamera() {
-  const overlay = document.getElementById('camera-overlay');
-  const btn = document.getElementById('cam-btn');
-  const vid = document.getElementById('cam-video');
-  if (camStream) {
-    camStream.getTracks().forEach(t=>t.stop());
-    camStream = null;
-    overlay.classList.remove('show');
-    btn.classList.remove('active');
-    btn.textContent = '📷 CAM';
-  } else {
-    navigator.mediaDevices?.getUserMedia({video:true}).then(s=>{
-      camStream = s; vid.srcObject = s;
-      overlay.classList.add('show');
-      btn.classList.add('active');
-      btn.textContent = '📷 HIDE';
-      // Position below HUD
-      const hudH = document.getElementById('hud').offsetHeight;
-      overlay.style.top = (hudH + 8) + 'px';
-    }).catch(()=>alert('Camera not available'));
-  }
-}
-
-/* ══════════════════════════════════════════════
-   HELP MODAL
-══════════════════════════════════════════════ */
-function showHelp() {
-  const scene = STORY[state.sceneId];
-  if (!scene || !scene.choices) return;
-  const container = document.getElementById('modal-signs');
-  container.innerHTML = '';
-  scene.choices.forEach(c => {
-    const div = document.createElement('div');
-    div.className = 'modal-sign';
-    const vw = makeVideoEl(c.sign);
-    vw.style.borderRadius = '8px';
-    div.appendChild(vw);
-    const lbl = document.createElement('div');
-    lbl.style.cssText = `font-family:'Press Start 2P',monospace;font-size:8px;color:#e8e8ff;text-align:center`;
-    lbl.textContent = c.label;
-    div.appendChild(lbl);
-    container.appendChild(div);
-  });
-  document.getElementById('modal').classList.add('show');
-}
-
-function hideHelp() {
-  document.getElementById('modal').classList.remove('show');
-}
-
-/* ══════════════════════════════════════════════
-   INIT
-══════════════════════════════════════════════ */
-window.addEventListener('load', () => {
-  // Title screen setup
-  makeNightBg(document.getElementById('title-bg'));
-  makeStars(document.getElementById('title-stars'));
-  document.getElementById('title-char-svg').innerHTML = charSVG('wave');
-  renderBadges();
-  updateXP();
+/* ── Init ── */
+window.addEventListener(‘load’,()=>{
+nightBg(document.getElementById(‘tbg’));
+mkStars(document.getElementById(‘tst’));
+document.getElementById(‘t-char’).innerHTML=mkChar(‘wave’);
 });
 </script>
 
