@@ -159,8 +159,8 @@ transition: transform 0.15s;
 .choice.no     { border-color: #f87171; box-shadow: 0 0 14px rgba(248,113,113,.3); }
 .choice.forest { border-color: #4ade80; box-shadow: 0 0 14px rgba(74,222,128,.3); }
 .choice.city   { border-color: #60a5fa; box-shadow: 0 0 14px rgba(96,165,250,.3); }
-.cvid { border-radius: 8px; overflow: hidden; height: 130px; background: #111; position: relative; }
-.cvid video { width: 100%; height: 100dvh; object-fit: cover; display: block; }
+.cvid { border-radius: 8px; overflow: hidden; height: 160px; background: #111; position: relative; }
+.cvid video { width: 100%; height: 100%; object-fit: contain; display: block; background: #000; }
 .cvid-credit {
 position: absolute; bottom: 3px; right: 4px;
 background: rgba(0,0,0,.75); font-size: 7px; color: #777;
@@ -221,7 +221,7 @@ padding: 26px 24px; max-width: 460px; width: 92%;
 #modal .msub { font-size: 13px; color: #888; text-align: center; margin-bottom: 18px; }
 #modal-signs { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
 .msign { flex: 1 1 130px; max-width: 180px; background: rgba(255,255,255,.04); border: 1px solid #1e3060; border-radius: 12px; padding: 10px; display: flex; flex-direction: column; gap: 6px; }
-.msign .cvid { border-radius: 8px; height: 110px; }
+.msign .cvid { border-radius: 8px; height: 140px; }
 .msign-lbl { font-family: ‘Press Start 2P’, monospace; font-size: 8px; color: #e8e8ff; text-align: center; }
 #modal button { display: block; margin: 18px auto 0; padding: 10px 28px; background: linear-gradient(135deg,#a78bfa,#ffd232); color: white; border: none; border-radius: 22px; font-family: ‘Press Start 2P’, monospace; font-size: 9px; cursor: pointer; }
 
@@ -377,6 +377,7 @@ function makeVideo(sign) {
   wrap.className = 'cvid';
   const vid = document.createElement('video');
   vid.autoplay = vid.loop = vid.muted = vid.playsInline = true;
+  vid.style.objectFit = "contain";
   vid.src = d.url;
   vid.onerror = () => showFallback(wrap, sign);
   wrap.appendChild(vid);
