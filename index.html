@@ -606,7 +606,13 @@ document.getElementById(‘modal’).classList.add(‘open’);
 function hideHelp(){document.getElementById(‘modal’).classList.remove(‘open’);}
 
 /* ── Init ── */
-window.addEventListener(‘load’,()=>{
+function init(){
+nightBg(document.getElementById(‘tbg’));
+mkStars(document.getElementById(‘tst’));
+document.getElementById(‘t-char’).innerHTML=mkChar(‘wave’);
+}
+init();
+window.addEventListener(‘load’, function() {
 nightBg(document.getElementById(‘tbg’));
 mkStars(document.getElementById(‘tst’));
 document.getElementById(‘t-char’).innerHTML=mkChar(‘wave’);
