@@ -500,14 +500,14 @@ function pick(choice) {
     return;
   }
 
-  // YES, FOREST, CITY — teach the sign the FIRST time only
-  if (!G.taught.includes(choice.sign)) {
-    G.taught.push(choice.sign);
-    teachSign(choice.sign, function() {
+  // Only YES gets taught the first time
+  if (choice.sign === 'yes' && !G.taught.includes('yes')) {
+    G.taught.push('yes');
+    teachSign('yes', function() {
       // After teaching, put choices back so player can try again
       document.getElementById('dlg-wrap').style.display = 'none';
       document.getElementById('choices-wrap').style.display = 'block';
-      G.busy = false; // allow picking again
+      G.busy = false;
     });
     return;
   }
