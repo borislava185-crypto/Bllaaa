@@ -10,7 +10,7 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 html, body {
-width: 100%; height: 100%;
+width: 100%; height: 100dvh;
 background: #030310;
 font-family: ‘Fredoka’, sans-serif;
 overflow: hidden;
@@ -22,7 +22,7 @@ justify-content: center;
 /* ── The game lives in a phone-shaped box, centred on screen ── */
 #game-shell {
 width: min(520px, 100vw);
-height: min(820px, 100vh);
+height: 100dvh;
 position: relative;
 overflow: hidden;
 display: flex;
@@ -88,10 +88,10 @@ color: #ffd232; background: rgba(255,210,50,0.1);
 .xp-row { display: flex; align-items: center; gap: 7px; }
 .lvl { font-family: ‘Press Start 2P’, monospace; font-size: 7px; color: #ffd232; white-space: nowrap; }
 .xp-track { flex: 1; height: 9px; background: #111; border-radius: 6px; overflow: hidden; border: 1px solid #2a2a5a; }
-.xp-fill { height: 100%; background: linear-gradient(90deg, #a78bfa, #ffd232); border-radius: 6px; width: 0%; transition: width 0.8s; }
+.xp-fill { height: 100dvh; background: linear-gradient(90deg, #a78bfa, #ffd232); border-radius: 6px; width: 0%; transition: width 0.8s; }
 .xp-num { font-family: ‘Press Start 2P’, monospace; font-size: 6px; color: #555; white-space: nowrap; }
 
-/* Row 2: Background space (fills remaining height) */
+/* Row 2: Background space */
 #bg-space { flex: 1; position: relative; min-height: 0; }
 #particles { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 5; }
 #cam-view { position: absolute; top: 8px; right: 10px; width: 130px; border-radius: 10px; overflow: hidden; border: 2px solid #333; display: none; z-index: 6; }
@@ -109,17 +109,17 @@ gap: 8px;
 
 /* Luna SVG */
 #luna {
-width: 80px;
-height: 98px;
+width: 90px;
+height: 112px;
 flex-shrink: 0;
-margin-bottom: 0;
+align-self: flex-end;
 }
 
 /* Content beside luna */
 #bottom-content { flex: 1; min-width: 0; padding-bottom: 0; }
 
 /* Dialogue bubble */
-#dlg-wrap { display: none; padding: 10px 0 10px 0; }
+#dlg-wrap { display: none; padding: 8px 0; }
 #dlg-box {
 background: rgba(12,16,50,0.97);
 border: 2px solid #1e3060;
@@ -159,14 +159,14 @@ transition: transform 0.15s;
 .choice.no     { border-color: #f87171; box-shadow: 0 0 14px rgba(248,113,113,.3); }
 .choice.forest { border-color: #4ade80; box-shadow: 0 0 14px rgba(74,222,128,.3); }
 .choice.city   { border-color: #60a5fa; box-shadow: 0 0 14px rgba(96,165,250,.3); }
-.cvid { border-radius: 8px; overflow: hidden; height: 100px; background: #111; position: relative; }
-.cvid video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.cvid { border-radius: 8px; overflow: hidden; height: 130px; background: #111; position: relative; }
+.cvid video { width: 100%; height: 100dvh; object-fit: cover; display: block; }
 .cvid-credit {
 position: absolute; bottom: 3px; right: 4px;
 background: rgba(0,0,0,.75); font-size: 7px; color: #777;
 border-radius: 4px; padding: 1px 4px; text-decoration: none;
 }
-.cvid-fb { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-decoration: none; gap: 3px; padding: 6px; }
+.cvid-fb { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100dvh; text-decoration: none; gap: 3px; padding: 6px; }
 .clbl { font-family: ‘Press Start 2P’, monospace; font-size: 7px; text-align: center; }
 .choice.yes .clbl    { color: #fbbf24; }
 .choice.no .clbl     { color: #f87171; }
@@ -221,7 +221,7 @@ padding: 26px 24px; max-width: 460px; width: 92%;
 #modal .msub { font-size: 13px; color: #888; text-align: center; margin-bottom: 18px; }
 #modal-signs { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
 .msign { flex: 1 1 130px; max-width: 180px; background: rgba(255,255,255,.04); border: 1px solid #1e3060; border-radius: 12px; padding: 10px; display: flex; flex-direction: column; gap: 6px; }
-.msign .cvid { border-radius: 8px; height: 100px; }
+.msign .cvid { border-radius: 8px; height: 110px; }
 .msign-lbl { font-family: ‘Press Start 2P’, monospace; font-size: 8px; color: #e8e8ff; text-align: center; }
 #modal button { display: block; margin: 18px auto 0; padding: 10px 28px; background: linear-gradient(135deg,#a78bfa,#ffd232); color: white; border: none; border-radius: 22px; font-family: ‘Press Start 2P’, monospace; font-size: 9px; cursor: pointer; }
 
