@@ -410,7 +410,7 @@ const SCENES = {
 };
 
 /* ══════════════ STATE ══════════════ */
-let G = { scene:'s1', line:0, xp:0, level:1, unlocked:['YES','NO'], busy:false };
+let G = { scene:'s1', line:0, xp:0, level:1, unlocked:['YES','NO'], busy:false, taught:[] };
 let camStream=null, typeIv=null;
 
 /* ══════════════ SCREEN SWITCH ══════════════ */
@@ -492,10 +492,80 @@ function showChoices() {
 /* ══════════════ PICK ══════════════ */
 function pick(choice) {
   if (G.busy) return;
+
+  // NO is never intercepted — always goes straight through
+  if (choice.sign === 'no') {
+    G.busy = true;
+    proceedWithChoice(choice);
+    return;
+  }
+
+  // YES, FOREST, CITY — teach the sign the FIRST time only
+  if (!G.taught.includes(choice.sign)) {
+    G.taught.push(choice.sign);
+    teachSign(choice.sign, function() {
+      // After teaching, put choices back so player can try again
+      document.getElementById('dlg-wrap').style.display = 'none';
+      document.getElementById('choices-wrap').style.display = 'block';
+      G.busy = false; // allow picking again
+    });
+    return;
+  }
+
+  // Already been taught — proceed
   G.busy = true;
+  proceedWithChoice(choice);
+}
+
+function teachSign(sign, onDone) {
+  const d = SIGNS[sign];
+
+  // Switch to dialogue
+  document.getElementById('choices-wrap').style.display = 'none';
+  document.getElementById('dlg-wrap').style.display = 'block';
+  document.getElementById('luna').innerHTML = lunaHTML('wave');
+
+  const msgs = {
+    yes:    "Oops! That's not how you sign YES 🤚\nYES = close your hand into a fist and nod it forward twice, like a nodding head! Now try again! 👇",
+    forest: "Here's how you sign FOREST! 🌳\nFOREST = hold your elbow with one hand, wave your open hand like a swaying tree. Now try! 👇",
+    city:   "Here's how you sign CITY! 🏙️\nCITY = point both index fingers and tap the tips together twice. Now try! 👇",
+  };
+  document.getElementById('dlg-text').textContent = msgs[sign] || 'Watch how to sign this!';
+
+  // Show video inside dialogue box
+  let vbox = document.getElementById('teach-inline-vid');
+  if (!vbox) {
+    vbox = document.createElement('div');
+    vbox.id = 'teach-inline-vid';
+    vbox.style.cssText = 'border-radius:10px;overflow:hidden;height:140px;margin-top:10px;background:#000;flex-shrink:0;';
+    document.getElementById('dlg-box').appendChild(vbox);
+  }
+  vbox.innerHTML = '';
+  vbox.style.display = 'block';
+
+  const vid = document.createElement('video');
+  vid.autoplay = vid.loop = vid.muted = vid.playsInline = true;
+  vid.style.cssText = 'width:100%;height:100%;object-fit:contain;display:block;';
+  vid.src = d.url;
+  vid.onerror = () => showFallback(vbox, sign);
+  vbox.appendChild(vid);
+
+  // Tap to try again
+  const tap = document.getElementById('dlg-tap');
+  tap.textContent = '▼ TAP TO TRY AGAIN';
+  tap.style.display = 'block';
+  tap.onclick = function() {
+    vbox.style.display = 'none';
+    tap.style.display = 'none';
+    tap.onclick = tapLine; // restore
+    onDone();
+  };
+}
+
+function proceedWithChoice(choice) {
   const good = choice.next !== 's_no' && choice.next !== 's_no2';
   spawnParticles(good ? 'celebrate' : 'rain');
-  if (!state_unlocked(choice.label)) {
+  if (!G.unlocked.includes(choice.label)) {
     G.unlocked.push(choice.label);
     renderBadges(choice.label);
   }
@@ -505,6 +575,7 @@ function pick(choice) {
     else loadScene(choice.next);
   }, 1300);
 }
+
 function state_unlocked(w) { return G.unlocked.includes(w); }
 
 /* ══════════════ XP ══════════════ */
@@ -566,7 +637,7 @@ function showEnding(type) {
 }
 
 function restartGame() {
-  G = { scene:'s1', line:0, xp:0, level:1, unlocked:['YES','NO'], busy:false };
+  G = { scene:'s1', line:0, xp:0, level:1, unlocked:['YES','NO'], busy:false, taught:[] };
   document.getElementById('xp-fill').style.width = '0%';
   document.getElementById('xp-num').textContent = '0 XP';
   document.getElementById('lvl-el').textContent = 'LVL 1';
