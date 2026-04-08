@@ -788,126 +788,52 @@ function drawEndingBg(el, isForest) {
 
 function drawNightBg(el) {
   if (!el) return;
+  el.innerHTML = '';
+  el.style.cssText = 'position:absolute;inset:0;pointer-events:none;overflow:hidden;';
+
+  // Sky
+  const sky = document.createElement('div');
+  sky.style.cssText = 'position:absolute;inset:0;background:linear-gradient(180deg,#0a1e0a 0%,#0a3018 60%,#061408 100%);';
+  el.appendChild(sky);
+
+  // Moon
+  const moon = document.createElement('div');
+  moon.style.cssText = 'position:absolute;top:5%;right:15%;width:60px;height:60px;background:#fde68a;border-radius:50%;box-shadow:-16px -6px 0 0 #0a3018,0 0 20px rgba(253,230,138,0.4);';
+  el.appendChild(moon);
+
   // Stars
-  let stars = '';
-  for (let i = 0; i < 60; i++) {
-    const x = Math.random() * 100;
-    const y = Math.random() * 65;
-    const s = 0.5 + Math.random() * 2;
-    const op = 0.3 + Math.random() * 0.7;
-    const dur = 2 + Math.random() * 3;
-    const delay = Math.random() * 4;
-    stars += `<circle cx="${x}%" cy="${y}%" r="${s}" fill="white" opacity="${op}" style="animation:twinkle ${dur}s ${delay}s ease-in-out infinite"/>`;
+  for (let i=0;i<55;i++){
+    const s = document.createElement('div');
+    const sz = 0.5+Math.random()*2.5;
+    s.style.cssText = `position:absolute;border-radius:50%;background:white;left:${Math.random()*100}%;top:${Math.random()*65}%;width:${sz}px;height:${sz}px;opacity:${0.2+Math.random()*0.8};animation:twinkle ${2+Math.random()*3}s ${Math.random()*4}s ease-in-out infinite;`;
+    el.appendChild(s);
   }
 
-  // Trees row
-  const treeXs = [2, 8, 16, 24, 32, 42, 52, 60, 68, 76, 84, 92];
-  const treeHeights = [80, 100, 120, 90, 110, 95, 115, 85, 105, 90, 120, 88];
-  let trees = '';
-  treeXs.forEach((x, i) => {
-    const h = treeHeights[i];
-    const w = h * 0.5;
-    const shade = i % 2 === 0 ? '#1a3a1a' : '#152d15';
-    trees += `<g transform="translate(${x}%, calc(100% - ${h}px))">
-      <polygon points="${w/2},0 0,${h*0.55} ${w},${h*0.55}" fill="${shade}"/>
-      <polygon points="${w/2},${h*0.2} 0,${h*0.75} ${w},${h*0.75}" fill="${i%2===0?'#12281a':'#1a3520'}"/>
-      <polygon points="${w/2},${h*0.4} 0,${h} ${w},${h}" fill="${shade}"/>
-    </g>`;
+  // Cloud
+  const cloud = document.createElement('div');
+  cloud.style.cssText = 'position:absolute;top:18%;left:5%;opacity:0.4;';
+  cloud.innerHTML = '<svg width="90" height="40" viewBox="0 0 90 40"><ellipse cx="45" cy="28" rx="42" ry="14" fill="#1a2a1a"/><ellipse cx="28" cy="20" rx="22" ry="16" fill="#1a2a1a"/><ellipse cx="62" cy="18" rx="18" ry="14" fill="#1a2a1a"/></svg>';
+  el.appendChild(cloud);
+
+  // Ground
+  const ground = document.createElement('div');
+  ground.style.cssText = 'position:absolute;bottom:0;left:0;right:0;height:18%;background:linear-gradient(180deg,#0d1f0d,#071007);';
+  el.appendChild(ground);
+
+  // Trees
+  [{x:2,h:110},{x:9,h:90},{x:17,h:125},{x:25,h:85},{x:34,h:115},
+   {x:43,h:95},{x:52,h:130},{x:61,h:88},{x:70,h:108},{x:79,h:92},{x:88,h:118},{x:95,h:80}
+  ].forEach((t,i) => {
+    const w = Math.round(t.h*0.5);
+    const d = document.createElement('div');
+    d.style.cssText = `position:absolute;bottom:16%;left:${t.x}%;`;
+    const c1 = i%2===0?'#1a3a1a':'#152d15';
+    const c2 = i%2===0?'#122810':'#1a3010';
+    d.innerHTML = `<svg width="${w}" height="${t.h}" viewBox="0 0 ${w} ${t.h}" style="display:block"><polygon points="${w/2},0 0,${t.h*.5} ${w},${t.h*.5}" fill="${c1}"/><polygon points="${w/2},${t.h*.25} 0,${t.h*.72} ${w},${t.h*.72}" fill="${c2}"/><polygon points="${w/2},${t.h*.48} 0,${t.h} ${w},${t.h}" fill="${c1}"/></svg>`;
+    el.appendChild(d);
   });
-
-  el.innerHTML = `<svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none" style="position:absolute;inset:0;width:100%;height:100%">
-    <defs>
-      <style>@keyframes twinkle{0%,100%{opacity:.2}50%{opacity:1}}</style>
-
-```
-</defs>
-<!-- Sky gradient -->
-<rect width="100" height="100" fill="url(#skyg)"/>
-<defs>
-  <linearGradient id="skyg" x1="0" y1="0" x2="0" y2="1">
-    <stop offset="0%" stop-color="#0a1e0a"/>
-    <stop offset="55%" stop-color="#0a3018"/>
-    <stop offset="100%" stop-color="#061408"/>
-  </linearGradient>
-</defs>
-<!-- Moon -->
-<circle cx="82" cy="12" r="8" fill="#fde68a"/>
-<circle cx="86" cy="9" r="7" fill="#0a3018"/>
-<!-- Stars -->
-${stars}
-<!-- Ground -->
-<rect x="0" y="82" width="100" height="18" fill="#0d1f0d"/>
-<rect x="0" y="82" width="100" height="4" fill="#142814"/>
-<!-- Cloud -->
-<ellipse cx="18" cy="22" rx="10" ry="5" fill="#1e1e4a" opacity=".6"/>
-<ellipse cx="13" cy="20" rx="6" ry="5" fill="#1e1e4a" opacity=".6"/>
-<ellipse cx="24" cy="21" rx="5" ry="4" fill="#1e1e4a" opacity=".6"/>
-```
-
-  </svg>
-  <svg width="100%" height="100%" style="position:absolute;inset:0;" preserveAspectRatio="xMidYMax meet">
-    <!-- Trees using absolute positioning -->
-    ${treeXs.map((x, i) => {
-      const h = treeHeights[i];
-      const w = Math.round(h * 0.55);
-      const shade = i%2===0?'#1a3a1a':'#152d15';
-      const shade2 = i%2===0?'#12281a':'#1a3520';
-      const px = Math.round(x / 100 * 520);
-      const bottom = 0;
-      return `<g>
-        <polygon points="${px},${100-h/5.2} ${px-w/2},${100} ${px+w/2},${100}" fill="${shade}" transform="scale(1,1)"/>
-      </g>`;
-    }).join('')}
-  </svg>`;
-
-// Simpler approach - use absolute divs for trees
-el.innerHTML = ‘’;
-el.style.cssText = ‘position:absolute;inset:0;pointer-events:none;overflow:hidden;’;
-
-// Sky canvas
-const sky = document.createElement(‘div’);
-sky.style.cssText = ‘position:absolute;inset:0;background:linear-gradient(180deg,#0a1e0a 0%,#0a3018 60%,#061408 100%);’;
-el.appendChild(sky);
-
-// Moon
-const moon = document.createElement(‘div’);
-moon.style.cssText = `position:absolute;top:5%;right:15%;width:60px;height:60px; background:#fde68a;border-radius:50%; box-shadow:-16px -6px 0 0 #0a3018, 0 0 20px rgba(253,230,138,0.4);`;
-el.appendChild(moon);
-
-// Stars
-for (let i=0;i<55;i++){
-const star = document.createElement(‘div’);
-const sz = 0.5+Math.random()*2.5;
-star.style.cssText = `position:absolute;border-radius:50%;background:white; left:${Math.random()*100}%;top:${Math.random()*65}%; width:${sz}px;height:${sz}px; opacity:${0.2+Math.random()*0.8}; animation:twinkle ${2+Math.random()*3}s ${Math.random()*4}s ease-in-out infinite;`;
-el.appendChild(star);
 }
 
-// Cloud
-const cloud = document.createElement(‘div’);
-cloud.style.cssText = `position:absolute;top:18%;left:5%;opacity:0.35;`;
-cloud.innerHTML = `<svg width="90" height="40" viewBox="0 0 90 40"> <ellipse cx="45" cy="28" rx="42" ry="14" fill="#2a2a6a"/> <ellipse cx="28" cy="20" rx="22" ry="16" fill="#2a2a6a"/> <ellipse cx="62" cy="18" rx="18" ry="14" fill="#2a2a6a"/> </svg>`;
-el.appendChild(cloud);
-
-// Ground
-const ground = document.createElement(‘div’);
-ground.style.cssText = ‘position:absolute;bottom:0;left:0;right:0;height:18%;background:linear-gradient(180deg,#0d1f0d,#071007);’;
-el.appendChild(ground);
-
-// Trees
-const treeData = [
-{x:2,h:110},{x:9,h:90},{x:17,h:125},{x:25,h:85},{x:34,h:115},
-{x:43,h:95},{x:52,h:130},{x:61,h:88},{x:70,h:108},{x:79,h:92},{x:88,h:118},{x:95,h:80}
-];
-treeData.forEach((t,i) => {
-const tree = document.createElement(‘div’);
-const w = Math.round(t.h * 0.5);
-tree.style.cssText = `position:absolute;bottom:16%;left:${t.x}%;`;
-const col1 = i%2===0?’#1a3a1a’:’#152d15’;
-const col2 = i%2===0?’#122810’:’#1a3010’;
-tree.innerHTML = `<svg width="${w}" height="${t.h}" viewBox="0 0 ${w} ${t.h}" style="display:block;"> <polygon points="${w/2},0 0,${t.h*0.5} ${w},${t.h*0.5}" fill="${col1}"/> <polygon points="${w/2},${t.h*0.25} 0,${t.h*0.72} ${w},${t.h*0.72}" fill="${col2}"/> <polygon points="${w/2},${t.h*0.48} 0,${t.h} ${w},${t.h}" fill="${col1}"/> </svg>`;
-el.appendChild(tree);
-});
-}
 renderBadges();
 </script>
 
