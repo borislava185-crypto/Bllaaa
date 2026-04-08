@@ -161,11 +161,7 @@ transition: transform 0.15s;
 .choice.city   { border-color: #60a5fa; box-shadow: 0 0 14px rgba(96,165,250,.3); }
 .cvid { border-radius: 8px; overflow: hidden; height: 160px; background: #111; position: relative; }
 .cvid video { width: 100%; height: 100%; object-fit: contain; display: block; background: #000; }
-.cvid-credit {
-position: absolute; bottom: 3px; right: 4px;
-background: rgba(0,0,0,.75); font-size: 7px; color: #777;
-border-radius: 4px; padding: 1px 4px; text-decoration: none;
-}
+
 .cvid-fb { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100dvh; text-decoration: none; gap: 3px; padding: 6px; }
 .clbl { font-family: ‘Press Start 2P’, monospace; font-size: 7px; text-align: center; }
 .choice.yes .clbl    { color: #fbbf24; }
@@ -365,10 +361,10 @@ function lunaHTML(mood) {
 
 /* ══════════════ BSL VIDEOS ══════════════ */
 const SIGNS = {
-  yes:    {color:'#fbbf24', hint:'Fist nods forward twice',            url:'https://media.signbsl.com/videos/bsl/signstation/yes.mp4',    page:'https://www.signbsl.com/sign/yes'},
-  no:     {color:'#f87171', hint:'Both fists, pinky up, tap together', url:'https://media.signbsl.com/videos/bsl/signstation/no.mp4',     page:'https://www.signbsl.com/sign/no'},
-  forest: {color:'#4ade80', hint:'Open hand sways from elbow',         url:'https://media.signbsl.com/videos/bsl/signstation/forest.mp4', page:'https://www.signbsl.com/sign/forest'},
-  city:   {color:'#60a5fa', hint:'Index finger taps index finger',     url:'https://media.signbsl.com/videos/bsl/signstation/city.mp4',   page:'https://www.signbsl.com/sign/city'},
+  yes:    {color:'#fbbf24', hint:'Fist nods forward twice',            url:'https://media.signbsl.com/videos/bsl/signstation/yes.mp4',    },
+  no:     {color:'#f87171', hint:'Both fists, pinky up, tap together', url:'https://media.signbsl.com/videos/bsl/signstation/no.mp4',     },
+  forest: {color:'#4ade80', hint:'Open hand sways from elbow',         url:'https://media.signbsl.com/videos/bsl/signstation/forest.mp4'},
+  city:   {color:'#60a5fa', hint:'Index finger taps index finger',     url:'https://media.signbsl.com/videos/bsl/signstation/city.mp4'},
 };
 
 function makeVideo(sign) {
@@ -381,24 +377,17 @@ function makeVideo(sign) {
   vid.src = d.url;
   vid.onerror = () => showFallback(wrap, sign);
   wrap.appendChild(vid);
-  const cr = document.createElement('a');
-  cr.href = d.page; cr.target = '_blank'; cr.rel = 'noopener noreferrer';
-  cr.className = 'cvid-credit'; cr.textContent = 'signbsl.com ↗';
-  wrap.appendChild(cr);
+
   return wrap;
 }
 
 function showFallback(wrap, sign) {
   const d = SIGNS[sign];
   wrap.innerHTML = '';
-  wrap.style.background = d.color + '18';
-  const a = document.createElement('a');
-  a.href = d.page; a.target = '_blank'; a.rel = 'noopener noreferrer';
-  a.className = 'cvid-fb';
-  a.innerHTML = `<div style="font-size:22px">🤟</div>
-    <div style="font-family:'Press Start 2P',monospace;font-size:5px;color:${d.color};text-align:center;line-height:1.8">WATCH ${sign.toUpperCase()}<br>ON SIGNBSL</div>
-    <div style="font-size:9px;color:#888;text-align:center">${d.hint}</div>`;
-  wrap.appendChild(a);
+  wrap.style.cssText += ';background:#111;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;padding:10px;';
+  wrap.innerHTML = `<div style="font-size:28px">🤟</div>
+    <div style="font-family:'Press Start 2P',monospace;font-size:6px;color:${d.color};text-align:center;line-height:1.8">${sign.toUpperCase()}</div>
+    <div style="font-size:11px;color:#888;text-align:center">${d.hint}</div>`;
 }
 
 /* ══════════════ STORY ══════════════ */
