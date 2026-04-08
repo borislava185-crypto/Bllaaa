@@ -7,248 +7,337 @@
 <title>BSL Quest</title>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Press+Start+2P&display=swap" rel="stylesheet"/>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    background: #0a0a1a;
-    color: white;
-    font-family: 'Fredoka', sans-serif;
-    overflow: hidden;
-    height: 100vh;
-  }
-  #app {
-    width: 100%;
-    height: 100vh;
-    position: relative;
-    overflow: hidden;
-  }
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
-/* — SCREENS — */
+html, body {
+width: 100%; height: 100%;
+background: #030310;
+font-family: ‘Fredoka’, sans-serif;
+overflow: hidden;
+display: flex;
+align-items: center;
+justify-content: center;
+}
+
+/* ── The game lives in a phone-shaped box, centred on screen ── */
+#game-shell {
+width: min(520px, 100vw);
+height: min(820px, 100vh);
+position: relative;
+overflow: hidden;
+display: flex;
+flex-direction: column;
+background: linear-gradient(180deg, #080820 0%, #12106a 60%, #1e1880 100%);
+}
+
+/* ── SCREENS: only .active one is shown ── */
 .screen { display: none; position: absolute; inset: 0; flex-direction: column; }
-.screen.show { display: flex; }
+.screen.active { display: flex; }
 
-/* — TITLE SCREEN — */
-#title {
-background: linear-gradient(180deg, #080820 0%, #1a1060 50%, #2a1870 100%);
-align-items: center; justify-content: center; gap: 16px; text-align: center; padding: 20px;
+/* ════════════════════════════════
+TITLE SCREEN
+════════════════════════════════ */
+#scr-title {
+background: linear-gradient(180deg, #080820, #18106a 55%, #261880);
+align-items: center;
+justify-content: center;
+gap: 14px;
+text-align: center;
+padding: 24px;
 }
-#title h1 { font-family: ‘Press Start 2P’, monospace; font-size: 36px; color: #ffd232; text-shadow: 0 0 30px #ffd232; line-height: 1.5; }
-#title p { font-size: 18px; color: #8888bb; line-height: 1.6; }
-#title button {
-margin-top: 8px; padding: 16px 52px; font-family: ‘Press Start 2P’, monospace; font-size: 14px;
-background: linear-gradient(135deg, #a78bfa, #ffd232); border: none; border-radius: 14px;
-color: white; cursor: pointer; box-shadow: 0 0 30px rgba(255,210,50,0.4);
+#scr-title h1 {
+font-family: ‘Press Start 2P’, monospace;
+font-size: clamp(22px, 5vw, 34px);
+color: #ffd232;
+text-shadow: 0 0 30px #ffd232;
+line-height: 1.5;
 }
-.moon {
-width: 60px; height: 60px; position: absolute; top: 30px; right: 15%;
-background: #fde68a; border-radius: 50%;
-box-shadow: -18px -8px 0 0 #1a1060;
+#scr-title p { font-size: 16px; color: #8888bb; line-height: 1.6; }
+#title-luna { width: 90px; height: 112px; }
+#scr-title button {
+padding: 14px 48px;
+font-family: ‘Press Start 2P’, monospace;
+font-size: 13px;
+background: linear-gradient(135deg, #a78bfa, #ffd232);
+border: none; border-radius: 14px; color: white; cursor: pointer;
+box-shadow: 0 0 28px rgba(255,210,50,0.4);
+margin-top: 4px;
 }
-.tree { position: absolute; bottom: 0; width: 0; height: 0; border-left: 22px solid transparent; border-right: 22px solid transparent; }
+.chap { font-family: ‘Press Start 2P’, monospace; font-size: 7px; color: #555; margin-top: 2px; }
 
-/* — GAME SCREEN — */
-#game { background: linear-gradient(180deg, #080820 0%, #1a1060 50%, #2a1870 100%); }
+/* ════════════════════════════════
+GAME SCREEN — 3 rows: HUD | BG | BOTTOM
+════════════════════════════════ */
+#scr-game { background: linear-gradient(180deg, #080820, #12106a 60%, #1e1880); }
 
-/* HUD */
+/* Row 1: HUD */
 #hud {
-padding: 10px 16px 8px; background: rgba(5,5,20,0.9);
-display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px;
+flex-shrink: 0;
+padding: 8px 14px 6px;
+background: rgba(4,4,18,0.92);
+display: flex; flex-direction: column; gap: 5px;
 }
-#hud-left { font-family: ‘Press Start 2P’, monospace; font-size: 9px; color: #ffd232; }
-#badges { display: flex; gap: 6px; flex-wrap: wrap; }
+.hud-top { display: flex; justify-content: space-between; align-items: center; }
+.hud-title { font-family: ‘Press Start 2P’, monospace; font-size: 9px; color: #ffd232; }
+#badges { display: flex; gap: 5px; flex-wrap: wrap; justify-content: flex-end; }
 .badge {
-font-family: ‘Press Start 2P’, monospace; font-size: 6px; padding: 3px 10px;
-border: 1px solid #ffd232; border-radius: 20px; color: #ffd232; background: rgba(255,210,50,0.1);
+font-family: ‘Press Start 2P’, monospace; font-size: 6px;
+padding: 3px 8px; border: 1px solid #ffd232; border-radius: 20px;
+color: #ffd232; background: rgba(255,210,50,0.1);
 }
-#xp-bar-wrap { display: flex; align-items: center; gap: 8px; width: 100%; }
-#lvl { font-family: ‘Press Start 2P’, monospace; font-size: 7px; color: #ffd232; white-space: nowrap; }
-#xp-track { flex: 1; height: 10px; background: #111; border-radius: 6px; overflow: hidden; border: 1px solid #333; }
-#xp-bar { height: 100%; background: linear-gradient(90deg, #a78bfa, #ffd232); border-radius: 6px; width: 0%; transition: width 0.8s; }
-#xp-label { font-family: ‘Press Start 2P’, monospace; font-size: 6px; color: #666; white-space: nowrap; }
+.xp-row { display: flex; align-items: center; gap: 7px; }
+.lvl { font-family: ‘Press Start 2P’, monospace; font-size: 7px; color: #ffd232; white-space: nowrap; }
+.xp-track { flex: 1; height: 9px; background: #111; border-radius: 6px; overflow: hidden; border: 1px solid #2a2a5a; }
+.xp-fill { height: 100%; background: linear-gradient(90deg, #a78bfa, #ffd232); border-radius: 6px; width: 0%; transition: width 0.8s; }
+.xp-num { font-family: ‘Press Start 2P’, monospace; font-size: 6px; color: #555; white-space: nowrap; }
 
-/* Scene */
-#scene { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; min-height: 0; overflow: hidden; position: relative; }
-#bottom-panel { display: flex; align-items: flex-end; padding: 0 12px 0 12px; gap: 0; }
-#luna { width: 90px; height: 110px; flex-shrink: 0; }
-#bottom-content { flex: 1; padding-bottom: 0; min-width: 0; }
+/* Row 2: Background space (fills remaining height) */
+#bg-space { flex: 1; position: relative; min-height: 0; }
+#particles { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 5; }
+#cam-view { position: absolute; top: 8px; right: 10px; width: 130px; border-radius: 10px; overflow: hidden; border: 2px solid #333; display: none; z-index: 6; }
+#cam-view video { width: 100%; display: block; transform: scaleX(-1); }
 
-/* Dialogue */
-#dlg-wrap { display: none; margin-bottom: 0; }
+/* Row 3: Bottom panel — Luna + content side by side */
+#bottom {
+flex-shrink: 0;
+display: flex;
+align-items: flex-end;
+background: rgba(4,4,18,0.6);
+padding: 0 12px 0 10px;
+gap: 8px;
+}
+
+/* Luna SVG */
+#luna {
+width: 80px;
+height: 98px;
+flex-shrink: 0;
+margin-bottom: 0;
+}
+
+/* Content beside luna */
+#bottom-content { flex: 1; min-width: 0; padding-bottom: 0; }
+
+/* Dialogue bubble */
+#dlg-wrap { display: none; padding: 10px 0 10px 0; }
 #dlg-box {
-background: rgba(15,20,50,0.97); border: 2px solid #1e3060; border-radius: 14px;
-padding: 16px 18px 14px; position: relative;
+background: rgba(12,16,50,0.97);
+border: 2px solid #1e3060;
+border-radius: 12px;
+padding: 14px 14px 10px;
+position: relative;
 }
 #dlg-name {
-position: absolute; top: -13px; left: 14px; padding: 2px 12px;
+position: absolute; top: -12px; left: 12px;
 background: linear-gradient(90deg, #a78bfa, #ffd232);
-font-family: ‘Press Start 2P’, monospace; font-size: 7px; border-radius: 5px;
+font-family: ‘Press Start 2P’, monospace; font-size: 7px;
+border-radius: 4px; padding: 2px 10px; color: white;
 }
 #dlg-text { font-size: 16px; font-weight: 600; color: #e8e8ff; line-height: 1.45; min-height: 46px; }
 #dlg-tap {
-margin-top: 10px; text-align: center; font-family: ‘Press Start 2P’, monospace;
-font-size: 7px; color: #ffd232; cursor: pointer; display: none;
+margin-top: 8px; text-align: center;
+font-family: ‘Press Start 2P’, monospace; font-size: 7px;
+color: #ffd232; cursor: pointer; display: none;
 }
 
-/* Choices */
-#choices-wrap { display: none; }
-#choices-q { font-family: ‘Press Start 2P’, monospace; font-size: 8px; color: #888; text-align: center; margin-bottom: 8px; }
-#choices-row { display: flex; gap: 10px; }
-.choice {
-flex: 1; border-radius: 14px; padding: 8px 6px 10px; cursor: pointer;
-display: flex; flex-direction: column; align-items: stretch; gap: 8px;
-border: 2px solid; background: transparent; transition: transform 0.15s;
+/* Choice buttons */
+#choices-wrap { display: none; padding: 8px 0; }
+#choices-q {
+font-family: ‘Press Start 2P’, monospace; font-size: 7px;
+color: #888; text-align: center; margin-bottom: 7px;
 }
-.choice:hover { transform: translateY(-4px); }
-.choice.yes  { border-color: #fbbf24; box-shadow: 0 0 16px rgba(251,191,36,0.3); }
-.choice.no   { border-color: #f87171; box-shadow: 0 0 16px rgba(248,113,113,0.3); }
-.choice.forest { border-color: #4ade80; box-shadow: 0 0 16px rgba(74,222,128,0.3); }
-.choice.city   { border-color: #60a5fa; box-shadow: 0 0 16px rgba(96,165,250,0.3); }
-.choice-video { border-radius: 10px; overflow: hidden; height: 120px; background: #111; position: relative; }
-.choice-video video { width: 100%; height: 100%; object-fit: cover; display: block; }
-.choice-credit { position: absolute; bottom: 3px; right: 5px; background: rgba(0,0,0,0.7); font-size: 8px; color: #777; border-radius: 4px; padding: 1px 5px; text-decoration: none; }
-.choice-fallback { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-decoration: none; gap: 4px; padding: 8px; }
-.choice-label { font-family: ‘Press Start 2P’, monospace; font-size: 8px; text-align: center; }
-.choice.yes .choice-label { color: #fbbf24; }
-.choice.no .choice-label { color: #f87171; }
-.choice.forest .choice-label { color: #4ade80; }
-.choice.city .choice-label { color: #60a5fa; }
+#choices-row { display: flex; gap: 8px; }
+.choice {
+flex: 1; border-radius: 12px; padding: 7px 6px 8px;
+cursor: pointer; display: flex; flex-direction: column;
+align-items: stretch; gap: 6px;
+border: 2px solid; background: transparent;
+transition: transform 0.15s;
+}
+.choice:hover { transform: translateY(-3px); }
+.choice.yes    { border-color: #fbbf24; box-shadow: 0 0 14px rgba(251,191,36,.3); }
+.choice.no     { border-color: #f87171; box-shadow: 0 0 14px rgba(248,113,113,.3); }
+.choice.forest { border-color: #4ade80; box-shadow: 0 0 14px rgba(74,222,128,.3); }
+.choice.city   { border-color: #60a5fa; box-shadow: 0 0 14px rgba(96,165,250,.3); }
+.cvid { border-radius: 8px; overflow: hidden; height: 100px; background: #111; position: relative; }
+.cvid video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.cvid-credit {
+position: absolute; bottom: 3px; right: 4px;
+background: rgba(0,0,0,.75); font-size: 7px; color: #777;
+border-radius: 4px; padding: 1px 4px; text-decoration: none;
+}
+.cvid-fb { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-decoration: none; gap: 3px; padding: 6px; }
+.clbl { font-family: ‘Press Start 2P’, monospace; font-size: 7px; text-align: center; }
+.choice.yes .clbl    { color: #fbbf24; }
+.choice.no .clbl     { color: #f87171; }
+.choice.forest .clbl { color: #4ade80; }
+.choice.city .clbl   { color: #60a5fa; }
+.tap-note { text-align: center; font-family: ‘Press Start 2P’, monospace; font-size: 6px; color: #333; margin-top: 5px; }
 
 /* Toolbar */
-#toolbar { padding: 6px 16px 14px; background: rgba(5,5,20,0.9); display: flex; justify-content: space-between; }
+#toolbar {
+flex-shrink: 0;
+padding: 6px 12px 10px;
+background: rgba(4,4,18,0.92);
+display: flex; justify-content: space-between;
+}
 #toolbar button {
-font-family: ‘Press Start 2P’, monospace; font-size: 7px; padding: 7px 14px;
-border-radius: 8px; cursor: pointer; border: 1px solid;
+font-family: ‘Press Start 2P’, monospace; font-size: 7px;
+padding: 6px 14px; border-radius: 8px; cursor: pointer; border: 1px solid;
 }
-#cam-btn { background: rgba(255,255,255,0.04); border-color: #333; color: #666; }
-#help-btn { background: rgba(255,210,50,0.08); border-color: #ffd232; color: #ffd232; }
+#cam-btn { background: rgba(255,255,255,.04); border-color: #333; color: #666; }
+#help-btn { background: rgba(255,210,50,.08); border-color: #ffd232; color: #ffd232; }
 
-/* Camera */
-#cam-view { position: absolute; right: 12px; width: 145px; border-radius: 10px; overflow: hidden; border: 2px solid #333; display: none; z-index: 5; }
-#cam-view video { width: 100%; display: block; transform: scaleX(-1); }
-
-/* Particles */
-#particles { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 10; }
-.p { position: absolute; }
-
-/* — ENDING SCREEN — */
-#ending {
-align-items: center; justify-content: center; gap: 12px; text-align: center; padding: 24px;
+/* ════════════════════════════════
+ENDING SCREEN
+════════════════════════════════ */
+#scr-ending {
+align-items: center; justify-content: center;
+gap: 12px; text-align: center; padding: 24px;
 }
-#ending .icon { font-size: 60px; }
-#ending h2 { font-family: ‘Press Start 2P’, monospace; font-size: 18px; color: #ffd232; text-shadow: 0 0 20px #ffd232; }
-#ending p { font-size: 17px; color: #ccc; }
-#ending .xp-box { border: 2px solid #ffd232; border-radius: 12px; padding: 14px 28px; background: rgba(255,210,50,0.08); }
-#ending .xp-box .lbl { font-family: ‘Press Start 2P’, monospace; font-size: 8px; color: #888; }
-#ending .xp-box .num { font-family: ‘Press Start 2P’, monospace; font-size: 28px; color: #ffd232; margin: 4px 0; }
-#ending .xp-box .words { font-size: 14px; color: #4ade80; }
-#ending button { padding: 14px 40px; font-family: ‘Press Start 2P’, monospace; font-size: 10px; color: white; border: none; border-radius: 12px; cursor: pointer; }
+.end-cat { font-size: 56px; }
+#scr-ending h2 { font-family: ‘Press Start 2P’, monospace; font-size: 16px; color: #ffd232; text-shadow: 0 0 20px #ffd232; }
+#scr-ending p { font-size: 16px; color: #ccc; }
+.xp-card { border: 2px solid #ffd232; border-radius: 12px; padding: 14px 26px; background: rgba(255,210,50,.08); }
+.xp-lbl { font-family: ‘Press Start 2P’, monospace; font-size: 8px; color: #888; }
+.xp-num { font-family: ‘Press Start 2P’, monospace; font-size: 26px; color: #ffd232; margin: 4px 0; }
+.xp-words { font-size: 14px; color: #4ade80; }
+#end-btn { padding: 13px 36px; font-family: ‘Press Start 2P’, monospace; font-size: 10px; color: white; border: none; border-radius: 12px; cursor: pointer; }
 
-/* — HELP MODAL — */
-#modal { position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,0.88); display: none; align-items: center; justify-content: center; z-index: 50; }
-#modal.show { display: flex; }
-#modal-box { background: #0f1729; border: 2px solid #1e3060; border-radius: 20px; padding: 28px; max-width: 480px; width: 94%; }
-#modal h3 { font-family: ‘Press Start 2P’, monospace; font-size: 12px; color: #ffd232; text-align: center; margin-bottom: 6px; }
-#modal p { font-size: 14px; color: #888; text-align: center; margin-bottom: 20px; }
-#modal-signs { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
-.modal-sign { flex: 1 1 140px; max-width: 190px; background: rgba(255,255,255,0.04); border: 1px solid #1e3060; border-radius: 12px; padding: 10px; display: flex; flex-direction: column; gap: 6px; }
-.modal-sign .choice-video { border-radius: 8px; }
-.modal-sign-lbl { font-family: ‘Press Start 2P’, monospace; font-size: 8px; color: #e8e8ff; text-align: center; }
-#modal button { display: block; margin: 20px auto 0; padding: 11px 30px; background: linear-gradient(135deg,#a78bfa,#ffd232); color: white; border: none; border-radius: 24px; font-family: ‘Press Start 2P’, monospace; font-size: 9px; cursor: pointer; }
+/* ════════════════════════════════
+HELP MODAL (full viewport overlay)
+════════════════════════════════ */
+#modal {
+position: fixed; inset: 0;
+background: rgba(0,0,0,.88); backdrop-filter: blur(6px);
+display: none; align-items: center; justify-content: center; z-index: 999;
+}
+#modal.open { display: flex; }
+#modal-box {
+background: #0f1729; border: 2px solid #1e3060; border-radius: 20px;
+padding: 26px 24px; max-width: 460px; width: 92%;
+}
+#modal h3 { font-family: ‘Press Start 2P’, monospace; font-size: 11px; color: #ffd232; text-align: center; margin-bottom: 6px; }
+#modal .msub { font-size: 13px; color: #888; text-align: center; margin-bottom: 18px; }
+#modal-signs { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.msign { flex: 1 1 130px; max-width: 180px; background: rgba(255,255,255,.04); border: 1px solid #1e3060; border-radius: 12px; padding: 10px; display: flex; flex-direction: column; gap: 6px; }
+.msign .cvid { border-radius: 8px; height: 100px; }
+.msign-lbl { font-family: ‘Press Start 2P’, monospace; font-size: 8px; color: #e8e8ff; text-align: center; }
+#modal button { display: block; margin: 18px auto 0; padding: 10px 28px; background: linear-gradient(135deg,#a78bfa,#ffd232); color: white; border: none; border-radius: 22px; font-family: ‘Press Start 2P’, monospace; font-size: 9px; cursor: pointer; }
+
+/* Particle animations */
+@keyframes rise { 0%{transform:translateY(0) rotate(0);opacity:1} 100%{transform:translateY(-220px) rotate(540deg);opacity:0} }
+@keyframes fall { 0%{transform:translateY(0);opacity:0} 20%{opacity:1} 100%{transform:translateY(160px);opacity:0} }
 </style>
 
 </head>
 <body>
+<div id="game-shell">
 
-<!-- TITLE -->
+  <!-- ══ TITLE ══ -->
 
-<div id="app">
+  <div id="scr-title" class="screen active">
+    <h1>BSL<br>QUEST</h1>
+    <p>Learn British Sign Language<br>through story &amp; adventure</p>
+    <svg id="title-luna" viewBox="0 0 100 130"></svg>
+    <button onclick="startGame()">▶&nbsp; START</button>
+    <div class="chap">CHAPTER 1: THE LOST CAT</div>
+  </div>
 
-<!-- TITLE -->
+  <!-- ══ GAME ══ -->
 
-<div id="title" class="screen show">
-  <div class="moon"></div>
-  <h1>BSL<br>QUEST</h1>
-  <p>Learn British Sign Language<br>through story &amp; adventure</p>
-  <svg width="100" height="130" viewBox="0 0 100 130" id="title-luna"></svg>
-  <button onclick="startGame()">▶&nbsp; START</button>
-  <div style="font-family:'Press Start 2P',monospace;font-size:7px;color:#555;margin-top:4px;">CHAPTER 1: THE LOST CAT</div>
+  <div id="scr-game" class="screen">
+
+```
+<!-- HUD -->
+<div id="hud">
+  <div class="hud-top">
+    <div class="hud-title">BSL QUEST</div>
+    <div id="badges"></div>
+  </div>
+  <div class="xp-row">
+    <div class="lvl" id="lvl-el">LVL 1</div>
+    <div class="xp-track"><div class="xp-fill" id="xp-fill"></div></div>
+    <div class="xp-num" id="xp-num">0 XP</div>
+  </div>
 </div>
 
-<!-- GAME -->
-
-<div id="game" class="screen">
-  <div id="hud">
-    <div id="hud-left">BSL QUEST</div>
-    <div id="badges"></div>
-    <div id="xp-bar-wrap">
-      <div id="lvl">LVL 1</div>
-      <div id="xp-track"><div id="xp-bar"></div></div>
-      <div id="xp-label">0 XP</div>
-    </div>
+<!-- Background area (stars/moon sit here visually) -->
+<div id="bg-space">
+  <div id="particles"></div>
+  <div id="cam-view">
+    <video id="cam-video" autoplay muted playsinline></video>
   </div>
-  <div id="scene">
-    <div id="particles"></div>
-    <div id="cam-view"><video id="cam-video" autoplay muted playsinline></video></div>
-    <div id="bottom-panel">
-      <svg id="luna" viewBox="0 0 100 130"></svg>
-      <div id="bottom-content">
-        <div id="dlg-wrap">
-          <div id="dlg-box">
-            <div id="dlg-name">LUNA ✨</div>
-            <div id="dlg-text"></div>
-            <div id="dlg-tap" onclick="tapDialogue()">▼ TAP TO CONTINUE</div>
-          </div>
-        </div>
-        <div id="choices-wrap">
-          <div id="choices-q"></div>
-          <div id="choices-row"></div>
-          <div style="text-align:center;font-family:'Press Start 2P',monospace;font-size:7px;color:#444;margin-top:6px;">TAP A SIGN · ❓ FOR HELP</div>
-        </div>
+</div>
+
+<!-- Bottom: Luna + dialogue or choices -->
+<div id="bottom">
+  <svg id="luna" viewBox="0 0 100 130"></svg>
+  <div id="bottom-content">
+
+    <div id="dlg-wrap">
+      <div id="dlg-box">
+        <div id="dlg-name">LUNA ✨</div>
+        <div id="dlg-text"></div>
+        <div id="dlg-tap" onclick="tapLine()">▼ TAP TO CONTINUE</div>
       </div>
     </div>
-  </div>
-  <div id="toolbar">
-    <button id="cam-btn" onclick="toggleCam()">📷 CAMERA</button>
-    <button id="help-btn" onclick="openHelp()">❓ HELP</button>
+
+    <div id="choices-wrap">
+      <div id="choices-q"></div>
+      <div id="choices-row"></div>
+      <div class="tap-note">TAP A SIGN · ❓ FOR HELP</div>
+    </div>
+
   </div>
 </div>
 
-<!-- ENDING -->
-
-<div id="ending" class="screen">
-  <div class="icon">🐱</div>
-  <h2>YOU FOUND THE CAT!</h2>
-  <p id="end-desc"></p>
-  <div class="xp-box">
-    <div class="lbl">XP EARNED</div>
-    <div class="num" id="end-xp">+60</div>
-    <div class="words" id="end-words"></div>
-  </div>
-  <button id="end-btn" onclick="restartGame()">▶ PLAY AGAIN</button>
+<!-- Toolbar -->
+<div id="toolbar">
+  <button id="cam-btn" onclick="toggleCam()">📷 CAMERA</button>
+  <button id="help-btn" onclick="openHelp()">❓ HELP</button>
 </div>
+```
 
-</div><!-- #app -->
+  </div><!-- /scr-game -->
 
-<!-- HELP MODAL -->
+  <!-- ══ ENDING ══ -->
+
+  <div id="scr-ending" class="screen">
+    <div class="end-cat">🐱</div>
+    <h2>YOU FOUND<br>THE CAT!</h2>
+    <p id="end-desc"></p>
+    <div class="xp-card">
+      <div class="xp-lbl">XP EARNED</div>
+      <div class="xp-num" id="end-xp">+60</div>
+      <div class="xp-words" id="end-words"></div>
+    </div>
+    <button id="end-btn" onclick="restartGame()">▶ PLAY AGAIN</button>
+  </div>
+
+</div><!-- /game-shell -->
+
+<!-- ══ HELP MODAL (outside shell so it covers everything) ══ -->
 
 <div id="modal" onclick="closeHelp()">
   <div id="modal-box" onclick="event.stopPropagation()">
     <h3>HOW TO SIGN</h3>
-    <p>Watch the video then tap your choice!</p>
+    <p class="msub">Watch the video then tap your answer!</p>
     <div id="modal-signs"></div>
     <button onclick="closeHelp()">GOT IT!</button>
   </div>
 </div>
 
 <script>
-// ===================== LUNA SVG =====================
+/* ══════════════ LUNA CHARACTER ══════════════ */
 function lunaHTML(mood) {
-  const colors = { wave:'#6366f1', excited:'#f59e0b', sad:'#64748b', pleading:'#8b5cf6', normal:'#6366f1' };
-  const c = colors[mood] || '#6366f1';
-  const smiling = mood === 'excited' || mood === 'wave';
-  const sad = mood === 'sad';
-  const mouth = smiling ? 'M 38 58 Q 50 68 62 58' : sad ? 'M 38 64 Q 50 56 62 64' : 'M 38 60 Q 50 65 62 60';
+  const c = {wave:'#6366f1',excited:'#f59e0b',sad:'#64748b',pleading:'#8b5cf6'}[mood]||'#6366f1';
+  const smile = mood==='excited'||mood==='wave';
+  const sad   = mood==='sad';
+  const blush = mood==='wave'||mood==='excited'||mood==='pleading';
+  const mouth = smile ? 'M38,58 Q50,68 62,58' : sad ? 'M38,64 Q50,56 62,64' : 'M38,60 Q50,65 62,60';
   return `
-    <ellipse cx="50" cy="126" rx="20" ry="5" fill="rgba(0,0,0,0.4)"/>
+    <ellipse cx="50" cy="126" rx="20" ry="5" fill="rgba(0,0,0,.4)"/>
     <rect x="33" y="78" width="34" height="42" rx="10" fill="${c}"/>
     <rect x="31" y="78" width="38" height="13" rx="7" fill="${sad?'#94a3b8':'#f472b6'}"/>
     <rect x="20" y="80" width="13" height="26" rx="6" fill="${c}"/>
@@ -267,378 +356,256 @@ function lunaHTML(mood) {
     <rect x="25" y="22" width="10" height="21" rx="5" fill="#7c3aed"/>
     <rect x="65" y="22" width="10" height="21" rx="5" fill="#7c3aed"/>
     ${sad
-      ? '<path d="M36,46 Q40,50 44,46" stroke="#1e293b" stroke-width="2.5" fill="none" stroke-linecap="round"/><path d="M56,46 Q60,50 64,46" stroke="#1e293b" stroke-width="2.5" fill="none" stroke-linecap="round"/>'
+      ? '<path d="M36,44 Q40,48 44,44" stroke="#1e293b" stroke-width="2.5" fill="none" stroke-linecap="round"/><path d="M56,44 Q60,48 64,44" stroke="#1e293b" stroke-width="2.5" fill="none" stroke-linecap="round"/>'
       : '<ellipse cx="40" cy="46" rx="6" ry="7" fill="#1e293b"/><ellipse cx="60" cy="46" rx="6" ry="7" fill="#1e293b"/><circle cx="43" cy="43" r="2.5" fill="white"/><circle cx="63" cy="43" r="2.5" fill="white"/>'}
-    ${(mood==='wave'||mood==='excited') ? '<ellipse cx="30" cy="54" rx="7" ry="4" fill="#fca5a5" opacity="0.5"/><ellipse cx="70" cy="54" rx="7" ry="4" fill="#fca5a5" opacity="0.5"/>' : ''}
+    ${blush ? '<ellipse cx="30" cy="54" rx="7" ry="4" fill="#fca5a5" opacity=".5"/><ellipse cx="70" cy="54" rx="7" ry="4" fill="#fca5a5" opacity=".5"/>' : ''}
     <path d="${mouth}" stroke="#1e293b" stroke-width="2.5" fill="none" stroke-linecap="round"/>
     <ellipse cx="50" cy="56" rx="5" ry="3.5" fill="#fca5a5"/>`;
 }
 
-// ===================== STORY =====================
-const SCENES = {
-  s1: {
-    mood: 'wave',
-    lines: ["Hi! I'm Luna! 🐾", "Will you help me find my cat?"],
-    q: 'Sign your answer!',
-    choices: [
-      { sign:'yes', label:'YES', next:'s_yes' },
-      { sign:'no',  label:'NO',  next:'s_no'  }
-    ], xp: 10
-  },
-  s_no: {
-    mood: 'sad',
-    lines: ["That's not YES...", "Please try again! 🌧️"],
-    q: 'Will you help me?',
-    choices: [
-      { sign:'yes', label:'YES', next:'s_yes'  },
-      { sign:'no',  label:'NO',  next:'s_no2'  }
-    ], xp: 0
-  },
-  s_no2: {
-    mood: 'pleading',
-    lines: ["We don't have all day...", "PLEASE help me! 🥺"],
-    q: 'Last chance!',
-    choices: [
-      { sign:'yes', label:'YES', next:'s_yes' },
-      { sign:'no',  label:'NO',  next:'s_yes' }  // forces yes path
-    ], xp: 0
-  },
-  s_yes: {
-    mood: 'excited',
-    lines: ["YAY! Thank you! ✨", "I lost my cat Mochi! 🐱", "Where should we look?"],
-    q: 'Choose where to search!',
-    choices: [
-      { sign:'forest', label:'FOREST', next:'end_forest' },
-      { sign:'city',   label:'CITY',   next:'end_city'   }
-    ], xp: 20
-  }
-};
-
-// ===================== BSL VIDEOS =====================
+/* ══════════════ BSL VIDEOS ══════════════ */
 const SIGNS = {
-  yes:    { color:'#fbbf24', hint:'Fist nods forward twice',          urls:['https://media.signbsl.com/videos/bsl/signstation/yes.mp4'],    page:'https://www.signbsl.com/sign/yes'    },
-  no:     { color:'#f87171', hint:'Both fists, pinky up, tap together', urls:['https://media.signbsl.com/videos/bsl/signstation/no.mp4'],     page:'https://www.signbsl.com/sign/no'     },
-  forest: { color:'#4ade80', hint:'Open hand sways from elbow',        urls:['https://media.signbsl.com/videos/bsl/signstation/forest.mp4'], page:'https://www.signbsl.com/sign/forest' },
-  city:   { color:'#60a5fa', hint:'Index finger taps index finger',    urls:['https://media.signbsl.com/videos/bsl/signstation/city.mp4'],   page:'https://www.signbsl.com/sign/city'   }
+  yes:    {color:'#fbbf24', hint:'Fist nods forward twice',            url:'https://media.signbsl.com/videos/bsl/signstation/yes.mp4',    page:'https://www.signbsl.com/sign/yes'},
+  no:     {color:'#f87171', hint:'Both fists, pinky up, tap together', url:'https://media.signbsl.com/videos/bsl/signstation/no.mp4',     page:'https://www.signbsl.com/sign/no'},
+  forest: {color:'#4ade80', hint:'Open hand sways from elbow',         url:'https://media.signbsl.com/videos/bsl/signstation/forest.mp4', page:'https://www.signbsl.com/sign/forest'},
+  city:   {color:'#60a5fa', hint:'Index finger taps index finger',     url:'https://media.signbsl.com/videos/bsl/signstation/city.mp4',   page:'https://www.signbsl.com/sign/city'},
 };
 
-function makeVideoWrap(sign) {
+function makeVideo(sign) {
   const d = SIGNS[sign];
   const wrap = document.createElement('div');
-  wrap.className = 'choice-video';
-
+  wrap.className = 'cvid';
   const vid = document.createElement('video');
   vid.autoplay = vid.loop = vid.muted = vid.playsInline = true;
-  vid.src = d.urls[0];
-  vid.onerror = function() {
-    // Show fallback link
-    wrap.innerHTML = '';
-    wrap.style.background = d.color + '20';
-    const a = document.createElement('a');
-    a.href = d.page; a.target = '_blank'; a.rel = 'noopener noreferrer';
-    a.className = 'choice-fallback';
-    a.innerHTML = `<div style="font-size:26px">🤟</div>
-      <div style="font-family:'Press Start 2P',monospace;font-size:6px;color:${d.color};text-align:center;line-height:1.8">
-        WATCH<br>${sign.toUpperCase()}<br>ON SIGNBSL
-      </div>
-      <div style="font-size:10px;color:#888;text-align:center">${d.hint}</div>`;
-    wrap.appendChild(a);
-  };
+  vid.src = d.url;
+  vid.onerror = () => showFallback(wrap, sign);
   wrap.appendChild(vid);
-
-  const credit = document.createElement('a');
-  credit.href = d.page; credit.target = '_blank'; credit.rel = 'noopener noreferrer';
-  credit.className = 'choice-credit'; credit.textContent = 'signbsl.com ↗';
-  wrap.appendChild(credit);
-
+  const cr = document.createElement('a');
+  cr.href = d.page; cr.target = '_blank'; cr.rel = 'noopener noreferrer';
+  cr.className = 'cvid-credit'; cr.textContent = 'signbsl.com ↗';
+  wrap.appendChild(cr);
   return wrap;
 }
 
-// ===================== GAME STATE =====================
-let state = {
-  scene: 's1',
-  lineIndex: 0,
-  xp: 0,
-  level: 1,
-  unlocked: ['YES', 'NO'],
-  busy: false
-};
-let camStream = null;
-let typeTimer = null;
-let typeInterval = null;
-
-// ===================== SCREEN SWITCHING =====================
-function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('show'));
-  document.getElementById(id).classList.add('show');
+function showFallback(wrap, sign) {
+  const d = SIGNS[sign];
+  wrap.innerHTML = '';
+  wrap.style.background = d.color + '18';
+  const a = document.createElement('a');
+  a.href = d.page; a.target = '_blank'; a.rel = 'noopener noreferrer';
+  a.className = 'cvid-fb';
+  a.innerHTML = `<div style="font-size:22px">🤟</div>
+    <div style="font-family:'Press Start 2P',monospace;font-size:5px;color:${d.color};text-align:center;line-height:1.8">WATCH ${sign.toUpperCase()}<br>ON SIGNBSL</div>
+    <div style="font-size:9px;color:#888;text-align:center">${d.hint}</div>`;
+  wrap.appendChild(a);
 }
 
-// ===================== START GAME =====================
+/* ══════════════ STORY ══════════════ */
+const SCENES = {
+  s1:    { mood:'wave',     lines:["Hi! I'm Luna! 🐾","Will you help me find my cat?"],   q:'Sign your answer!',      choices:[{sign:'yes',label:'YES',next:'s_yes'},{sign:'no',label:'NO',next:'s_no'}], xp:10 },
+  s_no:  { mood:'sad',      lines:["That's not YES...","Please try again! 🌧️"],            q:'Will you help me?',      choices:[{sign:'yes',label:'YES',next:'s_yes'},{sign:'no',label:'NO',next:'s_no2'}], xp:0 },
+  s_no2: { mood:'pleading', lines:["We don't have all day...","PLEASE help me! 🥺"],       q:'Last chance!',           choices:[{sign:'yes',label:'YES',next:'s_yes'},{sign:'no',label:'NO',next:'s_yes'}], xp:0 },
+  s_yes: { mood:'excited',  lines:["YAY! Thank you! ✨","I lost my cat Mochi! 🐱","Where should we look?"], q:'Choose where to search!', choices:[{sign:'forest',label:'FOREST',next:'end_forest'},{sign:'city',label:'CITY',next:'end_city'}], xp:20 },
+};
+
+/* ══════════════ STATE ══════════════ */
+let G = { scene:'s1', line:0, xp:0, level:1, unlocked:['YES','NO'], busy:false };
+let camStream=null, typeIv=null;
+
+/* ══════════════ SCREEN SWITCH ══════════════ */
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+/* ══════════════ GAME START ══════════════ */
 function startGame() {
-  showScreen('game');
+  showScreen('scr-game');
   loadScene('s1');
 }
 
-// ===================== LOAD SCENE =====================
+/* ══════════════ LOAD SCENE ══════════════ */
 function loadScene(id) {
-  // Clear any running timers
-  clearTimeout(typeTimer);
-  clearInterval(typeInterval);
-  typeInterval = null;
-
-  state.scene = id;
-  state.lineIndex = 0;
-  state.busy = false;
-
+  clearInterval(typeIv); typeIv = null;
+  G.scene = id; G.line = 0; G.busy = false;
   const sc = SCENES[id];
-
-  // Draw Luna
-  const luna = document.getElementById('luna');
-  luna.innerHTML = lunaHTML(sc.mood);
-  luna.style.bottom = '0px';
-
-  // Show dialogue, hide choices
+  document.getElementById('luna').innerHTML = lunaHTML(sc.mood);
   document.getElementById('dlg-wrap').style.display = 'block';
   document.getElementById('choices-wrap').style.display = 'none';
   document.getElementById('dlg-tap').style.display = 'none';
-
-  typeLine();
+  typeText();
 }
 
-// ===================== TYPEWRITER =====================
-function typeLine() {
-  clearInterval(typeInterval);
-  typeInterval = null;
-
-  const sc = SCENES[state.scene];
-  const text = sc.lines[state.lineIndex];
+/* ══════════════ TYPEWRITER ══════════════ */
+function typeText() {
+  clearInterval(typeIv); typeIv = null;
+  const sc = SCENES[G.scene];
+  const text = sc.lines[G.line];
   const el = document.getElementById('dlg-text');
   const tap = document.getElementById('dlg-tap');
-
-  el.textContent = '';
-  tap.style.display = 'none';
-
+  el.textContent = ''; tap.style.display = 'none';
   let i = 0;
-  typeInterval = setInterval(function() {
-    if (i < text.length) {
-      el.textContent = text.slice(0, ++i);
-    } else {
-      clearInterval(typeInterval);
-      typeInterval = null;
-      tap.style.display = 'block'; // Always show tap hint when done
-    }
+  typeIv = setInterval(() => {
+    if (i < text.length) { el.textContent = text.slice(0, ++i); }
+    else { clearInterval(typeIv); typeIv = null; tap.style.display = 'block'; }
   }, 35);
 }
 
-// ===================== TAP DIALOGUE =====================
-function tapDialogue() {
-  // If still typing, skip to end
-  if (typeInterval) {
-    clearInterval(typeInterval);
-    typeInterval = null;
-    const sc = SCENES[state.scene];
-    document.getElementById('dlg-text').textContent = sc.lines[state.lineIndex];
+function tapLine() {
+  if (typeIv) { // Skip to end of current line
+    clearInterval(typeIv); typeIv = null;
+    const sc = SCENES[G.scene];
+    document.getElementById('dlg-text').textContent = sc.lines[G.line];
     document.getElementById('dlg-tap').style.display = 'block';
     return;
   }
-
-  const sc = SCENES[state.scene];
-  if (state.lineIndex < sc.lines.length - 1) {
-    // More lines to show
-    state.lineIndex++;
-    typeLine();
+  const sc = SCENES[G.scene];
+  if (G.line < sc.lines.length - 1) {
+    G.line++;
+    typeText();
   } else {
-    // All lines done — show choices
-    document.getElementById('dlg-wrap').style.display = 'none';
-    document.getElementById('choices-wrap').style.display = 'block';
-    document.getElementById('choices-q').textContent = sc.q;
-
-    const row = document.getElementById('choices-row');
-    row.innerHTML = '';
-    sc.choices.forEach(function(c) {
-      const btn = document.createElement('button');
-      btn.className = 'choice ' + c.sign;
-
-      // Video
-      btn.appendChild(makeVideoWrap(c.sign));
-
-      // Label
-      const lbl = document.createElement('div');
-      lbl.className = 'choice-label';
-      lbl.textContent = c.label;
-      btn.appendChild(lbl);
-
-      btn.onclick = function() { pickChoice(c); };
-      row.appendChild(btn);
-    });
-
-    // Move Luna up
-    document.getElementById('luna').style.bottom = '0px';
+    showChoices();
   }
 }
 
-// ===================== PICK CHOICE =====================
-function pickChoice(choice) {
-  if (state.busy) return;
-  state.busy = true;
+/* ══════════════ CHOICES ══════════════ */
+function showChoices() {
+  document.getElementById('dlg-wrap').style.display = 'none';
+  document.getElementById('choices-wrap').style.display = 'block';
+  const sc = SCENES[G.scene];
+  document.getElementById('choices-q').textContent = sc.q;
+  const row = document.getElementById('choices-row');
+  row.innerHTML = '';
+  sc.choices.forEach(c => {
+    const btn = document.createElement('button');
+    btn.className = 'choice ' + c.sign;
+    btn.appendChild(makeVideo(c.sign));
+    const lbl = document.createElement('div');
+    lbl.className = 'clbl'; lbl.textContent = c.label;
+    btn.appendChild(lbl);
+    btn.onclick = () => pick(c);
+    row.appendChild(btn);
+  });
+}
 
+/* ══════════════ PICK ══════════════ */
+function pick(choice) {
+  if (G.busy) return;
+  G.busy = true;
   const good = choice.next !== 's_no' && choice.next !== 's_no2';
-
-  // Particles
   spawnParticles(good ? 'celebrate' : 'rain');
-
-  // Unlock badge
-  if (!state.unlocked.includes(choice.label)) {
-    state.unlocked.push(choice.label);
+  if (!state_unlocked(choice.label)) {
+    G.unlocked.push(choice.label);
     renderBadges(choice.label);
   }
-
-  // XP
-  gainXP(SCENES[state.scene].xp || 0);
-
-  setTimeout(function() {
-    if (choice.next === 'end_forest' || choice.next === 'end_city') {
-      gainXP(30);
-      showEnding(choice.next);
-    } else {
-      loadScene(choice.next);
-    }
-  }, 1400);
+  addXP(SCENES[G.scene].xp || 0);
+  setTimeout(() => {
+    if (choice.next.startsWith('end_')) { addXP(30); showEnding(choice.next); }
+    else loadScene(choice.next);
+  }, 1300);
 }
+function state_unlocked(w) { return G.unlocked.includes(w); }
 
-// ===================== XP =====================
-function gainXP(n) {
+/* ══════════════ XP ══════════════ */
+function addXP(n) {
   if (!n) return;
-  state.xp += n;
-  if (state.xp >= 100 * state.level) state.level++;
-  const pct = Math.min(100, state.xp % 100);
-  document.getElementById('xp-bar').style.width = pct + '%';
-  document.getElementById('xp-label').textContent = state.xp + ' XP';
-  document.getElementById('lvl').textContent = 'LVL ' + state.level;
+  G.xp += n;
+  if (G.xp >= 100 * G.level) G.level++;
+  document.getElementById('xp-fill').style.width = Math.min(100, G.xp % 100) + '%';
+  document.getElementById('xp-num').textContent = G.xp + ' XP';
+  document.getElementById('lvl-el').textContent = 'LVL ' + G.level;
 }
 
 function renderBadges(highlight) {
   const el = document.getElementById('badges');
   el.innerHTML = '';
-  state.unlocked.forEach(function(w) {
+  G.unlocked.forEach(w => {
     const b = document.createElement('div');
     b.className = 'badge';
     b.textContent = '🔓 ' + w;
-    if (w === highlight) b.style.animation = 'none';
     el.appendChild(b);
   });
 }
 
-// ===================== PARTICLES =====================
+/* ══════════════ PARTICLES ══════════════ */
 function spawnParticles(type) {
   const el = document.getElementById('particles');
   el.innerHTML = '';
-  const colors = ['#ffd232','#ff6b6b','#4ade80','#60a5fa','#f472b6','#a78bfa'];
-  const count = type === 'celebrate' ? 20 : 12;
-  for (let i = 0; i < count; i++) {
+  const cols = ['#ffd232','#ff6b6b','#4ade80','#60a5fa','#f472b6','#a78bfa'];
+  for (let i = 0; i < (type==='celebrate'?18:10); i++) {
     const p = document.createElement('div');
-    p.className = 'p';
+    p.style.position = 'absolute';
     if (type === 'celebrate') {
-      const size = 8 + (i % 4) * 4;
-      p.style.cssText = `
-        left: ${5 + i * 4.5}%; bottom: 15%;
-        width: ${size}px; height: ${size}px;
-        border-radius: ${i % 2 === 0 ? '50%' : '3px'};
-        background: ${colors[i % 6]};
-        animation: rise 0.9s ${i * 0.04}s ease-out forwards;`;
+      const sz = 8 + (i%3)*4;
+      p.style.cssText = `left:${5+i*5}%;bottom:10%;width:${sz}px;height:${sz}px;border-radius:${i%2?'50%':'3px'};background:${cols[i%6]};animation:rise .9s ${i*.04}s ease-out forwards`;
     } else {
-      p.style.cssText = `
-        left: ${i * 8.3}%; top: -10%; font-size: ${16 + (i % 3) * 6}px;
-        animation: fall 0.85s ${i * 0.05}s linear forwards;`;
+      p.style.cssText = `left:${i*10}%;top:-5%;font-size:${16+(i%3)*4}px;animation:fall .85s ${i*.05}s linear forwards`;
       p.textContent = '💧';
     }
     el.appendChild(p);
   }
-  setTimeout(function() { el.innerHTML = ''; }, 1600);
+  setTimeout(() => el.innerHTML = '', 1500);
 }
 
-// ===================== ENDING =====================
+/* ══════════════ ENDING ══════════════ */
 function showEnding(type) {
   const forest = type === 'end_forest';
-
+  document.getElementById('scr-ending').style.background = forest
+    ? 'linear-gradient(180deg,#0c1e0e,#0a3018 60%,#0c2510)'
+    : 'linear-gradient(180deg,#020810,#050f20 60%,#0a1628)';
   document.getElementById('end-desc').textContent = forest
     ? 'She was hiding behind a great oak tree! 🌳'
     : 'She was sitting on a city rooftop! 🏙️';
-  document.getElementById('end-xp').textContent = '+' + state.xp;
-  document.getElementById('end-words').textContent = '✓ YES  ✓ NO  ✓ ' + (forest ? 'FOREST' : 'CITY');
+  document.getElementById('end-xp').textContent = '+' + G.xp;
+  document.getElementById('end-words').textContent = '✓ YES  ✓ NO  ✓ ' + (forest?'FOREST':'CITY');
   document.getElementById('end-btn').style.background = forest
-    ? 'linear-gradient(135deg, #166534, #4ade80)'
-    : 'linear-gradient(135deg, #1e3a8a, #60a5fa)';
-  document.getElementById('ending').style.background = forest
-    ? 'linear-gradient(180deg, #0d2010, #0a3018 50%, #0d2510)'
-    : 'linear-gradient(180deg, #020812, #050f20 50%, #0a1830)';
-
-  showScreen('ending');
+    ? 'linear-gradient(135deg,#166534,#4ade80)'
+    : 'linear-gradient(135deg,#1e3a8a,#60a5fa)';
+  showScreen('scr-ending');
 }
 
 function restartGame() {
-  state = { scene:'s1', lineIndex:0, xp:0, level:1, unlocked:['YES','NO'], busy:false };
-  document.getElementById('xp-bar').style.width = '0%';
-  document.getElementById('xp-label').textContent = '0 XP';
-  document.getElementById('lvl').textContent = 'LVL 1';
+  G = { scene:'s1', line:0, xp:0, level:1, unlocked:['YES','NO'], busy:false };
+  document.getElementById('xp-fill').style.width = '0%';
+  document.getElementById('xp-num').textContent = '0 XP';
+  document.getElementById('lvl-el').textContent = 'LVL 1';
   renderBadges();
   startGame();
 }
 
-// ===================== CAMERA =====================
+/* ══════════════ CAMERA ══════════════ */
 function toggleCam() {
   const view = document.getElementById('cam-view');
   const btn = document.getElementById('cam-btn');
   if (camStream) {
-    camStream.getTracks().forEach(t => t.stop());
-    camStream = null;
-    view.style.display = 'none';
-    btn.textContent = '📷 CAMERA';
+    camStream.getTracks().forEach(t => t.stop()); camStream = null;
+    view.style.display = 'none'; btn.textContent = '📷 CAMERA';
   } else {
-    navigator.mediaDevices.getUserMedia({ video: true })
-      .then(function(stream) {
-        camStream = stream;
-        document.getElementById('cam-video').srcObject = stream;
-        view.style.display = 'block';
-        view.style.top = (document.getElementById('hud').offsetHeight + 8) + 'px';
-        btn.textContent = '📷 HIDE';
-      })
-      .catch(function() { alert('Camera not available'); });
+    navigator.mediaDevices.getUserMedia({video:true}).then(s => {
+      camStream = s;
+      document.getElementById('cam-video').srcObject = s;
+      view.style.display = 'block'; btn.textContent = '📷 HIDE';
+    }).catch(() => alert('Camera not available'));
   }
 }
 
-// ===================== HELP MODAL =====================
+/* ══════════════ HELP ══════════════ */
 function openHelp() {
-  const sc = SCENES[state.scene];
+  const sc = SCENES[G.scene];
   if (!sc || !sc.choices) return;
   const el = document.getElementById('modal-signs');
   el.innerHTML = '';
-  sc.choices.forEach(function(c) {
-    const div = document.createElement('div');
-    div.className = 'modal-sign';
-    div.appendChild(makeVideoWrap(c.sign));
-    const lbl = document.createElement('div');
-    lbl.className = 'modal-sign-lbl';
-    lbl.textContent = c.label;
-    div.appendChild(lbl);
-    el.appendChild(div);
+  sc.choices.forEach(c => {
+    const div = document.createElement('div'); div.className = 'msign';
+    div.appendChild(makeVideo(c.sign));
+    const lbl = document.createElement('div'); lbl.className = 'msign-lbl'; lbl.textContent = c.label;
+    div.appendChild(lbl); el.appendChild(div);
   });
-  document.getElementById('modal').classList.add('show');
+  document.getElementById('modal').classList.add('open');
 }
+function closeHelp() { document.getElementById('modal').classList.remove('open'); }
 
-function closeHelp() {
-  document.getElementById('modal').classList.remove('show');
-}
-
-// ===================== PARTICLE ANIMATIONS (injected) =====================
-const style = document.createElement('style');
-style.textContent = `
-  @keyframes rise { 0%{transform:translateY(0) rotate(0);opacity:1} 100%{transform:translateY(-250px) rotate(540deg);opacity:0} }
-  @keyframes fall { 0%{transform:translateY(0);opacity:0} 20%{opacity:1} 100%{transform:translateY(180px);opacity:0} }
-`;
-document.head.appendChild(style);
-
-// ===================== DRAW TITLE LUNA =====================
+/* ══════════════ INIT ══════════════ */
 document.getElementById('title-luna').innerHTML = lunaHTML('wave');
 renderBadges();
 </script>
